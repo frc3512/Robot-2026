@@ -1,0 +1,43 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "toOutpostPath"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 2.0
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rotateOutpostPath"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "OutScCLPath"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Close Shoot"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "OutpostInvolved",
+  "choreoAuto": false
+}
