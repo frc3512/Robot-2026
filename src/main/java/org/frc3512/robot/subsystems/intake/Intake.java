@@ -17,6 +17,14 @@ public class Intake extends SubsystemBase {
     return runOnce(() -> io.setRollerSpeed(speed));
   }
 
+  public void setPositionDirect(IntakeConstants.IntakeState state) {
+    io.setExtensionPosition(state);
+  }
+
+  public Command setPosition(IntakeConstants.IntakeState state) {
+    return runOnce(() -> io.setExtensionPosition(state));
+  }
+
   @Override
   public void periodic() {
     io.updateInputs(inputs);

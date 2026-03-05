@@ -13,6 +13,10 @@ public class Feeder extends SubsystemBase {
     this.io = io;
   }
 
+  public void setFeederDirect(double speed) {
+    io.setFeeder(speed);
+  }
+
   public Command setFeeder(double speed) {
     return runOnce(() -> io.setFeeder(speed));
   }

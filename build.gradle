@@ -137,8 +137,8 @@ gversion {
     srcDir       = "src/main/java/"
     classPackage = "org.frc3512.robot"
     className    = "BuildConstants"
-    dateFormat   = "yyyy-MM-dd HH:mm:ss z"
-    timeZone     = "America/New_York"
+    dateFormat   = "MM-dd-yyyy HH:mm:ss z"
+    timeZone     = "America/California"
     indent       = "  "
 }
 

@@ -2,6 +2,13 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "Main",
+      "request": "launch",
+      "mainClass": "org.frc3512.robot.Main",
+      "projectName": "Robot-2026"
+    },
+    {
       "type": "wpilib",
       "name": "WPILib Desktop Debug",
       "request": "launch",

@@ -7,7 +7,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class FeederConstants {
 
-  public static final int feederMotorID = 17;
+  public static final int feederMotorID = 18;
 
   public static final TalonFXConfiguration feeder =
       new TalonFXConfiguration()

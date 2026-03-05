@@ -10,6 +10,8 @@ public class ConveyorIO_REAL implements ConveyorIO {
     hopper = new TalonFX(ConveyorConstants.hopperMotorID);
 
     hopper.getConfigurator().apply(ConveyorConstants.hopper);
+
+    hopper.optimizeBusUtilization();
   }
 
   @Override

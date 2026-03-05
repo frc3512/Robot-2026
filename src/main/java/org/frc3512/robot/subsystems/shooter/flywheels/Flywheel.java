@@ -2,6 +2,7 @@ package org.frc3512.robot.subsystems.shooter.flywheels;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import java.util.function.BooleanSupplier;
 import org.littletonrobotics.junction.Logger;
 
 public class Flywheel extends SubsystemBase {
@@ -29,8 +30,8 @@ public class Flywheel extends SubsystemBase {
     return runOnce(() -> io.stop());
   }
 
-  public boolean isVelocityWithinTolerance() {
-    return io.isVelocityWithinTolerance();
+  public BooleanSupplier isVelocityWithinTolerance() {
+    return () -> io.isVelocityWithinTolerance();
   }
 
   @Override

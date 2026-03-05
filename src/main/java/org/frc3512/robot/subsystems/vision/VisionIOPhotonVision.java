@@ -16,6 +16,8 @@ public class VisionIOPhotonVision implements VisionIO {
   protected final PhotonCamera camera;
   protected final Transform3d robotToCamera;
 
+  private boolean works = false;
+
   /**
    * Creates a new VisionIOPhotonVision.
    *
@@ -30,6 +32,8 @@ public class VisionIOPhotonVision implements VisionIO {
   @Override
   public void updateInputs(VisionIOInputs inputs) {
     inputs.connected = camera.isConnected();
+
+    inputs.visionWorks = works;
 
     // Read new camera observations
     Set<Short> tagIds = new HashSet<>();
@@ -113,6 +117,15 @@ public class VisionIOPhotonVision implements VisionIO {
     int i = 0;
     for (int id : tagIds) {
       inputs.tagIds[i++] = id;
+    }
+  }
+
+  @Override
+  public void makeWork(boolean shouldWork) {
+    if (shouldWork) {
+      works = true;
+    } else {
+      works = false;
     }
   }
 }

@@ -10,10 +10,10 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class HoodConstants {
 
-  public static final int motorID = 0;
+  public static final int motorID = 19;
 
-  public static final double kP = 0.1;
-  public static final double kI = 0.0;
+  public static final double kP = 80;
+  public static final double kI = 1;
   public static final double kD = 0.0;
 
   public static final double positionTolerance = 1; // Degrees
@@ -22,14 +22,14 @@ public class HoodConstants {
       new TalonFXConfiguration()
           .withMotorOutput(
               new MotorOutputConfigs()
-                  .withInverted(InvertedValue.CounterClockwise_Positive)
+                  .withInverted(InvertedValue.Clockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
           .withSlot0(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD))
           .withCurrentLimits(
-                new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(40)
-                    .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(20)
-                    .withSupplyCurrentLimitEnable(true))
-          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(100.0 / 1.0));
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(40)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(20)
+                  .withSupplyCurrentLimitEnable(true))
+          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(112.5 / 1.0));
 }

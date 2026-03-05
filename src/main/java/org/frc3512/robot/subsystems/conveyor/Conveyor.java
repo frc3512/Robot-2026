@@ -13,6 +13,10 @@ public class Conveyor extends SubsystemBase {
     this.io = io;
   }
 
+  public void setHopperDirect(double speed) {
+    io.setHopper(speed);
+  }
+
   public Command setHopper(double speed) {
     return runOnce(() -> io.setHopper(speed));
   }

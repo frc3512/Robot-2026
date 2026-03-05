@@ -59,6 +59,9 @@ public class Robot extends LoggedRobot {
   @Override
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
+
+    robotContainer.runLedLogic();
+    robotContainer.checkHubStateChange();
   }
 
   @Override
@@ -74,6 +77,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
+
+    robotContainer.hubTimer.start();
   }
 
   @Override
@@ -84,6 +89,8 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       autonomousCommand.cancel();
     }
+
+    robotContainer.reset();
   }
 
   @Override

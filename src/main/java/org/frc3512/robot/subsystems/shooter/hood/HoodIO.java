@@ -9,6 +9,8 @@ public interface HoodIO {
     public double position = 0.0;
     public double appliedVolts = 0.0;
     public double positionSetpoint = 0.0;
+
+    public boolean isAtTarget = false;
   }
 
   public default void updateInputs(HoodIOInputs inputs) {}
