@@ -1,7 +1,6 @@
 package org.frc3512.robot.subsystems.climber;
 
 import com.ctre.phoenix6.hardware.TalonFX;
-
 import edu.wpi.first.wpilibj.DigitalInput;
 
 public class ClimberIO_REAL implements ClimberIO {

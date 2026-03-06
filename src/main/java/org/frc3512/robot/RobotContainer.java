@@ -1,5 +1,18 @@
 package org.frc3512.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.frc3512.robot.commands.DriveCommands;
 import org.frc3512.robot.commands.ShootAndMove;
 import org.frc3512.robot.subsystems.climber.Climber;
@@ -42,20 +55,6 @@ import org.frc3512.robot.subsystems.vision.VisionIOPhotonVision;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
-
-import com.pathplanner.lib.auto.AutoBuilder;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
   // Subsystems
@@ -182,6 +181,12 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
+    NamedCommands.registerCommand("Intake", intake.setRollerSpeed(prefire));
+    NamedCommands.registerCommand("Shoot", autoShoot());
+    NamedCommands.registerCommand("StopShoot", reset());
+    NamedCommands.registerCommand("PrepShoot", idle());
+
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // Configure the button bindings
@@ -233,7 +238,7 @@ public class RobotContainer {
     // Change to auto climb once we have tested the motor and limits
     // controller.y().onTrue(climber.raiseClimber());
     // controller.a().onTrue(climber.climb());
-    
+
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
   }
