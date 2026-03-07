@@ -166,12 +166,7 @@ public class ShootAndMove extends Command {
 
     // 1. LATENCY COMP
     double latency = 0.15; // Tuned constant
-    Translation2d futurePos =
-        robotPose
-            .getTranslation()
-            .plus(
-                new Translation2d(robotSpeed.vxMetersPerSecond, robotSpeed.vyMetersPerSecond)
-                    .times(latency));
+    Translation2d futurePos = robotPose.getTranslation().plus(robotVelocityField.times(latency));
 
     // 2. GET TARGET VECTOR
     Translation2d goalLocation = Constants.FieldConstants.hubPosition();
