@@ -539,22 +539,22 @@ public class RobotContainer {
         case 'B':
           if (DriverStation.getAlliance().get() == Alliance.Blue) {
             return (timer <= 10
-                || (timer >= (40 - prefire) && timer <= 70)
-                || (timer >= (100 - prefire) && timer <= 161));
+                || (timer >= (35 - prefire) && timer <= 60)
+                || (timer >= (85 - prefire)));
           } else {
-            return (timer <= 40)
-                || (timer >= (70 - prefire) && timer <= 100)
-                || (timer >= (130 - prefire) && timer <= 161);
+            return (timer <= 35)
+                || (timer >= (60 - prefire) && timer <= 85)
+                || (timer >= (110 - prefire));
           }
         case 'R':
           if (DriverStation.getAlliance().get() == Alliance.Red) {
-            return (timer <= 10
-                || (timer >= (40 - prefire) && timer <= 70)
-                || (timer >= (100 - prefire) && timer <= 161));
+            return (timer <= 35)
+                || (timer >= (60 - prefire) && timer <= 85)
+                || (timer >= (110 - prefire));
           } else {
-            return (timer <= 40)
-                || (timer >= (70 - prefire) && timer <= 100)
-                || (timer >= (130 - prefire) && timer <= 161);
+            return (timer <= 10
+                || (timer >= (35 - prefire) && timer <= 60)
+                || (timer >= (85 - prefire)));
           }
 
         default:

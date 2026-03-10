@@ -77,8 +77,6 @@ public class Robot extends LoggedRobot {
     if (autonomousCommand != null) {
       CommandScheduler.getInstance().schedule(autonomousCommand);
     }
-
-    robotContainer.hubTimer.start();
   }
 
   @Override
@@ -91,6 +89,9 @@ public class Robot extends LoggedRobot {
     }
 
     robotContainer.reset();
+
+    robotContainer.hubTimer.reset();
+    robotContainer.hubTimer.start();
   }
 
   @Override

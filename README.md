@@ -18,4 +18,4 @@ Version Management (V.U.R)
 
 This repo is for experimentation and verification: keep it organized, documented, and fast to run so prototypes can be iterated efficiently.
 
-Current Version: 1.0.0
+Current Version: 1.1.1
