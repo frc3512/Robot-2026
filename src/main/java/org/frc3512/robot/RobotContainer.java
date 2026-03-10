@@ -1,6 +1,7 @@
 package org.frc3512.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -180,6 +181,13 @@ public class RobotContainer {
         break;
     }
 
+    NamedCommands.registerCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
+    NamedCommands.registerCommand("Intake", intake());
+    NamedCommands.registerCommand("Shoot", autonShoot());
+    NamedCommands.registerCommand("StopShoot", reset());
+    NamedCommands.registerCommand("PrepShoot", idle());
+    NamedCommands.registerCommand("Climb", climber.climb());
+
     autoChooser = AutoBuilder.buildAutoChooser();
 
     // Configure the button bindings
@@ -226,14 +234,14 @@ public class RobotContainer {
     controller.rightBumper().whileTrue(ferry()).onFalse(idle());
 
     // Climber Controls
-    controller.y().onTrue(climber.setClimber(0.4)).onFalse(climber.setClimber(0.0));
-    controller.a().onTrue(climber.setClimber(0.4)).onFalse(climber.setClimber(0.0));
-    // Change to auto climb once we have tested the motor and limits
-    // controller.y().onTrue(climber.raiseClimber());
-    // controller.a().onTrue(climber.climb());
+    controller.y().onTrue(climber.raiseClimber());
+    controller.a().onTrue(climber.climb());
 
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
+
+    // Dump Fuel
+    controller.povUp().onTrue(dump()).onFalse(idle());
   }
 
   // --- Begin Telop Commands ---
@@ -254,6 +262,8 @@ public class RobotContainer {
         flywheel.setRPM(0.0),
         // Bring Down Hood
         hood.setPosition(0),
+        // Stow Climber
+        climber.raiseClimber(),
         // Log action
         logMessage("Reseting Robot"),
         logMessage(
@@ -268,8 +278,6 @@ public class RobotContainer {
     return Commands.sequence(
         // Update state
         Commands.runOnce(() -> currentState = RobotStates.INTAKING),
-        // Kill flywheel to allow more power to intake
-        flywheel.setRPM(0),
         // Run intake rollers and extend
         intake.setPosition(IntakeState.EXTEND),
         intake.setRollerSpeed(0.90),
@@ -288,13 +296,13 @@ public class RobotContainer {
         Commands.runOnce(() -> currentState = RobotStates.IDLING),
         // Stop Intake and bring it in
         intake.setRollerSpeed(0),
-        intake.setPosition(IntakeState.AGITATE),
+        intake.setPosition(IntakeState.EXTEND),
         // Stop Conveyor
         conveyor.setHopper(0.0),
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(250),
+        flywheel.setRPM(2000),
         hood.setPosition(5),
         // Log action
         logMessage("Idling"));
@@ -311,7 +319,7 @@ public class RobotContainer {
         conveyor.setHopper(0.0),
         feeder.setFeeder(0.0),
         // Being speeding up flywheel
-        flywheel.setRPM(750),
+        flywheel.setRPM(2000),
         // Log action
         logMessage("Preping for shot"));
   }
@@ -342,28 +350,6 @@ public class RobotContainer {
         this::isHubActive);
   }
 
-  public Command shootNear() {
-    return Commands.sequence(
-        // Setup hood and flywheel for a close shot
-        hood.setPosition(4),
-        flywheel.setRPM(2400),
-        // Log action
-        logMessage("Preping Close Shot"),
-        // Execute
-        shoot());
-  }
-
-  public Command shootFar() {
-    return Commands.sequence(
-        // Setup hood and flywheel for a further shot
-        hood.setPosition(10),
-        flywheel.setRPM(2800),
-        // Log action
-        logMessage("Preping Tower Shot"),
-        // Execute
-        shoot());
-  }
-
   public Command shoot() {
     return Commands.sequence(
         // Begin feeding balls
@@ -385,6 +371,25 @@ public class RobotContainer {
         intake.setPosition(IntakeState.AGITATE));
   }
 
+  public Command autonShoot() {
+    return Commands.sequence(
+            // Check if the hub is active before shooting, if not wait until it is
+            Commands.waitUntil(this::isHubActive),
+            // Update state
+            Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
+            // Engage Shooting systems
+            new ShootAndMove(
+                drive,
+                flywheel,
+                hood,
+                conveyor,
+                feeder,
+                intake,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX()))
+        .withTimeout(5.0);
+  }
+
   // Ferry from mid to our zone
   public Command ferry() {
     return Commands.sequence(
@@ -397,9 +402,9 @@ public class RobotContainer {
             //     () -> -controller.getLeftX(),
             //     () -> Rotation2d.k180deg),
             // Set hood to max
-            hood.setPosition(20),
+            hood.setPosition(22),
             // Spin flyhweels at a slower speed
-            flywheel.setRPM(3000),
+            flywheel.setRPM(3300),
             // Allow spin-up time
             Commands.waitSeconds(1),
             // Feed into the shooter
@@ -415,6 +420,17 @@ public class RobotContainer {
             intake.setPosition(IntakeState.AGITATE),
             Commands.waitSeconds(0.25))
         .repeatedly();
+  }
+
+  public Command dump() {
+    return Commands.sequence(
+        // Setup intake
+        intake.setPosition(IntakeState.EXTEND),
+        intake.setRollerSpeed(-0.75),
+        // Dump Conveyor
+        conveyor.setHopper(-0.5),
+        // Empty Feeder
+        feeder.setFeeder(-0.5));
   }
 
   // --- Begin Auto Code ---
