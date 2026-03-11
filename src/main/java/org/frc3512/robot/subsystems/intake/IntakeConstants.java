@@ -32,7 +32,7 @@ public class IntakeConstants {
               new MotorOutputConfigs()
                   .withInverted(InvertedValue.CounterClockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
-          .withSlot0(new Slot0Configs().withKP(3))
+          .withSlot0(new Slot0Configs().withKP(12))
           .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
