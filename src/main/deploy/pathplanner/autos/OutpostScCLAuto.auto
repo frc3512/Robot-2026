@@ -5,6 +5,12 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "Hopper"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "toOutpostPath"
@@ -17,9 +23,27 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "PrepShoot"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "rotateOutpostPath"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopShoot"
           }
         },
         {
@@ -31,7 +55,7 @@
         {
           "type": "named",
           "data": {
-            "name": "Shoot"
+            "name": "Climb"
           }
         }
       ]

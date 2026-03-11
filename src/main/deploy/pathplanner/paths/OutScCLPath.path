@@ -20,8 +20,8 @@
         "y": 3.6743855421686753
       },
       "prevControl": {
-        "x": 4.504282325029656,
-        "y": 5.18085409252669
+        "x": 2.6674997763681394,
+        "y": 6.0900250271094
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,7 +42,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -1.8073951495865712
+    "rotation": -6.3836347891906255
   },
   "reversed": false,
   "folder": "outpostFolder",

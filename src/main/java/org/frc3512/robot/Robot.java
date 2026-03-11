@@ -60,7 +60,6 @@ public class Robot extends LoggedRobot {
   public void robotPeriodic() {
     CommandScheduler.getInstance().run();
 
-    robotContainer.runLedLogic();
     robotContainer.checkHubStateChange();
   }
 

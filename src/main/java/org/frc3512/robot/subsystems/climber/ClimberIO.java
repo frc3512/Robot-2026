@@ -1,5 +1,6 @@
 package org.frc3512.robot.subsystems.climber;
 
+import edu.wpi.first.wpilibj2.command.Command;
 import org.littletonrobotics.junction.AutoLog;
 
 public interface ClimberIO {
@@ -19,7 +20,11 @@ public interface ClimberIO {
 
   public default void setClimber(double speed) {}
 
-  public default void lowerClimber() {}
+  public default Command lowerClimber() {
+    return null;
+  }
 
-  public default void raiseClimber() {}
+  public default Command raiseClimber() {
+    return null;
+  }
 }

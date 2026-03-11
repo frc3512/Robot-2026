@@ -262,8 +262,6 @@ public class RobotContainer {
         flywheel.setRPM(0.0),
         // Bring Down Hood
         hood.setPosition(0),
-        // Stow Climber
-        climber.raiseClimber(),
         // Log action
         logMessage("Reseting Robot"),
         logMessage(

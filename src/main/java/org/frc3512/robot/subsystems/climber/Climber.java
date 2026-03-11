@@ -18,11 +18,11 @@ public class Climber extends SubsystemBase {
   }
 
   public Command climb() {
-    return runOnce(() -> io.lowerClimber());
+    return io.lowerClimber();
   }
 
   public Command raiseClimber() {
-    return runOnce(() -> io.raiseClimber());
+    return io.raiseClimber();
   }
 
   @Override

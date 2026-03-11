@@ -2,6 +2,8 @@ package org.frc3512.robot.subsystems.climber;
 
 import com.ctre.phoenix6.hardware.TalonFX;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 
 public class ClimberIO_REAL implements ClimberIO {
 
@@ -32,22 +34,19 @@ public class ClimberIO_REAL implements ClimberIO {
   }
 
   @Override
-  public void raiseClimber() {
-    if (canRaiseClimber()) {
-      // Tune Speed
-      climber.set(0.5);
-    } else {
-      climber.set(0.0);
-    }
+  public Command raiseClimber() {
+    return Commands.sequence(
+        Commands.runOnce(() -> setClimber(0.5)),
+        Commands.waitUntil(() -> !canRaiseClimber()),
+        Commands.runOnce(() -> setClimber(0.0)));
   }
 
   @Override
-  public void lowerClimber() {
-    if (canLowerClimber()) {
-      climber.set(-0.5);
-    } else {
-      climber.set(0);
-    }
+  public Command lowerClimber() {
+    return Commands.sequence(
+        Commands.runOnce(() -> setClimber(-0.5)),
+        Commands.waitUntil(() -> !canLowerClimber()),
+        Commands.runOnce(() -> setClimber(0.0)));
   }
 
   @Override
