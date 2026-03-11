@@ -32,8 +32,14 @@ public class IntakeConstants {
               new MotorOutputConfigs()
                   .withInverted(InvertedValue.CounterClockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
-          .withSlot0(new Slot0Configs().withKP(14))
-          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0));
+          .withSlot0(new Slot0Configs().withKP(3))
+          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimitEnable(true));
 
   public static enum IntakeState {
     // Position values in rotations of motor
