@@ -181,14 +181,24 @@ public class RobotContainer {
         break;
     }
 
-    NamedCommands.registerCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
-    NamedCommands.registerCommand("Intake", intake());
-    NamedCommands.registerCommand("Shoot", autonShoot());
-    NamedCommands.registerCommand("StopShoot", reset());
-    NamedCommands.registerCommand("PrepShoot", idle());
-    NamedCommands.registerCommand("Climb", climber.climb());
+    registerNamedCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
+    registerNamedCommand("Intake", intake());
+    registerNamedCommand("Shoot", autonShoot());
+    registerNamedCommand("StopShoot", reset());
+    registerNamedCommand("PrepShoot", idle());
+    registerNamedCommand(
+        "Climb", Commands.defer(() -> safeCommand(climber.climb()), java.util.Set.of()));
 
-    autoChooser = AutoBuilder.buildAutoChooser();
+    try {
+      autoChooser = AutoBuilder.buildAutoChooser();
+    } catch (Exception e) {
+      DriverStation.reportError(
+          "Failed to build PathPlanner auto chooser. Check NamedCommands vs .auto files: "
+              + e.getMessage(),
+          e.getStackTrace());
+      autoChooser = new SendableChooser<>();
+      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
+    }
 
     // Configure the button bindings
     configureButtonBindings();
@@ -234,14 +244,27 @@ public class RobotContainer {
     controller.rightBumper().whileTrue(ferry()).onFalse(idle());
 
     // Climber Controls
-    controller.y().onTrue(climber.raiseClimber());
-    controller.a().onTrue(climber.climb());
+    controller.y().onTrue(safeCommand(climber.raiseClimber()));
+    controller.a().onTrue(safeCommand(climber.climb()));
 
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
 
     // Dump Fuel
     controller.povUp().onTrue(dump()).onFalse(idle());
+  }
+
+  private void registerNamedCommand(String name, Command command) {
+    NamedCommands.registerCommand(name, safeCommand(command));
+  }
+
+  private Command safeCommand(Command command) {
+    if (command == null) {
+      DriverStation.reportError(
+          "Named command resolved to null. Using Commands.none() fallback.", false);
+      return Commands.none();
+    }
+    return command;
   }
 
   // --- Begin Telop Commands ---

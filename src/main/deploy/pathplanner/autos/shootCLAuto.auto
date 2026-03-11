@@ -15,12 +15,6 @@
           "data": {
             "pathName": "climbfrCenter"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
-          }
         }
       ]
     }

@@ -9,12 +9,6 @@
           "data": {
             "pathName": "toTowerPath"
           }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": null
-          }
         }
       ]
     }
