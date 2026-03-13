@@ -189,6 +189,7 @@ public class RobotContainer {
     registerNamedCommand("PrepShoot", idle());
     registerNamedCommand(
         "Climb", Commands.defer(() -> safeCommand(climber.climb()), java.util.Set.of()));
+    registerNamedCommand("MidShoot", shootRaw(12, 3050));
 
     new EventTrigger("PrepIntake");
 
