@@ -9,7 +9,7 @@
         "containers": [
           {
             "title": "MatchTime",
-            "x": 768.0,
+            "x": 448.0,
             "y": 0.0,
             "width": 512.0,
             "height": 448.0,
@@ -19,7 +19,7 @@
               "period": 0.033,
               "data_type": "double",
               "time_display_mode": "Minutes and Seconds",
-              "red_start_time": 10,
+              "red_start_time": 15,
               "yellow_start_time": 30
             }
           },
@@ -145,7 +145,7 @@
           },
           {
             "title": "Robot State",
-            "x": 448.0,
+            "x": 960.0,
             "y": 0.0,
             "width": 320.0,
             "height": 192.0,
@@ -170,72 +170,27 @@
             }
           },
           {
-            "title": "Flywheel Ready",
-            "x": 0.0,
+            "title": "Aimed At Hub",
+            "x": 960.0,
             "y": 192.0,
-            "width": 256.0,
-            "height": 128.0,
+            "width": 320.0,
+            "height": 256.0,
             "type": "Boolean Box",
             "properties": {
-              "topic": "/AdvantageKit/Flywheel/IsVelocityWithinTolerance",
+              "topic": "/AdvantageKit/RealOutputs/Robot/AimedAtHub",
               "period": 0.06,
               "data_type": "boolean",
               "true_color": 4283215696,
               "false_color": 4294198070,
-              "true_icon": "Checkmark",
-              "false_icon": "X"
-            }
-          },
-          {
-            "title": "RpmSetpoint",
-            "x": 256.0,
-            "y": 192.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/Flywheel/RpmSetpoint",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
-            }
-          },
-          {
-            "title": "Hood Ready",
-            "x": 0.0,
-            "y": 320.0,
-            "width": 256.0,
-            "height": 128.0,
-            "type": "Boolean Box",
-            "properties": {
-              "topic": "/AdvantageKit/Hood/IsAtTarget",
-              "period": 0.06,
-              "data_type": "boolean",
-              "true_color": 4283215696,
-              "false_color": 4294198070,
-              "true_icon": "Checkmark",
-              "false_icon": "X"
-            }
-          },
-          {
-            "title": "PositionSetpoint",
-            "x": 256.0,
-            "y": 320.0,
-            "width": 192.0,
-            "height": 128.0,
-            "type": "Text Display",
-            "properties": {
-              "topic": "/AdvantageKit/Hood/PositionSetpoint",
-              "period": 0.06,
-              "data_type": "double",
-              "show_submit_button": false
+              "true_icon": "None",
+              "false_icon": "None"
             }
           },
           {
             "title": "Hub Active",
-            "x": 448.0,
+            "x": 0.0,
             "y": 192.0,
-            "width": 320.0,
+            "width": 448.0,
             "height": 256.0,
             "type": "Boolean Box",
             "properties": {
@@ -652,16 +607,67 @@
             }
           },
           {
-            "title": "Command Log",
+            "title": "CanLowerClimber",
             "x": 576.0,
             "y": 320.0,
-            "width": 512.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Climber/CanLowerClimber",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "CanRaiseClimber",
+            "x": 704.0,
+            "y": 320.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/Climber/CanRaiseClimber",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "AimedAtHub",
+            "x": 832.0,
+            "y": 320.0,
+            "width": 128.0,
+            "height": 128.0,
+            "type": "Boolean Box",
+            "properties": {
+              "topic": "/AdvantageKit/RealOutputs/Robot/AimedAtHub",
+              "period": 0.06,
+              "data_type": "boolean",
+              "true_color": 4283215696,
+              "false_color": 4294198070,
+              "true_icon": "None",
+              "false_icon": "None"
+            }
+          },
+          {
+            "title": "Distance_Filtered_m",
+            "x": 960.0,
+            "y": 320.0,
+            "width": 128.0,
             "height": 128.0,
             "type": "Text Display",
             "properties": {
-              "topic": "/AdvantageKit/RealOutputs/Robot/Command Log",
+              "topic": "/AdvantageKit/RealOutputs/ShootAndMove/Distance_Filtered_m",
               "period": 0.06,
-              "data_type": "string",
+              "data_type": "double",
               "show_submit_button": false
             }
           }

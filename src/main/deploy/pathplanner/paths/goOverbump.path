@@ -52,7 +52,19 @@
   ],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "PrepIntake",
+      "waypointRelativePos": 1.5748031496063057,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -66,7 +78,7 @@
     "rotation": -45.0
   },
   "reversed": false,
-  "folder": null,
+  "folder": "NZFolder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -0.735308522774759

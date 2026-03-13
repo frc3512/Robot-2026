@@ -36,9 +36,9 @@ public class IntakeConstants {
           .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimit(100)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimit(40)
                   .withSupplyCurrentLimitEnable(true));
 
   public static enum IntakeState {

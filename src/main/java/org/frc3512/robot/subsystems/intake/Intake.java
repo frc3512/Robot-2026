@@ -13,6 +13,10 @@ public class Intake extends SubsystemBase {
     this.io = io;
   }
 
+  public void setRollerDirect(double speed) {
+    io.setRollerSpeed(speed);
+  }
+
   public Command setRollerSpeed(double speed) {
     return runOnce(() -> io.setRollerSpeed(speed));
   }

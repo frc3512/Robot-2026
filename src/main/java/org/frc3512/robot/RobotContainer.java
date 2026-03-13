@@ -2,6 +2,7 @@ package org.frc3512.robot;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -188,6 +189,8 @@ public class RobotContainer {
     registerNamedCommand("PrepShoot", idle());
     registerNamedCommand(
         "Climb", Commands.defer(() -> safeCommand(climber.climb()), java.util.Set.of()));
+
+    new EventTrigger("PrepIntake");
 
     try {
       autoChooser = AutoBuilder.buildAutoChooser();
@@ -432,7 +435,7 @@ public class RobotContainer {
             feeder.setFeeder(0.9),
             conveyor.setHopper(0.75),
             // Wait for a little bit of room
-            Commands.waitSeconds(1),
+            Commands.waitSeconds(0.5),
             // Log action
             logMessage("Ferrying fuel to zone"))
         .andThen(

@@ -36,7 +36,7 @@ public class ShootAndMove extends Command {
   // Suppress micro-corrections when the robot is already within 1.5° of the target heading.
   // Pose-estimator noise can produce sub-degree phantom errors that cause constant small
   // oscillations; this deadband prevents the PID from reacting to them.
-  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(1.5);
+  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2.5);
 
   // Approximate horizontal speed of the ball in flight (m/s).
   // Used to estimate ball flight time for moving-while-shooting compensation.
@@ -108,18 +108,18 @@ public class ShootAndMove extends Command {
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // ( DISTANCE (m) || RPM )
-    RPM_TABLE.put(1.25, 2400.0);
-    RPM_TABLE.put(1.88, 2700.0);
-    RPM_TABLE.put(2.21, 2900.0);
-    RPM_TABLE.put(3.07, 3050.0);
-    RPM_TABLE.put(4.29, 3350.0);
+    RPM_TABLE.put(1.25, 2500.0);
+    RPM_TABLE.put(1.88, 2800.0);
+    RPM_TABLE.put(2.21, 2950.0);
+    RPM_TABLE.put(3.07, 3200.0);
+    RPM_TABLE.put(4.29, 3400.0);
     RPM_TABLE.put(6.33, 3800.0);
 
     // ( DISTANCE (m) || HOOD ANGLE (degrees) )
-    ANGLE_TABLE.put(1.25, 4.0);
-    ANGLE_TABLE.put(1.88, 8.0);
+    ANGLE_TABLE.put(1.25, 7.0);
+    ANGLE_TABLE.put(1.88, 9.0);
     ANGLE_TABLE.put(2.21, 11.0);
-    ANGLE_TABLE.put(3.07, 12.0);
+    ANGLE_TABLE.put(3.07, 13.0);
     ANGLE_TABLE.put(4.29, 15.0);
     ANGLE_TABLE.put(6.33, 20.0);
 
@@ -265,9 +265,10 @@ public class ShootAndMove extends Command {
     // Phase 1 — start feeding as soon as the robot is aimed at the hub.
     // The feeder and hopper are started once and left running; the motor
     // controllers hold the last duty-cycle setpoint until told otherwise.
-    if (aimedAtHub && !feedingStarted) {
+    if (aimedAtHub && !feedingStarted && flywheel.isVelocityWithinTolerance()) {
       feeder.setFeederDirect(0.85);
       hopper.setHopperDirect(0.65);
+      intake.setRollerDirect(0.5);
       feedingStarted = true;
       feedingTimer.restart();
     }
@@ -293,11 +294,12 @@ public class ShootAndMove extends Command {
   public void end(boolean interrupted) {
     drive.stop();
     // Stop flywheel and set hood to lowered position for safety.
-    flywheel.setRPMDirect(0.0);
+    flywheel.setRPMDirect(2000.0);
     hood.setPositionDirect(2);
     // Stop feeder and hopper.
     feeder.setFeederDirect(0.0);
     hopper.setHopperDirect(0.0);
+    intake.setRollerDirect(0.0);
     // Stow the intake so it isn't left dangling in an extended position.
     intake.setPositionDirect(IntakeConstants.IntakeState.STOWED);
   }

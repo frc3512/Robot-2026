@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 9.679674698795184,
-        "y": 3.0952168674698806
+        "x": 7.689003558718861,
+        "y": 2.8568683274021347
       },
       "isLocked": false,
       "linkedName": null
@@ -21,7 +21,7 @@
       },
       "prevControl": {
         "x": 8.95844578313253,
-        "y": 1.2156506024096398
+        "y": 1.21565060240964
       },
       "nextControl": null,
       "isLocked": false,
@@ -59,7 +59,7 @@
     "rotation": -79.011
   },
   "reversed": false,
-  "folder": null,
+  "folder": "NZFolder",
   "idealStartingState": {
     "velocity": 8.0,
     "rotation": -45.0

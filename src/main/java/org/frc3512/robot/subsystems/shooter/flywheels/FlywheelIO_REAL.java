@@ -10,7 +10,7 @@ import java.util.List;
 
 // Credit to the 2026 WCP CC for the majority of this code
 public class FlywheelIO_REAL implements FlywheelIO {
-  private static final AngularVelocity kVelocityTolerance = RPM.of(150);
+  private static final AngularVelocity kVelocityTolerance = RPM.of(75);
 
   private final TalonFX leftMotor, middleMotor, rightMotor;
   private final List<TalonFX> motors;

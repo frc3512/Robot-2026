@@ -1,5 +1,6 @@
 package org.frc3512.robot.subsystems.conveyor;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -14,5 +15,11 @@ public class ConveyorConstants {
           .withMotorOutput(
               new MotorOutputConfigs()
                   .withInverted(InvertedValue.CounterClockwise_Positive)
-                  .withNeutralMode(NeutralModeValue.Coast));
+                  .withNeutralMode(NeutralModeValue.Coast))
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(60)
+                  .withSupplyCurrentLimitEnable(true));
 }

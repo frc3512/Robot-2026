@@ -35,7 +35,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.5
+                  "waitTime": 1.2
                 }
               }
             ]
@@ -45,6 +45,25 @@
           "type": "named",
           "data": {
             "name": "StopShoot"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "NZClimb"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Climb"
+                }
+              }
+            ]
           }
         }
       ]
