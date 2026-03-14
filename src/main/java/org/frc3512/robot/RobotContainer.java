@@ -1,19 +1,5 @@
 package org.frc3512.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.events.EventTrigger;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.frc3512.robot.commands.DriveCommands;
 import org.frc3512.robot.commands.ShootAndMove;
 import org.frc3512.robot.subsystems.climber.Climber;
@@ -36,7 +22,6 @@ import org.frc3512.robot.subsystems.intake.IntakeConstants.IntakeState;
 import org.frc3512.robot.subsystems.intake.IntakeIO;
 import org.frc3512.robot.subsystems.intake.IntakeIO_REAL;
 import org.frc3512.robot.subsystems.intake.IntakeIO_SIM;
-import org.frc3512.robot.subsystems.led.Leds;
 import org.frc3512.robot.subsystems.shooter.feeder.Feeder;
 import org.frc3512.robot.subsystems.shooter.feeder.FeederIO;
 import org.frc3512.robot.subsystems.shooter.feeder.FeederIO_REAL;
@@ -57,6 +42,22 @@ import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -67,8 +68,6 @@ public class RobotContainer {
   private final Conveyor conveyor;
   private final Feeder feeder;
   private final Climber climber;
-
-  private final Leds leds = Leds.getInstance();
 
   // Timer for Hub Activity
   public Timer hubTimer = new Timer();
@@ -418,33 +417,34 @@ public class RobotContainer {
   // Ferry from mid to our zone
   public Command ferry() {
     return Commands.sequence(
-            // Update state
-            Commands.runOnce(() -> currentState = RobotStates.FERRYING),
-            // Point at drive station
-            // DriveCommands.joystickDriveAtAngle(
-            //     drive,
-            //     () -> -controller.getLeftY(),
-            //     () -> -controller.getLeftX(),
-            //     () -> Rotation2d.k180deg),
-            // Set hood to max
-            hood.setPosition(22),
-            // Spin flyhweels at a slower speed
-            flywheel.setRPM(3300),
-            // Allow spin-up time
-            Commands.waitSeconds(1),
-            // Feed into the shooter
-            feeder.setFeeder(0.9),
-            conveyor.setHopper(0.75),
-            // Wait for a little bit of room
-            Commands.waitSeconds(0.5),
-            // Log action
-            logMessage("Ferrying fuel to zone"))
-        .andThen(
-            intake.setPosition(IntakeState.EXTEND),
-            Commands.waitSeconds(0.25),
-            intake.setPosition(IntakeState.AGITATE),
-            Commands.waitSeconds(0.25))
-        .repeatedly();
+        // Update state
+        Commands.runOnce(() -> currentState = RobotStates.FERRYING),
+        // Point at drive station
+        // DriveCommands.joystickDriveAtAngle(
+        //     drive,
+        //     () -> -controller.getLeftY(),
+        //     () -> -controller.getLeftX(),
+        //     () -> Rotation2d.k180deg),
+        // Set hood to max
+        hood.setPosition(22),
+        // Spin flyhweels at a slower speed
+        flywheel.setRPM(3300),
+        // Allow spin-up time
+        Commands.waitSeconds(1),
+        // Feed into the shooter
+        feeder.setFeeder(0.9),
+        conveyor.setHopper(0.75),
+        // Wait for a little bit of room
+        Commands.waitSeconds(0.5),
+        // Log action
+        logMessage("Ferrying fuel to zone"),
+        // Agitate intake repeatedly until command is cancelled
+        Commands.sequence(
+                intake.setPosition(IntakeState.EXTEND),
+                Commands.waitSeconds(0.25),
+                intake.setPosition(IntakeState.AGITATE),
+                Commands.waitSeconds(0.25))
+            .repeatedly());
   }
 
   public Command dump() {
@@ -525,31 +525,31 @@ public class RobotContainer {
   }
 
   // --- Logic ---
-  public void runLedLogic() {
-    switch (currentState) {
-      case STOWED:
-        leds.setPattern(leds.white);
-        break;
-      case IDLING:
-        leds.setPattern(leds.red);
-        break;
-      case INTAKING:
-        leds.setPattern(leds.orange);
-        break;
-      case PREPING_SHOT:
-        leds.setPattern(leds.yellow);
-        break;
-      case SHOOTING:
-        leds.setPattern(leds.green);
-        break;
-      case MANUAL_SHOOTONG:
-        leds.setPattern(leds.green);
-        break;
-      case FERRYING:
-        leds.setPattern(leds.purple);
-        break;
-    }
-  }
+  // public void runLedLogic() {
+  //   switch (currentState) {
+  //     case STOWED:
+  //       leds.setPattern(leds.white);
+  //       break;
+  //     case IDLING:
+  //       leds.setPattern(leds.red);
+  //       break;
+  //     case INTAKING:
+  //       leds.setPattern(leds.orange);
+  //       break;
+  //     case PREPING_SHOT:
+  //       leds.setPattern(leds.yellow);
+  //       break;
+  //     case SHOOTING:
+  //       leds.setPattern(leds.green);
+  //       break;
+  //     case MANUAL_SHOOTONG:
+  //       leds.setPattern(leds.green);
+  //       break;
+  //     case FERRYING:
+  //       leds.setPattern(leds.purple);
+  //       break;
+  //   }
+  // }
 
   // Hub activity logic,
   // returns a boolean that can be used to check if
