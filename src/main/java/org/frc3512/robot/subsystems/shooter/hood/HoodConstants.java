@@ -27,7 +27,7 @@ public class HoodConstants {
           .withSlot0(new Slot0Configs().withKP(kP).withKI(kI).withKD(kD))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(40)
+                  .withStatorCurrentLimit(20)
                   .withStatorCurrentLimitEnable(true)
                   .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true))

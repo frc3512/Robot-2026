@@ -21,8 +21,8 @@ public class ClimberConstants {
                   .withNeutralMode(NeutralModeValue.Brake))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimit(50)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(40)
+                  .withSupplyCurrentLimit(30)
                   .withSupplyCurrentLimitEnable(true));
 }

@@ -1,11 +1,21 @@
 package org.frc3512.robot;
 
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import org.frc3512.robot.commands.DriveCommands;
 import org.frc3512.robot.commands.ShootAndMove;
-import org.frc3512.robot.subsystems.climber.Climber;
-import org.frc3512.robot.subsystems.climber.ClimberIO;
-import org.frc3512.robot.subsystems.climber.ClimberIO_REAL;
-import org.frc3512.robot.subsystems.climber.ClimberIO_SIM;
 import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO_REAL;
@@ -42,22 +52,6 @@ import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.events.EventTrigger;
-
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -67,7 +61,6 @@ public class RobotContainer {
   private final Intake intake;
   private final Conveyor conveyor;
   private final Feeder feeder;
-  private final Climber climber;
 
   // Timer for Hub Activity
   public Timer hubTimer = new Timer();
@@ -126,7 +119,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_REAL());
         hood = new Hood(new HoodIO_REAL());
         feeder = new Feeder(new FeederIO_REAL());
-        climber = new Climber(new ClimberIO_REAL());
 
         break;
 
@@ -155,7 +147,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_SIM());
         hood = new Hood(new HoodIO_SIM());
         feeder = new Feeder(new FeederIO_SIM());
-        climber = new Climber(new ClimberIO_SIM());
 
         break;
 
@@ -176,7 +167,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO() {});
         hood = new Hood(new HoodIO() {});
         feeder = new Feeder(new FeederIO() {});
-        climber = new Climber(new ClimberIO() {});
 
         break;
     }
@@ -186,10 +176,6 @@ public class RobotContainer {
     registerNamedCommand("Shoot", autonShoot());
     registerNamedCommand("StopShoot", reset());
     registerNamedCommand("PrepShoot", idle());
-    registerNamedCommand(
-        "Climb", Commands.defer(() -> safeCommand(climber.climb()), java.util.Set.of()));
-    registerNamedCommand("MidShoot", shootRaw(12, 3050));
-
     new EventTrigger("PrepIntake");
 
     try {
@@ -244,17 +230,13 @@ public class RobotContainer {
 
     // Right side controls: Shoot and ferry
     controller.rightTrigger().whileTrue(autoShoot());
-    controller.rightBumper().whileTrue(ferry()).onFalse(idle());
+    // Dump Fuel
+    controller.rightBumper().onTrue(dump()).onFalse(idle());
 
-    // Climber Controls
-    controller.y().onTrue(safeCommand(climber.raiseClimber()));
-    controller.a().onTrue(safeCommand(climber.climb()));
+    controller.start().whileTrue(ferry()).onFalse(idle());
 
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
-
-    // Dump Fuel
-    controller.povUp().onTrue(dump()).onFalse(idle());
   }
 
   private void registerNamedCommand(String name, Command command) {
@@ -304,7 +286,7 @@ public class RobotContainer {
         Commands.runOnce(() -> currentState = RobotStates.INTAKING),
         // Run intake rollers and extend
         intake.setPosition(IntakeState.EXTEND),
-        intake.setRollerSpeed(0.90),
+        intake.setRollerSpeed(0.70),
         // Log action
         logMessage("Begun Intaking"),
         // Wait
@@ -326,7 +308,7 @@ public class RobotContainer {
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(2000),
+        flywheel.setRPM(2500),
         hood.setPosition(5),
         // Log action
         logMessage("Idling"));
@@ -336,8 +318,7 @@ public class RobotContainer {
     return Commands.sequence(
         // Update state
         Commands.runOnce(() -> currentState = RobotStates.PREPING_SHOT),
-        // Keep Hooper open and intake slowed for indexing
-        intake.setRollerSpeed(0.05),
+        intake.setRollerSpeed(0),
         intake.setPosition(IntakeState.EXTEND),
         // Keep feeding off
         conveyor.setHopper(0.0),
@@ -350,28 +331,28 @@ public class RobotContainer {
 
   // Shoot
   public Command autoShoot() {
-    return Commands.either(
-        Commands.sequence(
-            // Check if the hub is active before shooting, if not wait until it is
-            Commands.waitUntil(this::isHubActive),
-            // Update state
-            Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
-            // Engage Shooting systems
-            new ShootAndMove(
-                drive,
-                flywheel,
-                hood,
-                conveyor,
-                feeder,
-                intake,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX())),
-        logMessage(
-            Elastic.Notification.NotificationLevel.ERROR,
-            "Cannot Shoot Now",
-            "Hub is not active, do not shoot right now",
-            5000),
-        this::isHubActive);
+    // return Commands.either(
+    return Commands.sequence(
+        // Check if the hub is active before shooting, if not wait until it is
+        // Commands.waitUntil(this::isHubActive),
+        // Update state
+        Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
+        // Engage Shooting systems
+        new ShootAndMove(
+            drive,
+            flywheel,
+            hood,
+            conveyor,
+            feeder,
+            intake,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX()));
+    // logMessage(
+    //     Elastic.Notification.NotificationLevel.ERROR,
+    //     "Cannot Shoot Now",
+    //     "Hub is not active, do not shoot right now",
+    //     5000),
+    // this::isHubActive);
   }
 
   public Command shoot() {
@@ -511,14 +492,18 @@ public class RobotContainer {
                 Elastic.Notification.NotificationLevel.INFO,
                 "Hub Active",
                 "The hub is now active. You may begin shooting.",
-                5000));
+                5000,
+                500,
+                -2));
       } else {
         Elastic.sendNotification(
             new Elastic.Notification(
                 Elastic.Notification.NotificationLevel.WARNING,
                 "Hub Inactive",
                 "The hub is no longer active.",
-                5000));
+                5000,
+                500,
+                -2));
       }
       wasHubActive = hubActive;
     }
@@ -561,7 +546,7 @@ public class RobotContainer {
     gameData = DriverStation.getGameSpecificMessage();
     if (gameData.length() > 0) {
       switch (gameData.charAt(0)) {
-        case 'B':
+        case 'R':
           if (DriverStation.getAlliance().get() == Alliance.Blue) {
             return (timer <= 10
                 || (timer >= (35 - prefire) && timer <= 60)
@@ -571,7 +556,7 @@ public class RobotContainer {
                 || (timer >= (60 - prefire) && timer <= 85)
                 || (timer >= (110 - prefire));
           }
-        case 'R':
+        case 'B':
           if (DriverStation.getAlliance().get() == Alliance.Red) {
             return (timer <= 35)
                 || (timer >= (60 - prefire) && timer <= 85)

@@ -87,8 +87,6 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    robotContainer.reset();
-
     robotContainer.hubTimer.reset();
     robotContainer.hubTimer.start();
   }

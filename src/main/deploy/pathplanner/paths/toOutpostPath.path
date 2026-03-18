@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 0.4876126126126127,
-        "y": 0.6256633380884444
+        "x": 0.49,
+        "y": 0.7
       },
       "prevControl": {
-        "x": -1.012232881833361,
-        "y": 0.6041344553930479
+        "x": -1.7397703017430144,
+        "y": 0.6679937277261772
       },
       "nextControl": null,
       "isLocked": false,
@@ -31,7 +31,19 @@
   "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "PrepIntake",
+      "waypointRelativePos": 0.21147356580427373,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Hopper"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,

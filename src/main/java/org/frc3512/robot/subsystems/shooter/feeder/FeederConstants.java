@@ -1,5 +1,6 @@
 package org.frc3512.robot.subsystems.shooter.feeder;
 
+import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -14,5 +15,11 @@ public class FeederConstants {
           .withMotorOutput(
               new MotorOutputConfigs()
                   .withInverted(InvertedValue.Clockwise_Positive)
-                  .withNeutralMode(NeutralModeValue.Coast));
+                  .withNeutralMode(NeutralModeValue.Coast))
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(100)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(50)
+                  .withSupplyCurrentLimitEnable(true));
 }

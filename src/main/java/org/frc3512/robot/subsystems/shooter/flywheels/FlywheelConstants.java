@@ -30,9 +30,9 @@ public class FlywheelConstants {
             .withVoltage(new VoltageConfigs().withPeakReverseVoltage(Volts.of(0)))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
-                    .withStatorCurrentLimit(Amps.of(120))
+                    .withStatorCurrentLimit(Amps.of(60))
                     .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(70))
+                    .withSupplyCurrentLimit(Amps.of(40))
                     .withSupplyCurrentLimitEnable(true))
             .withSlot0(
                 new Slot0Configs()

@@ -267,8 +267,8 @@ public class ShootAndMove extends Command {
     // controllers hold the last duty-cycle setpoint until told otherwise.
     if (aimedAtHub && !feedingStarted && flywheel.isVelocityWithinTolerance()) {
       feeder.setFeederDirect(0.85);
-      hopper.setHopperDirect(0.65);
-      intake.setRollerDirect(0.5);
+      hopper.setHopperDirect(0.85);
+      intake.setRollerDirect(0.2);
       feedingStarted = true;
       feedingTimer.restart();
     }
@@ -294,7 +294,7 @@ public class ShootAndMove extends Command {
   public void end(boolean interrupted) {
     drive.stop();
     // Stop flywheel and set hood to lowered position for safety.
-    flywheel.setRPMDirect(2000.0);
+    flywheel.setRPMDirect(2500.0);
     hood.setPositionDirect(2);
     // Stop feeder and hopper.
     feeder.setFeederDirect(0.0);

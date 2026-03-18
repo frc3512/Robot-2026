@@ -7,31 +7,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "toOutpostPath"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "PrepShoot"
+            "pathName": "goOverbump"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "rotateOutpostPath"
+            "pathName": "driveNZPath"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Shoot"
+            "pathName": "returnNZ"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.8
+                }
+              }
+            ]
           }
         },
         {
@@ -43,19 +50,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "OutScCLPath"
+            "pathName": "2ndNZRun"
           }
         },
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Climb"
+            "pathName": "NZStrafe"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "OutpostInvolved",
+  "folder": "NZInvolved",
   "choreoAuto": false
 }

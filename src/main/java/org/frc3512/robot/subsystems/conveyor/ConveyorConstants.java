@@ -20,6 +20,6 @@ public class ConveyorConstants {
               new CurrentLimitsConfigs()
                   .withStatorCurrentLimit(60)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(60)
+                  .withSupplyCurrentLimit(30)
                   .withSupplyCurrentLimitEnable(true));
 }
