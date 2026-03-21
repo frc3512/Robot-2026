@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.472609727164889,
-        "y": 7.085231316725978
+        "x": 5.408054567022539,
+        "y": 5.277686832740213
       },
       "isLocked": false,
       "linkedName": null
@@ -54,7 +54,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -58.70696100407973
+    "rotation": -119.99999999999999
   },
   "reversed": false,
   "folder": "NZFolder",

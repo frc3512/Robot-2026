@@ -36,12 +36,22 @@ public class ShootAndMove extends Command {
   // Suppress micro-corrections when the robot is already within 1.5° of the target heading.
   // Pose-estimator noise can produce sub-degree phantom errors that cause constant small
   // oscillations; this deadband prevents the PID from reacting to them.
-  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2.5);
+  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(1);
 
   // Approximate horizontal speed of the ball in flight (m/s).
   // Used to estimate ball flight time for moving-while-shooting compensation.
   // Tune upward if the robot over-compensates; downward if it under-compensates.
   private static final double BALL_HORIZONTAL_SPEED = 9.0;
+
+  // Gain multipliers for compensation tuning.
+  // Start near 1.0 and tune upward if still missing while moving.
+  private static final double LATERAL_COMPENSATION_GAIN = 1.20;
+  private static final double RADIAL_COMPENSATION_GAIN = 1.15;
+
+  // Clamp effective distance to stay within interpolation table range
+  // and avoid null setpoints from map lookups.
+  private static final double MIN_SHOT_DISTANCE = 1.25;
+  private static final double MAX_SHOT_DISTANCE = 6.33;
 
   // Single-pole IIR time constants (seconds).  Chosen so the filters are fast enough
   // to track real motion but slow enough to reject high-frequency pose-noise spikes.
@@ -110,8 +120,9 @@ public class ShootAndMove extends Command {
     // ( DISTANCE (m) || RPM )
     RPM_TABLE.put(1.25, 2500.0);
     RPM_TABLE.put(1.88, 2800.0);
-    RPM_TABLE.put(2.21, 2950.0);
-    RPM_TABLE.put(3.07, 3200.0);
+    RPM_TABLE.put(2.21, 2850.0);
+    RPM_TABLE.put(3.07, 3100.0);
+    RPM_TABLE.put(4.11, 3550.0);
     RPM_TABLE.put(4.29, 3400.0);
     RPM_TABLE.put(6.33, 3800.0);
 
@@ -120,6 +131,7 @@ public class ShootAndMove extends Command {
     ANGLE_TABLE.put(1.88, 9.0);
     ANGLE_TABLE.put(2.21, 11.0);
     ANGLE_TABLE.put(3.07, 13.0);
+    ANGLE_TABLE.put(4.11, 12.0);
     ANGLE_TABLE.put(4.29, 15.0);
     ANGLE_TABLE.put(6.33, 20.0);
 
@@ -173,27 +185,44 @@ public class ShootAndMove extends Command {
     Translation2d targetVec = goalLocation.minus(futurePos);
 
     // 3. MOVING-WHILE-SHOOTING COMPENSATION
-    // When the robot is moving, the ball inherits the robot's field-relative velocity.
-    // To ensure the ball still hits the hub, we aim at a "virtual hub" offset from the
-    // real hub by -(robotVelocity * tFlight).  The ball's combined velocity
-    // (robot velocity + ball velocity relative to robot) then points at the real hub.
-    //
-    //   tFlight ≈ distance / BALL_HORIZONTAL_SPEED   (first-order approximation)
-    //
-    //  • Left/right (tangential) velocity → rotates the desired heading angle so the
-    //    robot leads the hub to compensate for lateral drift.
-    //  • Front/back (radial) velocity    → changes the effective distance used for
-    //    RPM and hood-angle lookup (moving toward hub → less energy needed; away → more).
+    // Decompose velocity into radial (toward/away hub) and tangential (left/right around hub)
+    // components, then compensate each axis with separate gains:
+    //  • Tangential -> heading lead (robot angle compensation)
+    //  • Radial     -> effective shot distance (hood/flywheel compensation)
     double rawDistanceToHub = targetVec.getNorm();
     double tFlight = rawDistanceToHub / BALL_HORIZONTAL_SPEED;
 
-    // Virtual hub: the point we must aim at so the ball (with inherited robot velocity)
-    // hits the real hub.
+    // Unit vectors in radial and tangential directions.
+    Translation2d radialUnit =
+        rawDistanceToHub > 1e-6 ? targetVec.div(rawDistanceToHub) : Translation2d.kZero;
+    Translation2d tangentialUnit = new Translation2d(-radialUnit.getY(), radialUnit.getX());
+
+    // Signed velocity components in m/s.
+    double radialVelocity =
+        robotVelocityField.getX() * radialUnit.getX()
+            + robotVelocityField.getY() * radialUnit.getY();
+    double tangentialVelocity =
+        robotVelocityField.getX() * tangentialUnit.getX()
+            + robotVelocityField.getY() * tangentialUnit.getY();
+
+    // Angle lead from tangential component.
+    // Sign inverted so the robot leads opposite the perceived miss direction.
+    double lateralLeadDistance = -tangentialVelocity * tFlight * LATERAL_COMPENSATION_GAIN;
+    double baseHeadingRadians = Math.atan2(targetVec.getY(), targetVec.getX());
+    double compensatedHeadingRadians =
+        baseHeadingRadians + Math.atan2(lateralLeadDistance, rawDistanceToHub);
+    Rotation2d desiredHeading = new Rotation2d(compensatedHeadingRadians);
+
+    // Radial compensation adjusts effective distance for hood/flywheel.
+    // Sign inverted so approach/retreat compensation goes opposite previous behavior.
+    double radialDistanceOffset = radialVelocity * tFlight * RADIAL_COMPENSATION_GAIN;
+    double compensatedDistanceRaw = rawDistanceToHub + radialDistanceOffset;
+    double compensatedDistanceClamped =
+        MathUtil.clamp(compensatedDistanceRaw, MIN_SHOT_DISTANCE, MAX_SHOT_DISTANCE);
+
+    // Keep a virtual hub for diagnostics only (combined velocity model).
     Translation2d virtualHub = goalLocation.minus(robotVelocityField.times(tFlight));
     Translation2d adjustedTargetVec = virtualHub.minus(futurePos);
-
-    // Desired heading is the angle to the virtual hub (compensates for lateral movement).
-    Rotation2d desiredHeading = adjustedTargetVec.getAngle();
 
     // Calculate angular error (normalised to [-π, π]).
     // Apply a deadband: if the robot is already within ANGLE_TOLERANCE_RADIANS of the
@@ -231,27 +260,27 @@ public class ShootAndMove extends Command {
             speeds,
             isFlipped ? drive.getRotation().plus(new Rotation2d(Math.PI)) : drive.getRotation()));
 
-    // 4. SET FLYWHEEL RPM AND HOOD ANGLE BASED ON ADJUSTED DISTANCE
-    // Use the distance to the virtual hub (not the real hub) so that front/back movement
-    // is automatically compensated: moving toward the hub reduces the effective distance
-    // (less RPM / lower hood angle), moving away increases it.
-    // Low-pass filter the raw distance so that small pose-estimator fluctuations don't
-    // cause the RPM and hood-angle setpoints to oscillate on every loop cycle.
-    double distanceRaw = adjustedTargetVec.getNorm();
-    double distanceToHub = distanceFilter.calculate(distanceRaw);
+    // 4. SET FLYWHEEL RPM AND HOOD ANGLE BASED ON RADIAL-COMPENSATED DISTANCE
+    // Low-pass filter to reduce setpoint noise and clamp to valid interpolation range.
+    double distanceToHub = distanceFilter.calculate(compensatedDistanceClamped);
 
     Double rpm = RPM_TABLE.get(distanceToHub);
     Double angle = ANGLE_TABLE.get(distanceToHub);
 
     // --- AdvantageScope tuning logs ---
-    Logger.recordOutput("ShootAndMove/Distance_Raw_m", distanceRaw);
+    Logger.recordOutput("ShootAndMove/Distance_Raw_m", compensatedDistanceRaw);
     Logger.recordOutput("ShootAndMove/Distance_Filtered_m", distanceToHub);
     Logger.recordOutput("ShootAndMove/Flywheel_RPM_Setpoint", rpm);
     Logger.recordOutput("ShootAndMove/Hood_Angle_Setpoint_deg", angle);
     // Moving-while-shooting compensation diagnostics
     Logger.recordOutput("ShootAndMove/RobotVelocity_X_mps", robotVelocityField.getX());
     Logger.recordOutput("ShootAndMove/RobotVelocity_Y_mps", robotVelocityField.getY());
+    Logger.recordOutput("ShootAndMove/RadialVelocity_mps", radialVelocity);
+    Logger.recordOutput("ShootAndMove/TangentialVelocity_mps", tangentialVelocity);
     Logger.recordOutput("ShootAndMove/FlightTime_s", tFlight);
+    Logger.recordOutput("ShootAndMove/LateralLeadDistance_m", lateralLeadDistance);
+    Logger.recordOutput("ShootAndMove/RadialDistanceOffset_m", radialDistanceOffset);
+    Logger.recordOutput("ShootAndMove/CompensatedDistanceClamped_m", compensatedDistanceClamped);
     Logger.recordOutput("ShootAndMove/VirtualHub_X_m", virtualHub.getX());
     Logger.recordOutput("ShootAndMove/VirtualHub_Y_m", virtualHub.getY());
     Logger.recordOutput("ShootAndMove/UncompensatedDistance_m", rawDistanceToHub);
