@@ -5,21 +5,27 @@
     "data": {
       "commands": [
         {
-          "type": "path",
+          "type": "named",
           "data": {
-            "pathName": "goOverbump"
+            "name": "Hopper"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNZPath"
+            "pathName": "toHpPath"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNZ"
+            "pathName": "rotateHpPath"
           }
         },
         {
@@ -35,7 +41,7 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 1.2
+                  "waitTime": 2.5
                 }
               }
             ]
@@ -48,28 +54,15 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "path",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "NZClimb"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Climb"
-                }
-              }
-            ]
+            "pathName": "HptoNZ"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "NZInvolved",
+  "folder": "HpInvolved",
   "choreoAuto": false
 }

@@ -5,9 +5,39 @@
     "data": {
       "commands": [
         {
+          "type": "named",
+          "data": {
+            "name": "PrepShoot"
+          }
+        },
+        {
           "type": "path",
           "data": {
-            "pathName": "shoot"
+            "pathName": "midShoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 1.0
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "wait",
+          "data": {
+            "waitTime": 0.8
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "StopShoot"
           }
         }
       ]

@@ -7,43 +7,56 @@
         {
           "type": "named",
           "data": {
-            "name": "PrepShoot"
+            "name": "Hopper"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "scoreClimb"
+            "pathName": "toHpPath"
           }
         },
         {
           "type": "wait",
           "data": {
-            "waitTime": 1.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Shoot"
+            "waitTime": 3.5
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "climbCenter"
+            "pathName": "rotateHpPath"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.5
+                }
+              }
+            ]
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Climb"
+            "name": "StopShoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "middleCentral",
+  "folder": "HpInvolved",
   "choreoAuto": false
 }

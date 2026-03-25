@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.52151212553495,
-        "y": 4.028530670470756
+        "x": 7.592170818505339,
+        "y": 4.4707473309608545
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.77151212553495,
-        "y": 4.028530670470756
+        "x": 6.500804133094525,
+        "y": 5.838745415014854
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.52151212553495,
-        "y": 4.028530670470756
+        "x": 5.817,
+        "y": 6.375663
       },
       "prevControl": {
-        "x": 3.3140965579553443,
-        "y": 3.88896426217123
+        "x": 6.658721417230147,
+        "y": 6.5257631524851725
+      },
+      "nextControl": {
+        "x": 3.035873679912086,
+        "y": 5.879718051730278
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 2.0,
+        "y": 4.821795180722892
+      },
+      "prevControl": {
+        "x": 2.0,
+        "y": 6.071795180722892
       },
       "nextControl": null,
       "isLocked": false,
@@ -42,13 +58,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": -33.111
   },
   "reversed": false,
-  "folder": "outpostFolder",
+  "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 119.99999999999999
   },
   "useDefaultConstraints": true
 }

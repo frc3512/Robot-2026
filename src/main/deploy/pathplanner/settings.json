@@ -3,15 +3,15 @@
   "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
-    "NZFolder",
+    "NzFolder",
     "centerFolder",
     "depotFolder",
     "distanceTests",
     "outpostFolder"
   ],
   "autoFolders": [
-    "NZInvolved",
-    "OutpostInvolved",
+    "NzInvolved",
+    "HpInvolved",
     "depotInvoled",
     "middleCentral"
   ],

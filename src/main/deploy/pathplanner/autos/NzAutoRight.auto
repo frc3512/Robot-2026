@@ -7,31 +7,38 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverbump"
+            "pathName": "goOverBumpRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNZPath"
+            "pathName": "driveNzPathRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNZ"
+            "pathName": "returnNzRight"
           }
         },
         {
-          "type": "named",
+          "type": "sequential",
           "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.0
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.5
+                }
+              }
+            ]
           }
         },
         {
@@ -39,23 +46,11 @@
           "data": {
             "name": "StopShoot"
           }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2ndNZRun"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NZStrafe"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "NZInvolved",
+  "folder": "NzInvolved",
   "choreoAuto": false
 }

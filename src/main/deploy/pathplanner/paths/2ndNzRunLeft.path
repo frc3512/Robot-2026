@@ -45,8 +45,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 3.0,
-    "maxAcceleration": 3.0,
+    "maxVelocity": 5.0,
+    "maxAcceleration": 5.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -57,10 +57,10 @@
     "rotation": -119.99999999999999
   },
   "reversed": false,
-  "folder": "NZFolder",
+  "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 0,
     "rotation": -30.963756532073567
   },
-  "useDefaultConstraints": true
+  "useDefaultConstraints": false
 }
