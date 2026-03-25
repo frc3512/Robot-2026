@@ -38,10 +38,10 @@ public class ShootAndMove extends Command {
   // oscillations; this deadband prevents the PID from reacting to them.
   private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(1);
 
-  // Approximate horizontal speed of the ball in flight (m/s).
-  // Used to estimate ball flight time for moving-while-shooting compensation.
-  // Tune upward if the robot over-compensates; downward if it under-compensates.
-  private static final double BALL_HORIZONTAL_SPEED = 9.0;
+  // Physics parameters for dynamic ball velocity calculation
+  private static final double FLYWHEEL_RADIUS_M = 0.0508;  // 4" diameter flywheel
+  private static final double FRICTION_COEFFICIENT = 0.55;  // μ rubber/foam
+  private static final double COMPRESSION_FACTOR = 1.15;    // Grip enhancement
 
   // Gain multipliers for compensation tuning.
   // Start near 1.0 and tune upward if still missing while moving.
@@ -194,7 +194,25 @@ public class ShootAndMove extends Command {
     //  • Tangential -> heading lead (robot angle compensation)
     //  • Radial     -> effective shot distance (hood/flywheel compensation)
     double rawDistanceToHub = targetVec.getNorm();
-    double tFlight = rawDistanceToHub / BALL_HORIZONTAL_SPEED;
+
+    // Dynamic ball horizontal speed from RPM table (distance-aware)
+    double tFlight;
+    if (rawDistanceToHub >= MIN_SHOT_DISTANCE && rawDistanceToHub <= MAX_SHOT_DISTANCE) {
+      Double rpm = RPM_TABLE.get(rawDistanceToHub);
+      Double theta_deg = ANGLE_TABLE.get(rawDistanceToHub);
+      if (rpm != null && theta_deg != null) {
+        double v_fw = rpm * 2 * Math.PI * FLYWHEEL_RADIUS_M / 60.0;
+        double v_exit = FRICTION_COEFFICIENT * v_fw * COMPRESSION_FACTOR;
+        double v_x = v_exit * Math.cos(Math.toRadians(theta_deg));
+        tFlight = rawDistanceToHub / Math.max(v_x, 0.1);  // Avoid div/0
+      } else {
+        // Fallback
+        tFlight = rawDistanceToHub / 11.5;
+      }
+    } else {
+      // Fallback for out-of-range distances
+      tFlight = rawDistanceToHub / 11.5;
+    }
 
     // Unit vectors in radial and tangential directions.
     Translation2d radialUnit =
@@ -265,14 +283,14 @@ public class ShootAndMove extends Command {
 
     // 4. SET FLYWHEEL RPM AND HOOD ANGLE BASED ON RADIAL-COMPENSATED DISTANCE
     // Low-pass filter to reduce setpoint noise and clamp to valid interpolation range.
-    double distanceToHub = distanceFilter.calculate(compensatedDistanceClamped);
+    double filteredDistanceToHub = distanceFilter.calculate(compensatedDistanceClamped);
 
-    Double rpm = RPM_TABLE.get(distanceToHub);
-    Double angle = ANGLE_TABLE.get(distanceToHub);
+    Double rpm = RPM_TABLE.get(filteredDistanceToHub);
+    Double angle = ANGLE_TABLE.get(filteredDistanceToHub);
 
     // --- AdvantageScope tuning logs ---
     Logger.recordOutput("ShootAndMove/Distance_Raw_m", compensatedDistanceRaw);
-    Logger.recordOutput("ShootAndMove/Distance_Filtered_m", distanceToHub);
+    Logger.recordOutput("ShootAndMove/Distance_Filtered_m", filteredDistanceToHub);
     Logger.recordOutput("ShootAndMove/Flywheel_RPM_Setpoint", rpm);
     Logger.recordOutput("ShootAndMove/Hood_Angle_Setpoint_deg", angle);
     // Moving-while-shooting compensation diagnostics
