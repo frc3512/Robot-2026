@@ -66,7 +66,7 @@ public class RobotContainer {
   public Timer hubTimer = new Timer();
 
   public static String gameData;
-  public static double prefire = 1; // Seconds before the hub becomes active to start shooting
+  public static double prefire = 1.5; // Seconds before the hub becomes active to start shooting
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -83,6 +83,10 @@ public class RobotContainer {
     SHOOTING,
     MANUAL_SHOOTONG,
     FERRYING
+  }
+
+  private char getWinner() {
+    return Character.toUpperCase(gameData.trim().charAt(0));
   }
 
   @AutoLogOutput(key = "Robot/Robot State")
@@ -331,28 +335,26 @@ public class RobotContainer {
 
   // Shoot
   public Command autoShoot() {
-    // return Commands.either(
-    return Commands.sequence(
-        // Check if the hub is active before shooting, if not wait until it is
-        // Commands.waitUntil(this::isHubActive),
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
-        // Engage Shooting systems
-        new ShootAndMove(
-            drive,
-            flywheel,
-            hood,
-            conveyor,
-            feeder,
-            intake,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX()));
-    // logMessage(
-    //     Elastic.Notification.NotificationLevel.ERROR,
-    //     "Cannot Shoot Now",
-    //     "Hub is not active, do not shoot right now",
-    //     5000),
-    // this::isHubActive);
+    return Commands.either(
+        Commands.sequence(
+            // Update state
+            Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
+            // Engage Shooting systems
+            new ShootAndMove(
+                drive,
+                flywheel,
+                hood,
+                conveyor,
+                feeder,
+                intake,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX())),
+        logMessage(
+            Elastic.Notification.NotificationLevel.ERROR,
+            "Cannot Shoot Now",
+            "Hub is not active, do not shoot right now",
+            5000),
+        this::isHubActive);
   }
 
   public Command shoot() {
@@ -539,39 +541,50 @@ public class RobotContainer {
   // Hub activity logic,
   // returns a boolean that can be used to check if
   // the hub is active based on the game data and timer
-  // Credit to 9084 for the logic
+  // Credit to 9084 for the idea
   @AutoLogOutput(key = "Robot/Hub Active")
   public boolean isHubActive() {
-    double timer = hubTimer.get();
-    gameData = DriverStation.getGameSpecificMessage();
-    if (gameData.length() > 0) {
-      switch (gameData.charAt(0)) {
-        case 'R':
-          if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            return (timer <= 10
-                || (timer >= (35 - prefire) && timer <= 60)
-                || (timer >= (85 - prefire)));
-          } else {
-            return (timer <= 35)
-                || (timer >= (60 - prefire) && timer <= 85)
-                || (timer >= (110 - prefire));
-          }
-        case 'B':
-          if (DriverStation.getAlliance().get() == Alliance.Red) {
-            return (timer <= 35)
-                || (timer >= (60 - prefire) && timer <= 85)
-                || (timer >= (110 - prefire));
-          } else {
-            return (timer <= 10
-                || (timer >= (35 - prefire) && timer <= 60)
-                || (timer >= (85 - prefire)));
-          }
+    // Updated for 130s teleop: first 10s both active, then 100s alternating 25s periods,
+    // last 30s both active. Alternating relative to elapsed 10s start.
+    double elapsed = hubTimer.get();
 
-        default:
-          return true;
-      }
-    } else {
+    gameData = DriverStation.getGameSpecificMessage();
+    if (gameData == null || gameData.isBlank()) {
       return true;
     }
+
+    if (elapsed < 10.0 || elapsed >= 110.0) {
+      // First 10s or last 30s (110-130+): both hubs active -> our hub active
+      return true;
+    }
+
+    // Alternating phase: 10-110 elapsed (100s total), 25s periods
+    double phaseTime = elapsed - 10.0;
+    int phase = (int) Math.floor(phaseTime / 25.0) % 4;
+
+    Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
+
+    char winner = getWinner();
+
+    // Determine if our side is active in this phase
+    // Match (our win): active phases 1 (25-50), 3 (75-100)
+    // Mismatch (opp win): active phases 0 (0-25), 2 (50-75)
+    boolean ourSideActive;
+
+    boolean isMatch =
+        (winner == 'B' && alliance == Alliance.Blue) || (winner == 'R' && alliance == Alliance.Red);
+    if (isMatch) {
+      ourSideActive = (phase == 1 || phase == 3);
+    } else {
+      ourSideActive = (phase == 0 || phase == 2);
+    }
+
+    Logger.recordOutput("Robot/Hub Debug Elapsed", elapsed);
+    Logger.recordOutput("Robot/Hub Debug Phase", phase);
+    Logger.recordOutput("Robot/Hub Debug Winner", String.valueOf(winner));
+    Logger.recordOutput("Robot/Hub Debug Alliance", alliance.toString());
+    Logger.recordOutput("Robot/Hub Debug OurSideActive", ourSideActive);
+
+    return ourSideActive;
   }
 }

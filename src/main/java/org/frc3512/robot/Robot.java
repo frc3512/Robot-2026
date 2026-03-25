@@ -64,7 +64,10 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    robotContainer.hubTimer.stop();
+    robotContainer.hubTimer.reset();
+  }
 
   @Override
   public void disabledPeriodic() {}

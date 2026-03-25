@@ -122,8 +122,10 @@ public class ShootAndMove extends Command {
     RPM_TABLE.put(1.88, 2800.0);
     RPM_TABLE.put(2.21, 2850.0);
     RPM_TABLE.put(3.07, 3100.0);
+    RPM_TABLE.put(3.84, 3500.0);
     RPM_TABLE.put(4.11, 3550.0);
     RPM_TABLE.put(4.29, 3400.0);
+    RPM_TABLE.put(4.40, 3500.0);
     RPM_TABLE.put(6.33, 3800.0);
 
     // ( DISTANCE (m) || HOOD ANGLE (degrees) )
@@ -131,8 +133,10 @@ public class ShootAndMove extends Command {
     ANGLE_TABLE.put(1.88, 9.0);
     ANGLE_TABLE.put(2.21, 11.0);
     ANGLE_TABLE.put(3.07, 13.0);
+    ANGLE_TABLE.put(3.84, 11.0);
     ANGLE_TABLE.put(4.11, 12.0);
     ANGLE_TABLE.put(4.29, 15.0);
+    ANGLE_TABLE.put(4.40, 15.0);
     ANGLE_TABLE.put(6.33, 20.0);
 
     addRequirements(drive, flywheel, hood, hopper, feeder, intake);
