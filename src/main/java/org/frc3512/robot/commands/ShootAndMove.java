@@ -226,7 +226,6 @@ public class ShootAndMove extends Command {
 
     // Keep a virtual hub for diagnostics only (combined velocity model).
     Translation2d virtualHub = goalLocation.minus(robotVelocityField.times(tFlight));
-    Translation2d adjustedTargetVec = virtualHub.minus(futurePos);
 
     // Calculate angular error (normalised to [-π, π]).
     // Apply a deadband: if the robot is already within ANGLE_TOLERANCE_RADIANS of the
