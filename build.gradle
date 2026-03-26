@@ -105,10 +105,8 @@ test {
 
 // Simulation configuration (e.g. environment variables).
 //
-// The sim GUI is *disabled* by default to support running
-// AdvantageKit log replay, which requires that all HAL
-// sim extensions be disabled.
-wpi.sim.addGui().defaultEnabled = false
+// The sim GUI is *enabled* for debugging connection issues
+wpi.sim.addGui().defaultEnabled = true
 wpi.sim.addDriverstation()
 
 // Setting up my Jar File. In this case, adding all libraries into the main jar ('fat jar')

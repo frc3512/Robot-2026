@@ -1,4 +1,4 @@
-package org.frc3512.robot.commands;
+package org.frc3512.robot.commands.teleop;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;

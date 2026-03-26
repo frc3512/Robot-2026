@@ -1,21 +1,11 @@
 package org.frc3512.robot;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.events.EventTrigger;
-import edu.wpi.first.math.geometry.Pose2d;
-import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import org.frc3512.robot.commands.DriveCommands;
-import org.frc3512.robot.commands.ShootAndMove;
+import org.frc3512.robot.commands.auto.AssistedAuto;
+import org.frc3512.robot.commands.auto.CorrectedAuto;
+import org.frc3512.robot.commands.auto.PoseCorrector;
+import org.frc3512.robot.commands.auto.VerifyPosition;
+import org.frc3512.robot.commands.teleop.DriveCommands;
+import org.frc3512.robot.commands.teleop.ShootAndMove;
 import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO_REAL;
@@ -46,11 +36,27 @@ import org.frc3512.robot.subsystems.shooter.hood.HoodIO_REAL;
 import org.frc3512.robot.subsystems.shooter.hood.HoodIO_SIM;
 import org.frc3512.robot.subsystems.vision.Vision;
 import org.frc3512.robot.subsystems.vision.VisionConstants;
+import org.frc3512.robot.subsystems.vision.VisionCorrectionConstants;
 import org.frc3512.robot.subsystems.vision.VisionIO;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVision;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
+
+import com.pathplanner.lib.auto.AutoBuilder;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.events.EventTrigger;
+
+import edu.wpi.first.math.geometry.Pose2d;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
 public class RobotContainer {
   // Subsystems
@@ -61,6 +67,15 @@ public class RobotContainer {
   private final Intake intake;
   private final Conveyor conveyor;
   private final Feeder feeder;
+
+  // Public accessors for vision correction commands
+  public Drive getDrive() {
+    return drive;
+  }
+
+  public Vision getVision() {
+    return vision;
+  }
 
   // Timer for Hub Activity
   public Timer hubTimer = new Timer();
@@ -180,19 +195,17 @@ public class RobotContainer {
     registerNamedCommand("Shoot", autonShoot());
     registerNamedCommand("StopShoot", reset());
     registerNamedCommand("PrepShoot", idle());
+
+    // Vision correction commands
+    registerNamedCommand(
+        "VisionCorrect", correctPoseWithVision(0.0, 0.0, 0.0)); // Generic corrector
     new EventTrigger("PrepIntake");
 
-    try {
-      autoChooser = AutoBuilder.buildAutoChooser();
-    } catch (Exception e) {
-      DriverStation.reportError(
-          "Failed to build PathPlanner auto chooser. Check NamedCommands vs .auto files: "
-              + e.getMessage(),
-          e.getStackTrace());
-      autoChooser = new SendableChooser<>();
-      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
-    }
-
+    // Set up auto routines without vision correction
+    createNormalAutos();
+    // Set up auto routines with vision correction (commented out for now - needs testing)
+    // createVisionAutos();
+    
     // Configure the button bindings
     configureButtonBindings();
 
@@ -224,10 +237,6 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Secret command to make vision work
-    controller.start().onTrue(new InstantCommand(() -> vision.work(true)));
-    controller.back().onTrue(new InstantCommand(() -> vision.work(false)));
-
     // Left Side controls: Intake and idle
     controller.leftTrigger().onTrue(intake()).onFalse(prepShooting());
     controller.leftBumper().onTrue(idle());
@@ -236,8 +245,6 @@ public class RobotContainer {
     controller.rightTrigger().whileTrue(autoShoot());
     // Dump Fuel
     controller.rightBumper().onTrue(dump()).onFalse(idle());
-
-    controller.start().whileTrue(ferry()).onFalse(idle());
 
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
@@ -448,23 +455,115 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  // Auto Methods
+  // --- Vision Correction Commands ---
 
-  // ---- Begin Debuging and Tuning Commands ----
-
-  // Feed raw degrees and rpms to get data for tree maps
-  public Command shootRaw(double hoodDegrees, double flywheelRPM) {
-    return Commands.sequence(
-        // Set shooter to raw testing positions
-        flywheel.setRPM(flywheelRPM),
-        hood.setPosition(hoodDegrees),
-        // Check boolean logic
-        // Commands.waitUntil(hood.isAtTarget()),
-        // Commands.waitUntil(flywheel.isVelocityWithinTolerance()),
-        // Feed fuel
-        conveyor.setHopper(0.7),
-        feeder.setFeeder(0.9));
+  /** Creates a command that corrects robot pose using vision at a specific waypoint. */
+  public Command correctPoseWithVision(
+      double expectedX, double expectedY, double expectedHeadingDegrees) {
+    return new PoseCorrector(
+        drive,
+        vision,
+        new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees)),
+        VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
+        VisionCorrectionConstants.VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES);
   }
+
+  /** Creates a command that verifies robot position using vision before proceeding. */
+  public Command verifyPositionWithVision(
+      double expectedX, double expectedY, double expectedHeadingDegrees) {
+    return new VerifyPosition(
+        drive,
+        vision,
+        new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees)),
+        VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
+        VisionCorrectionConstants.VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES,
+        2.0); // 2 second timeout
+  }
+
+  /** Wraps a PathPlanner command with vision assistance for continuous pose correction. */
+  public Command withVisionAssistance(Command pathCommand) {
+    return new AssistedAuto(
+        drive,
+        vision,
+        pathCommand,
+        VisionCorrectionConstants.VISION_FUSION_WEIGHT,
+        VisionCorrectionConstants.VISION_FUSION_MIN_WEIGHT,
+        VisionCorrectionConstants.VISION_FUSION_MAX_WEIGHT);
+  }
+
+  /**
+   * Example method showing how to create a vision-corrected autonomous command. This demonstrates
+   * the recommended approach for adding vision correction to existing autos.
+   */
+  public Command createVisionCorrectedAuto(String autoName) {
+    try {
+      // Get the original PathPlanner auto command
+      Command originalAuto = AutoBuilder.buildAuto(autoName);
+
+      // Wrap it with vision correction
+      return CorrectedAuto.withVisionCorrection(originalAuto, this);
+    } catch (Exception e) {
+      DriverStation.reportError(
+          "Failed to create vision-corrected auto: " + autoName, e.getStackTrace());
+      return Commands.none();
+    }
+  }
+
+  /** Sets up the auto chooser with vision-corrected versions of all available autos. */
+  private void createVisionAutos() {
+    autoChooser = new SendableChooser<>();
+    
+    // List of all available auto names (without .auto extension)
+    String[] autoNames = {
+      "DoubleNzAutoLeft",
+      "DoubleNzAutoRight", 
+      "HpScoreAuto",
+      "HpToNzAuto",
+      "NzAutoLeft",
+      "NzAutoRight",
+      "depotAuto",
+      "shootAuto"
+    };
+    
+    boolean hasDefault = false;
+    
+    // Add each auto with vision correction to the chooser
+    for (String autoName : autoNames) {
+      try {
+        Command visionCorrectedAuto = createVisionCorrectedAuto(autoName);
+        if (!hasDefault) {
+          autoChooser.setDefaultOption(autoName, visionCorrectedAuto);
+          hasDefault = true;
+        } else {
+          autoChooser.addOption(autoName, visionCorrectedAuto);
+        }
+      } catch (Exception e) {
+        DriverStation.reportWarning(
+            "Failed to load auto '" + autoName + "': " + e.getMessage(), 
+            e.getStackTrace());
+      }
+    }
+    
+    // Add fallback option in case all autos fail to load
+    if (!hasDefault) {
+      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
+    }
+  }
+
+  public void createNormalAutos() {
+    try {
+      autoChooser = AutoBuilder.buildAutoChooser();
+    } catch (Exception e) {
+      DriverStation.reportError(
+          "Failed to build PathPlanner auto chooser. Check NamedCommands vs .auto files: "
+              + e.getMessage(),
+          e.getStackTrace());
+      autoChooser = new SendableChooser<>();
+      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
+    }
+  }
+
+  // Excess Logic
 
   // Message logger
   public Command logMessage(String message) {

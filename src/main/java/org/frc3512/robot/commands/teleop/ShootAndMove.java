@@ -1,4 +1,4 @@
-package org.frc3512.robot.commands;
+package org.frc3512.robot.commands.teleop;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -39,9 +39,9 @@ public class ShootAndMove extends Command {
   private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(1);
 
   // Physics parameters for dynamic ball velocity calculation
-  private static final double FLYWHEEL_RADIUS_M = 0.0508;  // 4" diameter flywheel
-  private static final double FRICTION_COEFFICIENT = 0.55;  // μ rubber/foam
-  private static final double COMPRESSION_FACTOR = 1.15;    // Grip enhancement
+  private static final double FLYWHEEL_RADIUS_M = 0.0508; // 4" diameter flywheel
+  private static final double FRICTION_COEFFICIENT = 0.55; // μ rubber/foam
+  private static final double COMPRESSION_FACTOR = 1.15; // Grip enhancement
 
   // Gain multipliers for compensation tuning.
   // Start near 1.0 and tune upward if still missing while moving.
@@ -204,7 +204,7 @@ public class ShootAndMove extends Command {
         double v_fw = rpm * 2 * Math.PI * FLYWHEEL_RADIUS_M / 60.0;
         double v_exit = FRICTION_COEFFICIENT * v_fw * COMPRESSION_FACTOR;
         double v_x = v_exit * Math.cos(Math.toRadians(theta_deg));
-        tFlight = rawDistanceToHub / Math.max(v_x, 0.1);  // Avoid div/0
+        tFlight = rawDistanceToHub / Math.max(v_x, 0.1); // Avoid div/0
       } else {
         // Fallback
         tFlight = rawDistanceToHub / 11.5;

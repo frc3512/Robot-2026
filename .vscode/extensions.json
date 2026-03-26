@@ -1,5 +1,13 @@
 {
   "recommendations": [
-    "richardwillis.vscode-spotless-gradle"
+    "richardwillis.vscode-spotless-gradle",
+    "wpilibsuite.vscode-wpilib",
+    "vscjava.vscode-java-pack",
+    "ms-vscode.vscode-gradle",
+    "redhat.vscode-xml",
+    "ms-vscode.vscode-json"
+  ],
+  "unwantedRecommendations": [
+    "ms-vscode.vscode-typescript-next"
   ]
 }
