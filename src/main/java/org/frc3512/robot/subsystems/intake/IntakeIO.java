@@ -11,6 +11,9 @@ public interface IntakeIO {
 
     public double extensionPosition = 0.0;
     public double extensionAppliedVolts = 0.0;
+
+    public double rollerMotorTemp = 0.0;
+    public double extensionMotorTemp = 0.0;
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}

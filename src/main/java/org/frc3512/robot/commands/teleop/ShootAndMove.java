@@ -33,10 +33,15 @@ public class ShootAndMove extends Command {
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
 
   // --- Jitter compensation ---
-  // Suppress micro-corrections when the robot is already within 1.5° of the target heading.
+  // Suppress micro-corrections when the robot is already within 2.5° of the target heading.
   // Pose-estimator noise can produce sub-degree phantom errors that cause constant small
   // oscillations; this deadband prevents the PID from reacting to them.
-  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(1);
+  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2.5);
+
+  // --- Tunable angle offset for clockwise rotation ---
+  // Adjust this value to fine-tune the robot's shooting angle offset.
+  // Positive values rotate the target heading counter-clockwise (in degrees).
+  private static final double ANGLE_OFFSET_DEGREES = -5.0;
 
   // Physics parameters for dynamic ball velocity calculation
   private static final double FLYWHEEL_RADIUS_M = 0.0508; // 4" diameter flywheel
@@ -44,9 +49,8 @@ public class ShootAndMove extends Command {
   private static final double COMPRESSION_FACTOR = 1.15; // Grip enhancement
 
   // Gain multipliers for compensation tuning.
-  // Start near 1.0 and tune upward if still missing while moving.
-  private static final double LATERAL_COMPENSATION_GAIN = 1.20;
-  private static final double RADIAL_COMPENSATION_GAIN = 1.15;
+  private static final double LATERAL_COMPENSATION_GAIN = 3.75;
+  private static final double RADIAL_COMPENSATION_GAIN = 0.05;
 
   // Clamp effective distance to stay within interpolation table range
   // and avoid null setpoints from map lookups.
@@ -233,7 +237,14 @@ public class ShootAndMove extends Command {
     double baseHeadingRadians = Math.atan2(targetVec.getY(), targetVec.getX());
     double compensatedHeadingRadians =
         baseHeadingRadians + Math.atan2(lateralLeadDistance, rawDistanceToHub);
+    // Apply tunable clockwise angle offset
+    compensatedHeadingRadians += Math.toRadians(ANGLE_OFFSET_DEGREES);
     Rotation2d desiredHeading = new Rotation2d(compensatedHeadingRadians);
+    
+    // Log angle offset for tuning purposes
+    Logger.recordOutput("ShootAndMove/AngleOffsetDegrees", ANGLE_OFFSET_DEGREES);
+    Logger.recordOutput("ShootAndMove/BaseHeadingDegrees", Math.toDegrees(baseHeadingRadians));
+    Logger.recordOutput("ShootAndMove/CompensatedHeadingDegrees", Math.toDegrees(compensatedHeadingRadians));
 
     // Radial compensation adjusts effective distance for hood/flywheel.
     // Sign inverted so approach/retreat compensation goes opposite previous behavior.

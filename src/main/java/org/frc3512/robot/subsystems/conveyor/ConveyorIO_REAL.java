@@ -26,5 +26,7 @@ public class ConveyorIO_REAL implements ConveyorIO {
 
     // Log applied volts
     inputs.hopperVolts = hopper.getStatorCurrent().getValueAsDouble();
+
+    inputs.motorTemp = (hopper.getDeviceTemp().getValueAsDouble() * 1.8) + 32.0;
   }
 }

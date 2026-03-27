@@ -8,6 +8,8 @@ public interface FeederIO {
   public static class FeederIOInputs {
     public double feederAppliedOutput = 0.0;
     public double feederVelocity = 0.0;
+
+    public double motorTemp = 0.0;
   }
 
   public default void updateInputs(FeederIOInputs inputs) {}

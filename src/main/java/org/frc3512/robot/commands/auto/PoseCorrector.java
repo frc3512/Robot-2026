@@ -18,8 +18,6 @@ public class PoseCorrector extends Command {
   private final double toleranceMeters;
   private final double angleToleranceDegrees;
   private boolean hasCorrected = false;
-  private double lastVisionTime = 0.0;
-  private static final double VISION_TIMEOUT_SECONDS = 0.5;
 
   public PoseCorrector(Drive drive, Vision vision, Pose2d expectedPose, double toleranceMeters) {
     this(drive, vision, expectedPose, toleranceMeters, 5.0);
@@ -42,7 +40,6 @@ public class PoseCorrector extends Command {
   @Override
   public void initialize() {
     hasCorrected = false;
-    lastVisionTime = 0.0;
     Logger.recordOutput("VisionPoseCorrector/State", "Initializing");
   }
 

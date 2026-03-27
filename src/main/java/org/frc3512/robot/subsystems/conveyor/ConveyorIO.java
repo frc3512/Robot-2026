@@ -8,6 +8,8 @@ public interface ConveyorIO {
   public static class ConveyorIOInputs {
     public double hopperVelocity = 0.0;
     public double hopperVolts = 0.0;
+
+    public double motorTemp = 0.0;
   }
 
   public default void updateInputs(ConveyorIOInputs inputs) {}

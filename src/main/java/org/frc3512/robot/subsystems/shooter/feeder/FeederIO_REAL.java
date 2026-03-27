@@ -26,5 +26,8 @@ public class FeederIO_REAL implements FeederIO {
 
     // Log applied volts
     inputs.feederAppliedOutput = feeder.getStatorCurrent().getValueAsDouble();
+
+    // Log motor temperature
+    inputs.motorTemp = (feeder.getDeviceTemp().getValueAsDouble() * 1.8) + 32.0;
   }
 }

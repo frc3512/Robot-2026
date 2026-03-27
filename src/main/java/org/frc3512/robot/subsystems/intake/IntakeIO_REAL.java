@@ -43,5 +43,8 @@ public class IntakeIO_REAL implements IntakeIO {
 
     inputs.extensionPosition = extensionMotor.getPosition().getValueAsDouble();
     inputs.extensionAppliedVolts = extensionMotor.getStatorCurrent().getValueAsDouble();
+
+    inputs.rollerMotorTemp = (rollerMotor.getDeviceTemp().getValueAsDouble() * 1.8) + 32.0;
+    inputs.extensionMotorTemp = (extensionMotor.getDeviceTemp().getValueAsDouble() * 1.8) + 32.0;
   }
 }

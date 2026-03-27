@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import org.frc3512.robot.subsystems.drive.Drive;
 import org.frc3512.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
@@ -22,7 +24,6 @@ public class AssistedAuto extends Command {
   private final double minVisionWeight;
   private final double maxVisionWeight;
   private double lastVisionTime = 0.0;
-  private static final double VISION_TIMEOUT_SECONDS = 0.5;
   private static final double FUSION_UPDATE_INTERVAL = 0.1; // 100ms updates
 
   public AssistedAuto(Drive drive, Vision vision, Command pathCommand, double visionWeight) {
@@ -46,7 +47,7 @@ public class AssistedAuto extends Command {
 
   @Override
   public void initialize() {
-    pathCommand.schedule();
+    CommandScheduler.getInstance().schedule(pathCommand);
     lastVisionTime = 0.0;
     Logger.recordOutput("VisionAssistedAuto/State", "Initializing");
     Logger.recordOutput("VisionAssistedAuto/VisionWeight", this.visionWeight);

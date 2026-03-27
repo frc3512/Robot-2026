@@ -58,6 +58,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+@SuppressWarnings("unused")
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -246,6 +247,9 @@ public class RobotContainer {
     // Dump Fuel
     controller.rightBumper().onTrue(dump()).onFalse(idle());
 
+    // X the modules for a brake
+    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
   }
@@ -335,7 +339,7 @@ public class RobotContainer {
         conveyor.setHopper(0.0),
         feeder.setFeeder(0.0),
         // Being speeding up flywheel
-        flywheel.setRPM(2000),
+        flywheel.setRPM(2500),
         // Log action
         logMessage("Preping for shot"));
   }
@@ -472,7 +476,6 @@ public class RobotContainer {
   public Command verifyPositionWithVision(
       double expectedX, double expectedY, double expectedHeadingDegrees) {
     return new VerifyPosition(
-        drive,
         vision,
         new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees)),
         VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
