@@ -10,10 +10,10 @@
     "outpostFolder"
   ],
   "autoFolders": [
-    "NzInvolved",
     "HpInvolved",
+    "NzInvolved",
     "depotInvoled",
-    "middleCentral"
+    "middleInvolved"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

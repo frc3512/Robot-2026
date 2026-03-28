@@ -82,7 +82,7 @@ public class RobotContainer {
   public Timer hubTimer = new Timer();
 
   public static String gameData;
-  public static double prefire = 1.5; // Seconds before the hub becomes active to start shooting
+  public static double prefire = 2; // Seconds before the hub becomes active to start shooting
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -250,6 +250,8 @@ public class RobotContainer {
     // X the modules for a brake
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
 
+    controller.start().onTrue(ferry()).onFalse(idle());
+
     // Full reset in case something goes wrong
     controller.povLeft().onTrue(reset());
   }
@@ -346,26 +348,21 @@ public class RobotContainer {
 
   // Shoot
   public Command autoShoot() {
-    return Commands.either(
-        Commands.sequence(
-            // Update state
-            Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
-            // Engage Shooting systems
-            new ShootAndMove(
-                drive,
-                flywheel,
-                hood,
-                conveyor,
-                feeder,
-                intake,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX())),
-        logMessage(
-            Elastic.Notification.NotificationLevel.ERROR,
-            "Cannot Shoot Now",
-            "Hub is not active, do not shoot right now",
-            5000),
-        this::isHubActive);
+    return Commands.sequence(
+        // Wait until hub is active
+        Commands.waitUntil(this::isHubActive),
+        // Update state
+        Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
+        // Engage Shooting systems
+        new ShootAndMove(
+            drive,
+            flywheel,
+            hood,
+            conveyor,
+            feeder,
+            intake,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX()));
   }
 
   public Command shoot() {
@@ -643,7 +640,7 @@ public class RobotContainer {
   // Hub activity logic,
   // returns a boolean that can be used to check if
   // the hub is active based on the game data and timer
-  // Credit to 9084 for the idea
+  // Credit to 9084 for the idea (they are so cool btw)
   @AutoLogOutput(key = "Robot/Hub Active")
   public boolean isHubActive() {
     // Updated for 130s teleop: first 10s both active, then 100s alternating 25s periods,
@@ -657,6 +654,12 @@ public class RobotContainer {
 
     if (elapsed < 10.0 || elapsed >= 110.0) {
       // First 10s or last 30s (110-130+): both hubs active -> our hub active
+      return true;
+    }
+
+    // Prefire period: 2 seconds before hub becomes active
+    if (elapsed >= 8.0 && elapsed < 10.0) {
+      // 2-second prefire before the 10s both-active period
       return true;
     }
 
@@ -675,9 +678,21 @@ public class RobotContainer {
 
     boolean isMatch =
         (winner == 'B' && alliance == Alliance.Blue) || (winner == 'R' && alliance == Alliance.Red);
+
+    // Check for prefire periods (2 seconds before each active phase)
     if (isMatch) {
+      // Match: Prefire before phases 1 (23-25) and 3 (73-75)
+      if ((phase == 0 && elapsed >= 23.0 && elapsed < 25.0) ||
+          (phase == 2 && elapsed >= 73.0 && elapsed < 75.0)) {
+        return true;
+      }
       ourSideActive = (phase == 1 || phase == 3);
     } else {
+      // Mismatch: Prefire before phases 0 (0-2) and 2 (48-50)
+      if ((phase == 3 && elapsed >= 48.0 && elapsed < 50.0) ||
+          (phase == 1 && elapsed >= 23.0 && elapsed < 25.0)) {
+        return true;
+      }
       ourSideActive = (phase == 0 || phase == 2);
     }
 
@@ -686,6 +701,13 @@ public class RobotContainer {
     Logger.recordOutput("Robot/Hub Debug Winner", String.valueOf(winner));
     Logger.recordOutput("Robot/Hub Debug Alliance", alliance.toString());
     Logger.recordOutput("Robot/Hub Debug OurSideActive", ourSideActive);
+    Logger.recordOutput("Robot/Hub Debug IsMatch", isMatch);
+    Logger.recordOutput("Robot/Hub Debug IsPrefire", 
+      (elapsed >= 8.0 && elapsed < 10.0) || 
+      (isMatch && ((phase == 0 && elapsed >= 23.0 && elapsed < 25.0) ||
+                 (phase == 2 && elapsed >= 73.0 && elapsed < 75.0)) ||
+      (!isMatch && ((phase == 3 && elapsed >= 48.0 && elapsed < 50.0) ||
+                  (phase == 1 && elapsed >= 23.0 && elapsed < 25.0)))));
 
     return ourSideActive;
   }

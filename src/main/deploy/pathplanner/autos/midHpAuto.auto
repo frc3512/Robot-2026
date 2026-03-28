@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "midShoot"
+            "pathName": "midToHp"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "rotateHpPath"
           }
         },
         {
@@ -19,7 +25,7 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.8
+            "waitTime": 2.0
           }
         },
         {
