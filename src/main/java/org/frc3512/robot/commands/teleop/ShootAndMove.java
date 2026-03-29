@@ -355,7 +355,7 @@ public class ShootAndMove extends Command {
   public void end(boolean interrupted) {
     drive.stop();
     // Stop flywheel and set hood to lowered position for safety.
-    flywheel.setRPMDirect(2500.0);
+    flywheel.setRPMDirect(2800.0);
     hood.setPositionDirect(2);
     // Stop feeder and hopper.
     feeder.setFeederDirect(0.0);

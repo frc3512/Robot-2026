@@ -325,7 +325,7 @@ public class RobotContainer {
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(2500),
+        flywheel.setRPM(2800.0),
         hood.setPosition(5),
         // Log action
         logMessage("Idling"));
@@ -341,7 +341,7 @@ public class RobotContainer {
         conveyor.setHopper(0.0),
         feeder.setFeeder(0.0),
         // Being speeding up flywheel
-        flywheel.setRPM(2500),
+        flywheel.setRPM(2800.0),
         // Log action
         logMessage("Preping for shot"));
   }

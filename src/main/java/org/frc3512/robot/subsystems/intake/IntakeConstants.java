@@ -21,9 +21,9 @@ public class IntakeConstants {
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(80)
+                  .withStatorCurrentLimit(50)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimit(28)
                   .withSupplyCurrentLimitEnable(true));
 
   public static final TalonFXConfiguration extensionMotorConfig =
@@ -36,9 +36,9 @@ public class IntakeConstants {
           .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(80)
+                  .withStatorCurrentLimit(50)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimit(28)
                   .withSupplyCurrentLimitEnable(true));
 
   public static enum IntakeState {
