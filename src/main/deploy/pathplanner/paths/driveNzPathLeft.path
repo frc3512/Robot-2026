@@ -17,15 +17,15 @@
     {
       "anchor": {
         "x": 8.237722419928826,
-        "y": 3.050533807829181
+        "y": 3.45938315539739
       },
       "prevControl": {
         "x": 8.797200474495847,
-        "y": 2.803072360616844
+        "y": 3.211921708185053
       },
       "nextControl": {
         "x": 7.965483671423016,
-        "y": 3.1709471004375205
+        "y": 3.5797964480057294
       },
       "isLocked": false,
       "linkedName": null
@@ -83,7 +83,7 @@
   "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 10.0,
-    "rotation": -50.19191196082413
+    "rotation": -50.191911960824136
   },
   "useDefaultConstraints": false
 }

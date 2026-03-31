@@ -329,7 +329,7 @@ public class ShootAndMove extends Command {
     if (aimedAtHub && !feedingStarted && flywheel.isVelocityWithinTolerance()) {
       feeder.setFeederDirect(0.85);
       hopper.setHopperDirect(0.85);
-      intake.setRollerDirect(0.2);
+      intake.setRollerDirect(0.1);
       feedingStarted = true;
       feedingTimer.restart();
     }
