@@ -121,6 +121,8 @@ public class ShootAndMove extends Command {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
+    // TODO: Update these values with the new shooter
+
     // ( DISTANCE (m) || RPM )
     RPM_TABLE.put(1.25, 2500.0);
     RPM_TABLE.put(1.88, 2800.0);

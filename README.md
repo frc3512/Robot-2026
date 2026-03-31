@@ -4,8 +4,8 @@ Purpose
 - This repository is dedicated to the actual code we will be using at comps, with this years robot, Cerberus
 
 Branching & workflow
-- main: current main version with the latest and functional code
-- COMP-<BranchObjective>: individual prototype branches for new testing code
+- ROBOT_NAME: current main version with the latest and functional code
+- TEST-<BranchObjective>: individual prototype branches for new testing code
 
 Coding & review standards
 - Keep clean, structured code
@@ -18,4 +18,4 @@ Version Management (V.U.R)
 
 This repo is for experimentation and verification: keep it organized, documented, and fast to run so prototypes can be iterated efficiently.
 
-Current Version: 3.1.0
+Current Version: 0.0.0

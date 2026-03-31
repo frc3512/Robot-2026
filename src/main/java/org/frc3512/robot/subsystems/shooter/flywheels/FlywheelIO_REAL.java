@@ -24,6 +24,8 @@ public class FlywheelIO_REAL implements FlywheelIO {
 
     motors = List.of(leftMotor, middleMotor, rightMotor);
 
+    // TODO: Update these values with the new shooter
+
     FlywheelConstants.configureMotor(leftMotor, InvertedValue.Clockwise_Positive);
     FlywheelConstants.configureMotor(middleMotor, InvertedValue.Clockwise_Positive);
     FlywheelConstants.configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
