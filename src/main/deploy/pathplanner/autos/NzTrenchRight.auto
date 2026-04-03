@@ -7,7 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverBumpRight"
+            "pathName": "goOverTrenchRight"
           }
         },
         {
@@ -35,16 +35,16 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.5
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
                 }
               }
             ]
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
           }
         }
       ]

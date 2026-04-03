@@ -1,5 +1,8 @@
 package org.frc3512.robot;
 
+import java.lang.annotation.ElementType;
+
+import org.frc3512.robot.Elastic.Notification.NotificationLevel;
 import org.frc3512.robot.commands.auto.AssistedAuto;
 import org.frc3512.robot.commands.auto.CorrectedAuto;
 import org.frc3512.robot.commands.auto.PoseCorrector;
@@ -191,21 +194,26 @@ public class RobotContainer {
         break;
     }
 
+    //Named Commands
     registerNamedCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
     registerNamedCommand("Intake", intake());
     registerNamedCommand("Shoot", autonShoot());
-    registerNamedCommand("StopShoot", reset());
+    registerNamedCommand("Reset", reset());
     registerNamedCommand("PrepShoot", idle());
+    registerNamedCommand("StopIntake", stopIntake());
+
+    //Event Triggers
+    new EventTrigger("PrepIntake");
+    new EventTrigger("KillIntake");
 
     // Vision correction commands
     registerNamedCommand(
         "VisionCorrect", correctPoseWithVision(0.0, 0.0, 0.0)); // Generic corrector
-    new EventTrigger("PrepIntake");
 
     // Set up auto routines without vision correction
-    createNormalAutos();
+    // createNormalAutos();
     // Set up auto routines with vision correction (commented out for now - needs testing)
-    // createVisionAutos();
+    createVisionAutos();
     
     // Configure the button bindings
     configureButtonBindings();
@@ -294,6 +302,19 @@ public class RobotContainer {
             "Robot Reset",
             "Robot has been reset sucessfully",
             5000));
+  }
+
+  public Command stopIntake(){
+    return Commands.sequence(
+      //Stop the intake
+      intake.setRollerSpeed(0),
+      intake.setPosition(IntakeState.EXTEND),
+      //Log action
+      logMessage("Stopping Intake"),
+      logMessage(Elastic.Notification.NotificationLevel.INFO,
+        "Intake Stopped",
+        "Robot has stopped Intaking",
+        5000));
   }
 
   // Intake
@@ -515,13 +536,22 @@ public class RobotContainer {
     
     // List of all available auto names (without .auto extension)
     String[] autoNames = {
-      "DoubleNzAutoLeft",
-      "DoubleNzAutoRight", 
+      "NzDoubleLeft",
+      "NzDoubleRight",
+      "NzLeft",
+      "NzRight",
+      "NzTrenchDoubleLeft",
+      "NzTrenchDoubleRight",
+      "NzTrenchLeft",
+      "NzTrenchRight",
+      "zNzThenDepot",
+      "zNzThenHp",
+      "NzTrenchDepot",
+      "NzTrenchHp",
       "HpScoreAuto",
       "HpToNzAuto",
-      "NzAutoLeft",
-      "NzAutoRight",
       "depotAuto",
+      "midHpAuto",
       "shootAuto"
     };
     

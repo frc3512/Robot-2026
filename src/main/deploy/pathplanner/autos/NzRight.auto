@@ -23,33 +23,28 @@
           }
         },
         {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.5
+                }
+              }
+            ]
+          }
+        },
+        {
           "type": "named",
           "data": {
-            "name": "Shoot"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 1.9
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "StopShoot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "2ndNzRunRight"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzDashRight"
+            "name": "Reset"
           }
         }
       ]

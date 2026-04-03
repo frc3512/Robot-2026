@@ -5,27 +5,21 @@
     "data": {
       "commands": [
         {
-          "type": "named",
+          "type": "path",
           "data": {
-            "name": "Hopper"
+            "pathName": "goOverTrenchRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "toHpPath"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.3
+            "pathName": "driveNzPathRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "rotateHpPath"
+            "pathName": "returnNzRight"
           }
         },
         {
@@ -41,28 +35,28 @@
               {
                 "type": "wait",
                 "data": {
-                  "waitTime": 2.5
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
                 }
               }
             ]
           }
         },
         {
-          "type": "named",
-          "data": {
-            "name": "Reset"
-          }
-        },
-        {
           "type": "path",
           "data": {
-            "pathName": "HptoNz"
+            "pathName": "NzToHp"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "HpInvolved",
+  "folder": "NzInvolved",
   "choreoAuto": false
 }

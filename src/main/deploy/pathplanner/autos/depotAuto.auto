@@ -9,6 +9,18 @@
           "data": {
             "pathName": "driveDepot"
           }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "intakeDepotPath"
+          }
         }
       ]
     }
