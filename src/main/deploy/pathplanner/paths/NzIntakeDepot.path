@@ -3,41 +3,25 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.494132530120482,
-        "y": 4.657879518072289
+        "x": 0.7954457831325303,
+        "y": 4.920144578313253
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.21203108380339,
-        "y": 5.343664929388899
+        "x": 0.6533855421686747,
+        "y": 5.783433734939758
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.112967189728957,
-        "y": 5.64586305278174
+        "x": 0.7954457831325303,
+        "y": 7.061975903614458
       },
       "prevControl": {
-        "x": 6.123508766911175,
-        "y": 5.64586305278174
-      },
-      "nextControl": {
-        "x": 4.1296291012838795,
-        "y": 5.64586305278174
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 3.2368616262482157,
-        "y": 5.2059486447931524
-      },
-      "prevControl": {
-        "x": 4.343556651113121,
-        "y": 5.659655531740307
+        "x": 0.5987469879518073,
+        "y": 6.745072289156626
       },
       "nextControl": null,
       "isLocked": false,
@@ -49,13 +33,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "KillIntake",
-      "waypointRelativePos": 1.149379652605449,
+      "name": "PrepIntake",
+      "waypointRelativePos": 0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "StopIntake"
+          "name": "Intake"
         }
       }
     }
@@ -73,10 +57,10 @@
     "rotation": 131.99191837885286
   },
   "reversed": false,
-  "folder": "NzFolder",
+  "folder": "depotFolder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 119.99999999999999
+    "rotation": 132.0
   },
   "useDefaultConstraints": true
 }

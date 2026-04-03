@@ -1,0 +1,105 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "path",
+          "data": {
+            "pathName": "goOverTrenchLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "driveNzPathLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "returnNzTrenchLeft"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2ndNzRunTrenchLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "NzDashTrenchLeft"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2ndReturnNzTrenchLeft"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 2.0
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "trenchRunIntoNzLeft"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "NzInvolved",
+  "choreoAuto": false
+}

@@ -8,51 +8,58 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.500811241455075,
-        "y": 2.2303222450414593
+        "x": 6.032798512208761,
+        "y": 2.910597993090759
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.817,
-        "y": 2.341
+        "x": 5.294108416547789,
+        "y": 2.566462196861627
       },
       "prevControl": {
-        "x": 6.658721417230147,
-        "y": 2.1908998475148276
+        "x": 5.544089755620969,
+        "y": 2.5695167205855016
       },
       "nextControl": {
-        "x": 3.0358736799120853,
-        "y": 2.836944948269722
+        "x": 4.853404027461561,
+        "y": 2.561077226860785
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.0,
-        "y": 3.247326
+        "x": 3.1462910128388017,
+        "y": 2.915805991440799
       },
       "prevControl": {
-        "x": 2.0,
-        "y": 1.9973260000000002
+        "x": 4.201763878283408,
+        "y": 2.7959781844633556
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.9941908713692923,
-      "rotationDegrees": 135.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [],
   "pointTowardsZones": [],
-  "eventMarkers": [],
+  "eventMarkers": [
+    {
+      "name": "KillIntake",
+      "waypointRelativePos": 1.4114143920595532,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "StopIntake"
+        }
+      }
+    }
+  ],
   "globalConstraints": {
     "maxVelocity": 3.0,
     "maxAcceleration": 3.0,
@@ -63,7 +70,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -33.111
+    "rotation": -138.01278750418345
   },
   "reversed": false,
   "folder": "NzFolder",
