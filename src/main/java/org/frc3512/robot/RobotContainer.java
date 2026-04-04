@@ -4,7 +4,8 @@ import java.lang.annotation.ElementType;
 
 import org.frc3512.robot.Elastic.Notification.NotificationLevel;
 import org.frc3512.robot.commands.auto.AssistedAuto;
-import org.frc3512.robot.commands.auto.CorrectedAuto;
+import org.frc3512.robot.commands.auto.SimpleCorrectedAuto;
+import org.frc3512.robot.commands.auto.VisionGuidedAuto;
 import org.frc3512.robot.commands.auto.PoseCorrector;
 import org.frc3512.robot.commands.auto.VerifyPosition;
 import org.frc3512.robot.commands.teleop.DriveCommands;
@@ -522,7 +523,6 @@ public class RobotContainer {
       double expectedX, double expectedY, double expectedHeadingDegrees) {
     Pose2d expectedPose = new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees));
     return new VerifyPosition(
-        drive,
         vision,
         expectedPose,
         VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
@@ -532,26 +532,20 @@ public class RobotContainer {
 
   /** Wraps a PathPlanner command with vision assistance for continuous pose correction. */
   public Command withVisionAssistance(Command pathCommand) {
-    return new AssistedAuto(
-        drive,
-        vision,
-        pathCommand,
-        VisionCorrectionConstants.VISION_FUSION_WEIGHT,
-        VisionCorrectionConstants.VISION_FUSION_MIN_WEIGHT,
-        VisionCorrectionConstants.VISION_FUSION_MAX_WEIGHT);
+    return new VisionGuidedAuto(drive, vision, pathCommand);
   }
 
   /**
-   * Example method showing how to create a vision-corrected autonomous command. This demonstrates
-   * the recommended approach for adding vision correction to existing autos.
+   * Example method showing how to create a vision-corrected autonomous command.
+   * Uses the simplified vision guidance system.
    */
   public Command createVisionCorrectedAuto(String autoName) {
     try {
       // Get the original PathPlanner auto command
       Command originalAuto = AutoBuilder.buildAuto(autoName);
 
-      // Wrap it with vision correction
-      return CorrectedAuto.withVisionCorrection(originalAuto, this);
+      // Wrap it with simplified vision guidance
+      return SimpleCorrectedAuto.withVisionGuidance(originalAuto, this);
     } catch (Exception e) {
       DriverStation.reportError(
           "Failed to create vision-corrected auto: " + autoName, e.getStackTrace());

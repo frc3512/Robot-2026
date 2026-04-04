@@ -2,6 +2,7 @@ package org.frc3512.robot.subsystems.shooter.flywheels;
 
 import static edu.wpi.first.units.Units.RPM;
 
+import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -12,32 +13,41 @@ import java.util.List;
 public class FlywheelIO_REAL implements FlywheelIO {
   private static final AngularVelocity kVelocityTolerance = RPM.of(75);
 
-  private final TalonFX leftMotor, middleMotor, rightMotor;
+  private final TalonFX mainMotor, secondMotor, tertiaryMotor;
   private final List<TalonFX> motors;
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
+  private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
   private double wantedRPM = 0.0;
 
   public FlywheelIO_REAL() {
-    leftMotor = new TalonFX(FlywheelConstants.leftMotorID);
-    middleMotor = new TalonFX(FlywheelConstants.middleMotorID);
-    rightMotor = new TalonFX(FlywheelConstants.rightMotorID);
+    mainMotor = new TalonFX(FlywheelConstants.mainMotor);
+    secondMotor = new TalonFX(FlywheelConstants.secondaryMotor);
+    tertiaryMotor = new TalonFX(FlywheelConstants.tertiaryMotor);
 
-    motors = List.of(leftMotor, middleMotor, rightMotor);
+    motors = List.of(mainMotor, secondMotor, tertiaryMotor);
 
     // TODO: Update these values with the new shooter
 
-    FlywheelConstants.configureMotor(leftMotor, InvertedValue.Clockwise_Positive);
-    FlywheelConstants.configureMotor(middleMotor, InvertedValue.Clockwise_Positive);
-    FlywheelConstants.configureMotor(rightMotor, InvertedValue.Clockwise_Positive);
+    FlywheelConstants.configureMotor(mainMotor, InvertedValue.Clockwise_Positive);
+    FlywheelConstants.configureMotor(secondMotor, InvertedValue.Clockwise_Positive);
+    FlywheelConstants.configureMotor(tertiaryMotor, InvertedValue.Clockwise_Positive);
 
-    leftMotor.optimizeBusUtilization();
-    middleMotor.optimizeBusUtilization();
-    rightMotor.optimizeBusUtilization();
+    mainMotor.optimizeBusUtilization();
+    secondMotor.optimizeBusUtilization();
+    tertiaryMotor.optimizeBusUtilization();
   }
 
   @Override
   public void setRPM(double rpm) {
     wantedRPM = rpm;
+  }
+
+  @Override
+  public void setPercentOutput(double percent) {
+    wantedRPM = 0.0;
+    for (final TalonFX motor : motors) {
+      motor.setControl(dutyCycleRequest.withOutput(percent));
+    }
   }
 
   @Override
@@ -65,13 +75,13 @@ public class FlywheelIO_REAL implements FlywheelIO {
 
     inputs.rpmSetpoint = velocityRequest.Velocity * 60.0;
 
-    inputs.leftVelocity = leftMotor.getVelocity().getValueAsDouble() * 60.0;
-    inputs.middleVelocity = middleMotor.getVelocity().getValueAsDouble() * 60.0;
-    inputs.rightVelocity = rightMotor.getVelocity().getValueAsDouble() * 60.0;
+    inputs.leftVelocity = mainMotor.getVelocity().getValueAsDouble() * 60.0;
+    inputs.middleVelocity = secondMotor.getVelocity().getValueAsDouble() * 60.0;
+    inputs.rightVelocity = tertiaryMotor.getVelocity().getValueAsDouble() * 60.0;
 
-    inputs.leftAppliedVolts = leftMotor.getStatorCurrent().getValueAsDouble();
-    inputs.middleAppliedVolts = middleMotor.getStatorCurrent().getValueAsDouble();
-    inputs.rightAppliedVolts = rightMotor.getStatorCurrent().getValueAsDouble();
+    inputs.leftAppliedVolts = mainMotor.getStatorCurrent().getValueAsDouble();
+    inputs.middleAppliedVolts = secondMotor.getStatorCurrent().getValueAsDouble();
+    inputs.rightAppliedVolts = tertiaryMotor.getStatorCurrent().getValueAsDouble();
 
     inputs.isVelocityWithinTolerance = isVelocityWithinTolerance();
   }

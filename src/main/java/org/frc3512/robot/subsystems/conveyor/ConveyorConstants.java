@@ -8,7 +8,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class ConveyorConstants {
 
-  public static final int hopperMotorID = 17;
+  public static final int hopperMotorID = 22;
 
   public static final TalonFXConfiguration hopper =
       new TalonFXConfiguration()

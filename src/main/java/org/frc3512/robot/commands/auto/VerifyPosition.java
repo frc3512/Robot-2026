@@ -5,14 +5,12 @@ import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import org.frc3512.robot.subsystems.vision.Vision;
 import org.littletonrobotics.junction.Logger;
-import org.frc3512.robot.subsystems.drive.Drive;
 
 /**
  * Command that waits until the robot's vision-estimated pose is within specified tolerances of an
  * expected pose. Useful for verifying position before proceeding with autonomous actions.
  */
 public class VerifyPosition extends Command {
-private final Drive drive;
   private final Vision vision;
   private final Pose2d expectedPose;
   private final double positionToleranceMeters;
@@ -21,18 +19,16 @@ private final Drive drive;
   private double startTime;
 
 public VerifyPosition(
-      Drive drive, Vision vision, Pose2d expectedPose, double positionToleranceMeters) {
-    this(drive, vision, expectedPose, positionToleranceMeters, 5.0, 2.0);
+      Vision vision, Pose2d expectedPose, double positionToleranceMeters) {
+    this(vision, expectedPose, positionToleranceMeters, 5.0, 2.0);
   }
 
 public VerifyPosition(
-      Drive drive,
       Vision vision,
       Pose2d expectedPose,
       double positionToleranceMeters,
       double angleToleranceDegrees,
       double timeoutSeconds) {
-    this.drive = drive;
     this.vision = vision;
     this.expectedPose = expectedPose;
     this.positionToleranceMeters = positionToleranceMeters;

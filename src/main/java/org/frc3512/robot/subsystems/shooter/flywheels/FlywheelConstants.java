@@ -16,9 +16,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class FlywheelConstants {
 
-  public static int leftMotorID = 20;
-  public static int middleMotorID = 21;
-  public static int rightMotorID = 22;
+  public static int mainMotor = 30;
+  public static int secondaryMotor = 31;
+  public static int tertiaryMotor = 32;
 
   public static void configureMotor(TalonFX motor, InvertedValue invertDirection) {
     final TalonFXConfiguration config =

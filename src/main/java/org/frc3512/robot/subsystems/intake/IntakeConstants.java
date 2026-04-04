@@ -10,8 +10,8 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class IntakeConstants {
 
-  public static final int rollerMotorID = 16;
-  public static final int extensionMotorID = 15;
+  public static final int rollerMotorID = 21;
+  public static final int extensionMotorID = 20;
 
   public static final TalonFXConfiguration rollerMotorConfig =
       new TalonFXConfiguration()
