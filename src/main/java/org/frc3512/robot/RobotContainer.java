@@ -9,6 +9,8 @@ import org.frc3512.robot.commands.auto.PoseCorrector;
 import org.frc3512.robot.commands.auto.VerifyPosition;
 import org.frc3512.robot.commands.teleop.DriveCommands;
 import org.frc3512.robot.commands.teleop.ShootAndMove;
+import org.frc3512.robot.subsystems.Superstructure;
+import org.frc3512.robot.subsystems.States;
 import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO_REAL;
@@ -71,6 +73,8 @@ public class RobotContainer {
   private final Intake intake;
   private final Conveyor conveyor;
   private final Feeder feeder;
+  
+  private final Superstructure superstructure;
 
   // Public accessors for vision correction commands
   public Drive getDrive() {
@@ -142,6 +146,17 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_REAL());
         hood = new Hood(new HoodIO_REAL());
         feeder = new Feeder(new FeederIO_REAL());
+        
+        // Create superstructure with all subsystems and joystick suppliers
+        superstructure = new Superstructure(
+            drive,
+            intake,
+            conveyor,
+            feeder,
+            flywheel,
+            hood,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX());
 
         break;
 
@@ -170,6 +185,17 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_SIM());
         hood = new Hood(new HoodIO_SIM());
         feeder = new Feeder(new FeederIO_SIM());
+        
+        // Create superstructure with all subsystems and joystick suppliers
+        superstructure = new Superstructure(
+            drive,
+            intake,
+            conveyor,
+            feeder,
+            flywheel,
+            hood,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX());
 
         break;
 
@@ -190,6 +216,17 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO() {});
         hood = new Hood(new HoodIO() {});
         feeder = new Feeder(new FeederIO() {});
+        
+        // Create superstructure with all subsystems and joystick suppliers
+        superstructure = new Superstructure(
+            drive,
+            intake,
+            conveyor,
+            feeder,
+            flywheel,
+            hood,
+            () -> -controller.getLeftY(),
+            () -> -controller.getLeftX());
 
         break;
     }
@@ -268,22 +305,35 @@ public class RobotContainer {
                     drive)
                 .ignoringDisable(true));
 
-    // Left Side controls: Intake and idle
-    controller.leftTrigger().onTrue(intake()).onFalse(prepShooting());
-    controller.leftBumper().onTrue(idle());
-
-    // Right side controls: Shoot and ferry
-    controller.rightTrigger().whileTrue(autoShoot());
-    // Dump Fuel
-    controller.rightBumper().onTrue(dump()).onFalse(idle());
+    // Superstructure controls
+    controller.leftTrigger().onTrue(
+        Commands.runOnce(() -> superstructure.setWantedState(States.INTAKING))
+    ).onFalse(
+        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+    );
+    
+    controller.leftBumper().onTrue(
+        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+    );
+    
+    controller.rightTrigger().whileTrue(
+        Commands.runOnce(() -> superstructure.setWantedState(States.SHOOTING))
+    ).onFalse(
+        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+    );
+    
+    controller.rightBumper().onTrue(
+        Commands.runOnce(() -> superstructure.setWantedState(States.FERRYING))
+    ).onFalse(
+        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+    );
+    
+    controller.povLeft().onTrue(
+        Commands.runOnce(() -> superstructure.setWantedState(States.HOMED))
+    );
 
     // X the modules for a brake
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    controller.start().onTrue(ferry()).onFalse(idle());
-
-    // Full reset in case something goes wrong
-    controller.povLeft().onTrue(reset());
   }
 
   private void registerNamedCommand(String name, Command command) {
@@ -447,51 +497,6 @@ public class RobotContainer {
                 () -> -controller.getLeftX()))
         .withTimeout(3.5);
   }
-
-  // Ferry from mid to our zone
-  public Command ferry() {
-    return Commands.sequence(
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.FERRYING),
-        // Point at drive station
-        // DriveCommands.joystickDriveAtAngle(
-        //     drive,
-        //     () -> -controller.getLeftY(),
-        //     () -> -controller.getLeftX(),
-        //     () -> Rotation2d.k180deg),
-        // Set hood to max
-        hood.setPosition(22),
-        // Spin flyhweels at a slower speed
-        flywheel.setRPM(3300),
-        // Allow spin-up time
-        Commands.waitSeconds(1),
-        // Feed into the shooter
-        feeder.setFeeder(0.9),
-        conveyor.setHopper(0.75),
-        // Wait for a little bit of room
-        Commands.waitSeconds(0.5),
-        // Log action
-        logMessage("Ferrying fuel to zone"),
-        // Agitate intake repeatedly until command is cancelled
-        Commands.sequence(
-                intake.setPosition(IntakeState.EXTEND),
-                Commands.waitSeconds(0.25),
-                intake.setPosition(IntakeState.AGITATE),
-                Commands.waitSeconds(0.25))
-            .repeatedly());
-  }
-
-  public Command dump() {
-    return Commands.sequence(
-        // Setup intake
-        intake.setPosition(IntakeState.EXTEND),
-        intake.setRollerSpeed(-0.75),
-        // Dump Conveyor
-        conveyor.setHopper(-0.5),
-        // Empty Feeder
-        feeder.setFeeder(-0.5));
-  }
-
   // --- Begin Auto Code ---
 
   // Auto chooser
