@@ -16,8 +16,8 @@ public class HoodIO_REAL implements HoodIO {
     motor = new TalonFX(HoodConstants.motorID);
     motor.getConfigurator().apply(HoodConstants.config);
 
-    // Set initial position to 0 degrees
-    motor.setPosition(0.00000);
+    // Set initial position to 10 degrees as minimum shooting angle
+    motor.setPosition(10.000000000);
 
     // Optimize bus utilization for better performance
     motor.optimizeBusUtilization();

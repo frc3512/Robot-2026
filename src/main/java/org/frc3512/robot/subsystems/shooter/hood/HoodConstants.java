@@ -31,5 +31,5 @@ public class HoodConstants {
                   .withStatorCurrentLimitEnable(true)
                   .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true))
-          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(112.5 / 1.0));
+          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(164.7 / 1.0));
 }

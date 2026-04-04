@@ -1,4 +1,4 @@
-package org.frc3512.robot.subsystems.shooter.flywheels;
+package org.frc3512.robot.subsystems.shooter.drum;
 
 import org.littletonrobotics.junction.AutoLog;
 

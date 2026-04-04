@@ -1,8 +1,7 @@
-package org.frc3512.robot.subsystems.shooter.flywheels;
+package org.frc3512.robot.subsystems.shooter.drum;
 
 import static edu.wpi.first.units.Units.RPM;
 
-import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.controls.VelocityVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.InvertedValue;
@@ -16,7 +15,6 @@ public class FlywheelIO_REAL implements FlywheelIO {
   private final TalonFX mainMotor, secondMotor, tertiaryMotor;
   private final List<TalonFX> motors;
   private final VelocityVoltage velocityRequest = new VelocityVoltage(0).withSlot(0);
-  private final DutyCycleOut dutyCycleRequest = new DutyCycleOut(0);
   private double wantedRPM = 0.0;
 
   public FlywheelIO_REAL() {
@@ -30,7 +28,7 @@ public class FlywheelIO_REAL implements FlywheelIO {
 
     FlywheelConstants.configureMotor(mainMotor, InvertedValue.Clockwise_Positive);
     FlywheelConstants.configureMotor(secondMotor, InvertedValue.Clockwise_Positive);
-    FlywheelConstants.configureMotor(tertiaryMotor, InvertedValue.Clockwise_Positive);
+    FlywheelConstants.configureMotor(tertiaryMotor, InvertedValue.CounterClockwise_Positive);
 
     mainMotor.optimizeBusUtilization();
     secondMotor.optimizeBusUtilization();
@@ -40,14 +38,6 @@ public class FlywheelIO_REAL implements FlywheelIO {
   @Override
   public void setRPM(double rpm) {
     wantedRPM = rpm;
-  }
-
-  @Override
-  public void setPercentOutput(double percent) {
-    wantedRPM = 0.0;
-    for (final TalonFX motor : motors) {
-      motor.setControl(dutyCycleRequest.withOutput(percent));
-    }
   }
 
   @Override

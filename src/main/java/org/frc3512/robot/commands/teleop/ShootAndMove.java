@@ -20,8 +20,8 @@ import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.drive.Drive;
 import org.frc3512.robot.subsystems.intake.Intake;
 import org.frc3512.robot.subsystems.intake.IntakeConstants;
+import org.frc3512.robot.subsystems.shooter.drum.Flywheel;
 import org.frc3512.robot.subsystems.shooter.feeder.Feeder;
-import org.frc3512.robot.subsystems.shooter.flywheels.Flywheel;
 import org.frc3512.robot.subsystems.shooter.hood.Hood;
 import org.littletonrobotics.junction.Logger;
 
