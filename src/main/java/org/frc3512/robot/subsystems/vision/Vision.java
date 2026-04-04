@@ -11,6 +11,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.wpilibj.Alert;
 import edu.wpi.first.wpilibj.Alert.AlertType;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import java.util.LinkedList;
 import java.util.List;
@@ -22,6 +23,10 @@ public class Vision extends SubsystemBase {
   private final VisionIO[] io;
   private final VisionIOInputsAutoLogged[] inputs;
   private final Alert[] disconnectedAlerts;
+
+  // Latest accepted vision pose tracking for verification commands
+  private Pose2d latestVisionPose = null;
+  private double latestVisionTimestamp = 0.0;
 
   public Vision(VisionConsumer consumer, VisionIO... io) {
     this.consumer = consumer;
@@ -49,6 +54,21 @@ public class Vision extends SubsystemBase {
    */
   public Rotation2d getTargetX(int cameraIndex) {
     return inputs[cameraIndex].latestTargetObservation.tx();
+  }
+
+  /**
+   * Gets the most recent accepted vision pose estimate. Null if no recent valid data.
+   */
+  public Pose2d getLatestVisionPose() {
+    return latestVisionPose;
+  }
+
+  /**
+   * Checks if there's recent vision data within timeout.
+   */
+  public boolean hasRecentVisionData(double timeoutSeconds) {
+    return latestVisionPose != null && 
+           (Timer.getFPGATimestamp() - latestVisionTimestamp) <= timeoutSeconds;
   }
 
   @Override
@@ -112,6 +132,10 @@ public class Vision extends SubsystemBase {
           continue;
         }
 
+        // Track latest accepted vision pose
+        latestVisionPose = observation.pose().toPose2d();
+        latestVisionTimestamp = observation.timestamp();
+
         // Calculate standard deviations
         double stdDevFactor =
             Math.pow(observation.averageTagDistance(), 2.0) / observation.tagCount();
@@ -126,10 +150,10 @@ public class Vision extends SubsystemBase {
           angularStdDev *= cameraStdDevFactors[cameraIndex];
         }
 
-        // Send vision observation
+        // Send vision observation to Drive poseEstimator
         consumer.accept(
-            observation.pose().toPose2d(),
-            observation.timestamp(),
+            latestVisionPose,
+            latestVisionTimestamp,
             VecBuilder.fill(linearStdDev, linearStdDev, angularStdDev));
       }
 
@@ -159,6 +183,10 @@ public class Vision extends SubsystemBase {
         "Vision/Summary/RobotPosesAccepted", allRobotPosesAccepted.toArray(new Pose3d[0]));
     Logger.recordOutput(
         "Vision/Summary/RobotPosesRejected", allRobotPosesRejected.toArray(new Pose3d[0]));
+
+    // Log latest vision pose
+    Logger.recordOutput("Vision/LatestAcceptedPose", latestVisionPose);
+    Logger.recordOutput("Vision/LatestVisionTimestamp", latestVisionTimestamp);
   }
 
   @FunctionalInterface

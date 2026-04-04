@@ -205,10 +205,32 @@ public class RobotContainer {
     //Event Triggers
     new EventTrigger("PrepIntake");
     new EventTrigger("KillIntake");
+    new EventTrigger("EVerifyNZLeft");
+    new EventTrigger("EVerifyNZRight");
+    new EventTrigger("EVerifyHP");
+    new EventTrigger("EVerifyShootMid");
 
     // Vision correction commands
     registerNamedCommand(
         "VisionCorrect", correctPoseWithVision(0.0, 0.0, 0.0)); // Generic corrector
+
+    // Waypoint-specific verifiers using predefined poses
+    registerNamedCommand("VerifyNZLeft", verifyPositionWithVision(
+        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_X,
+        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_Y,
+        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_HEADING_DEGREES));
+    registerNamedCommand("VerifyNZRight", verifyPositionWithVision(
+        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_X,
+        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_Y,
+        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_HEADING_DEGREES));
+    registerNamedCommand("VerifyHP", verifyPositionWithVision(
+        VisionCorrectionConstants.WaypointPoses.HP_X,
+        VisionCorrectionConstants.WaypointPoses.HP_Y,
+        VisionCorrectionConstants.WaypointPoses.HP_HEADING_DEGREES));
+    registerNamedCommand("VerifyShootMid", verifyPositionWithVision(
+        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_X,
+        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_Y,
+        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_HEADING_DEGREES));
 
     // Set up auto routines without vision correction
     // createNormalAutos();
@@ -423,7 +445,7 @@ public class RobotContainer {
                 intake,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .withTimeout(5.0);
+        .withTimeout(3.5);
   }
 
   // Ferry from mid to our zone
@@ -493,9 +515,11 @@ public class RobotContainer {
   /** Creates a command that verifies robot position using vision before proceeding. */
   public Command verifyPositionWithVision(
       double expectedX, double expectedY, double expectedHeadingDegrees) {
+    Pose2d expectedPose = new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees));
     return new VerifyPosition(
+        drive,
         vision,
-        new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees)),
+        expectedPose,
         VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
         VisionCorrectionConstants.VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES,
         2.0); // 2 second timeout

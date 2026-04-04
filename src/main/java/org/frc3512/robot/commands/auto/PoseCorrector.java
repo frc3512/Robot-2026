@@ -96,15 +96,10 @@ public class PoseCorrector extends Command {
   }
 
   private boolean hasRecentVisionData() {
-    // This is a placeholder - you'll need to implement actual vision data timing
-    // For now, we'll assume we have recent data if the vision system is working
-    return vision != null; // Replace with actual implementation
+    return vision.hasRecentVisionData(0.5); // 500ms timeout
   }
 
   private Pose2d getVisionPose() {
-    // This is a placeholder - you'll need to implement actual vision pose retrieval
-    // For now, return null to indicate no vision data available
-    // In reality, this would get the latest pose from your vision system
-    return null;
+    return vision.getLatestVisionPose();
   }
 }

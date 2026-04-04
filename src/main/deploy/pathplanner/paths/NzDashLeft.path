@@ -3,53 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.051674698795181,
-        "y": 6.985
+        "x": 6.117240963855421,
+        "y": 5.914326
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.062548248603363,
-        "y": 6.59156821851579
+        "x": 8.554131160365927,
+        "y": 7.313054383945744
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.276,
-        "y": 4.341
+        "x": 7.876602409638554,
+        "y": 4.286326
       },
       "prevControl": {
-        "x": 7.461776803985465,
-        "y": 5.3358019798437
-      },
-      "nextControl": {
-        "x": 7.091324639516425,
-        "y": 3.3520960556099184
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 6.27,
-        "y": 4.931
-      },
-      "prevControl": {
-        "x": 6.805462543456686,
-        "y": 4.100267305564134
+        "x": 7.843809852845662,
+        "y": 5.291791388871733
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [
-    {
-      "waypointRelativePos": 0.5,
-      "rotationDegrees": -90.0
-    }
-  ],
+  "rotationTargets": [],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -77,17 +56,6 @@
           "name": "VerifyNZLeft"
         }
       }
-    },
-    {
-      "name": "EVerifyNZLeft",
-      "waypointRelativePos": 2.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "VerifyNZLeft"
-        }
-      }
     }
   ],
   "globalConstraints": {
@@ -96,17 +64,17 @@
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
-    "unlimited": true
+    "unlimited": false
   },
   "goalEndState": {
     "velocity": 5.0,
-    "rotation": 108.77803322244556
+    "rotation": -86.186
   },
   "reversed": false,
   "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 5.0,
-    "rotation": -34.82428429410316
+    "rotation": -34.824
   },
   "useDefaultConstraints": true
 }

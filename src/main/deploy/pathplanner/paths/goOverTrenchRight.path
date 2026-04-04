@@ -3,13 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.560328102710413,
-        "y": 0.534
+        "x": 3.56,
+        "y": 0.534326
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.9445235378031365,
-        "y": 0.5735135520684729
+        "x": 4.5,
+        "y": 0.534326
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.975,
+        "y": 0.534326
+      },
+      "prevControl": {
+        "x": 5.759263470112668,
+        "y": 0.660649986923198
+      },
+      "nextControl": {
+        "x": 6.226624469152986,
+        "y": 0.38698791976185587
       },
       "isLocked": false,
       "linkedName": null
@@ -30,7 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.34754797441364627,
+      "waypointRelativePos": 0.7,
       "rotationDegrees": 90.0
     }
   ],
@@ -38,7 +54,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 20.0,
         "maxAcceleration": 20.0,
@@ -52,13 +68,35 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "EVerifyNZRight",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZRight"
+        }
+      }
+    },
+    {
       "name": "PrepIntake",
-      "waypointRelativePos": 0.37272113436867116,
+      "waypointRelativePos": 1.2287841191066944,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "Intake"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZRight",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZRight"
         }
       }
     }

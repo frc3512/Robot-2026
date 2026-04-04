@@ -4,11 +4,11 @@ package org.frc3512.robot.subsystems.vision;
 public final class VisionCorrectionConstants {
   public static final double VISION_CORRECTION_TOLERANCE_METERS = 0.1; // 10cm
   public static final double VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES = 5.0;
-  public static final double VISION_FUSION_WEIGHT = 0.3; // 30% vision, 70% odometry
+  public static final double VISION_FUSION_WEIGHT = 0.5; // 50% vision, 50% odometry
   public static final double VISION_FUSION_MIN_WEIGHT = 0.1;
   public static final double VISION_FUSION_MAX_WEIGHT = 0.7;
   public static final double VISION_UPDATE_INTERVAL_SECONDS = 0.1; // 100ms
-  public static final double VISION_TIMEOUT_SECONDS = 0.5;
+  public static final double VISION_TIMEOUT_SECONDS = 0.5;  
   public static final double REPLANNING_THRESHOLD_METERS = 0.2; // 20cm
   public static final double VISION_POSITION_DIFF_THRESHOLD_HIGH = 0.5; // 50cm
   public static final double VISION_POSITION_DIFF_THRESHOLD_LOW = 0.2; // 20cm

@@ -49,6 +49,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "EVerifyNZLeft",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZLeft"
+        }
+      }
+    },
+    {
       "name": "KillIntake",
       "waypointRelativePos": 1.149379652605449,
       "endWaypointRelativePos": null,
@@ -56,6 +67,17 @@
         "type": "named",
         "data": {
           "name": "StopIntake"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZLeft",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZLeft"
         }
       }
     }

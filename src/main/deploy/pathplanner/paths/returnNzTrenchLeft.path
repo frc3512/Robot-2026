@@ -3,48 +3,53 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.494132530120482,
-        "y": 4.657879518072289
+        "x": 7.494,
+        "y": 4.66
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.319289156626505,
-        "y": 7.25867469879518
+        "x": 7.417478285400238,
+        "y": 7.895095118724443
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.756626506024096,
-        "y": 7.357024096385541
+        "x": 6.161,
+        "y": 7.37
       },
       "prevControl": {
-        "x": 6.947746987951808,
-        "y": 7.291457831325301
+        "x": 7.353999999999999,
+        "y": 7.37
       },
       "nextControl": {
-        "x": 4.774774821316876,
-        "y": 7.4110709781125435
+        "x": 5.177661911554922,
+        "y": 7.37
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 3.2104698795180724,
-        "y": 7.357024096385541
+        "x": 2.336,
+        "y": 7.3
       },
       "prevControl": {
-        "x": 4.456228915662651,
-        "y": 7.44444578313253
+        "x": 1.6475542168674693,
+        "y": 7.3
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
@@ -63,6 +68,17 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
+      "name": "EVerifyNZLeft",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZLeft"
+        }
+      }
+    },
+    {
       "name": "KillIntake",
       "waypointRelativePos": 1.149379652605449,
       "endWaypointRelativePos": null,
@@ -70,6 +86,17 @@
         "type": "named",
         "data": {
           "name": "StopIntake"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZLeft",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZLeft"
         }
       }
     }
@@ -84,7 +111,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 115.94229548987163
+    "rotation": 180.0
   },
   "reversed": false,
   "folder": "NzFolder",

@@ -241,7 +241,7 @@ public class ShootAndMove extends Command {
         baseHeadingRadians + Math.atan2(lateralLeadDistance, rawDistanceToHub);
     // Apply tunable clockwise angle offset
     compensatedHeadingRadians += Math.toRadians(ANGLE_OFFSET_DEGREES);
-    Rotation2d desiredHeading = new Rotation2d(compensatedHeadingRadians);
+    Rotation2d desiredHeading = new Rotation2d(compensatedHeadingRadians + Math.PI);
     
     // Log angle offset for tuning purposes
     Logger.recordOutput("ShootAndMove/AngleOffsetDegrees", ANGLE_OFFSET_DEGREES);

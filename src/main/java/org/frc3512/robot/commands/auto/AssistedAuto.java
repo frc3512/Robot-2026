@@ -140,12 +140,10 @@ public class AssistedAuto extends Command {
   }
 
   private boolean hasRecentVisionData() {
-    // This is a placeholder - you'll need to implement actual vision data timing
-    return vision != null; // Replace with actual implementation
+    return vision.hasRecentVisionData(0.5);
   }
 
   private Pose2d getVisionPose() {
-    // This is a placeholder - you'll need to implement actual vision pose retrieval
-    return null; // Replace with actual implementation
+    return vision.getLatestVisionPose();
   }
 }

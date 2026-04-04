@@ -17,6 +17,12 @@
           }
         },
         {
+          "type": "eventMarker", 
+          "data": {
+            "name": "VerifyNZLeft"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "returnNzLeft"

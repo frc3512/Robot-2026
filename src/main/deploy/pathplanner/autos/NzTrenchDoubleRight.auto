@@ -31,18 +31,6 @@
                 "data": {
                   "name": "Shoot"
                 }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
-                }
               }
             ]
           }
@@ -73,18 +61,6 @@
                 "type": "named",
                 "data": {
                   "name": "Shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
                 }
               }
             ]

@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.308819277115207,
-        "y": 7.400734939752514
+        "x": 2.511096385542168,
+        "y": 7.44444578313253
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.396012048199545,
-        "y": 7.477228915656128
+        "x": 4.5982891566265,
+        "y": 7.520939759036144
       },
       "isLocked": false,
       "linkedName": null
@@ -59,6 +59,17 @@
         "type": "named",
         "data": {
           "name": "StopIntake"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZLeft",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZLeft"
         }
       }
     }
