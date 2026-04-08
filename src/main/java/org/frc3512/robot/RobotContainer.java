@@ -1,16 +1,11 @@
 package org.frc3512.robot;
 
-import java.lang.annotation.ElementType;
-
-import org.frc3512.robot.Elastic.Notification.NotificationLevel;
-import org.frc3512.robot.commands.auto.AssistedAuto;
-import org.frc3512.robot.commands.auto.SimpleCorrectedAuto;
-import org.frc3512.robot.commands.auto.VisionGuidedAuto;
 import org.frc3512.robot.commands.auto.PoseCorrector;
+import org.frc3512.robot.commands.auto.SimpleCorrectedAuto;
 import org.frc3512.robot.commands.auto.VerifyPosition;
+import org.frc3512.robot.commands.auto.VisionGuidedAuto;
 import org.frc3512.robot.commands.teleop.DriveCommands;
 import org.frc3512.robot.commands.teleop.ShootAndMove;
-import org.frc3512.robot.subsystems.Superstructure;
 import org.frc3512.robot.subsystems.States;
 import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO;
@@ -57,14 +52,12 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
-@SuppressWarnings("unused")
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -74,8 +67,14 @@ public class RobotContainer {
   private final Intake intake;
   private final Conveyor conveyor;
   private final Feeder feeder;
-  
-  private final Superstructure superstructure;
+
+  // Game data and timing
+  public static String gameData;
+  public static double prefire = 2; // Seconds before the hub becomes active to start shooting
+
+  private char getWinner() {
+    return Character.toUpperCase(gameData.trim().charAt(0));
+  }
 
   // Public accessors for vision correction commands
   public Drive getDrive() {
@@ -86,35 +85,14 @@ public class RobotContainer {
     return vision;
   }
 
-  // Timer for Hub Activity
-  public Timer hubTimer = new Timer();
-
-  public static String gameData;
-  public static double prefire = 2; // Seconds before the hub becomes active to start shooting
-
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
 
   // Dashboard inputs
   private SendableChooser<Command> autoChooser;
 
-  // Enum for robot state
-  enum RobotStates {
-    STOWED,
-    IDLING,
-    INTAKING,
-    PREPING_SHOT,
-    SHOOTING,
-    MANUAL_SHOOTONG,
-    FERRYING
-  }
-
-  private char getWinner() {
-    return Character.toUpperCase(gameData.trim().charAt(0));
-  }
-
   @AutoLogOutput(key = "Robot/Robot State")
-  private RobotStates currentState = RobotStates.STOWED;
+  private States currentState = States.HOMED;
 
   // Track previous hub state for change detection
   // Initialized to true so no spurious notification fires on startup when
@@ -147,17 +125,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_REAL());
         hood = new Hood(new HoodIO_REAL());
         feeder = new Feeder(new FeederIO_REAL());
-        
-        // Create superstructure with all subsystems and joystick suppliers
-        superstructure = new Superstructure(
-            drive,
-            intake,
-            conveyor,
-            feeder,
-            flywheel,
-            hood,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX());
 
         break;
 
@@ -186,17 +153,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO_SIM());
         hood = new Hood(new HoodIO_SIM());
         feeder = new Feeder(new FeederIO_SIM());
-        
-        // Create superstructure with all subsystems and joystick suppliers
-        superstructure = new Superstructure(
-            drive,
-            intake,
-            conveyor,
-            feeder,
-            flywheel,
-            hood,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX());
 
         break;
 
@@ -217,17 +173,6 @@ public class RobotContainer {
         conveyor = new Conveyor(new ConveyorIO() {});
         hood = new Hood(new HoodIO() {});
         feeder = new Feeder(new FeederIO() {});
-        
-        // Create superstructure with all subsystems and joystick suppliers
-        superstructure = new Superstructure(
-            drive,
-            intake,
-            conveyor,
-            feeder,
-            flywheel,
-            hood,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX());
 
         break;
     }
@@ -239,6 +184,7 @@ public class RobotContainer {
     registerNamedCommand("Reset", reset());
     registerNamedCommand("PrepShoot", idle());
     registerNamedCommand("StopIntake", stopIntake());
+    registerNamedCommand("StartShoot", prepShooting());
 
     //Event Triggers
     new EventTrigger("PrepIntake");
@@ -247,6 +193,7 @@ public class RobotContainer {
     new EventTrigger("EVerifyNZRight");
     new EventTrigger("EVerifyHP");
     new EventTrigger("EVerifyShootMid");
+    new EventTrigger("PrepShoot");
 
     // Vision correction commands
     registerNamedCommand(
@@ -271,9 +218,9 @@ public class RobotContainer {
         VisionCorrectionConstants.WaypointPoses.SHOOT_MID_HEADING_DEGREES));
 
     // Set up auto routines without vision correction
-    // createNormalAutos();
+    createNormalAutos();
     // Set up auto routines with vision correction (commented out for now - needs testing)
-    createVisionAutos();
+    // createVisionAutos();
     
     // Configure the button bindings
     configureButtonBindings();
@@ -308,29 +255,29 @@ public class RobotContainer {
 
     // Superstructure controls
     controller.leftTrigger().onTrue(
-        Commands.runOnce(() -> superstructure.setWantedState(States.INTAKING))
+        intake()
     ).onFalse(
-        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+        idle()
     );
     
     controller.leftBumper().onTrue(
-        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+        idle()
     );
     
     controller.rightTrigger().whileTrue(
-        Commands.runOnce(() -> superstructure.setWantedState(States.SHOOTING))
+        autoShoot()
     ).onFalse(
-        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+        idle()
     );
     
     controller.rightBumper().onTrue(
-        Commands.runOnce(() -> superstructure.setWantedState(States.FERRYING))
+        ferry()
     ).onFalse(
-        Commands.runOnce(() -> superstructure.setWantedState(States.IDLE))
+        idle()
     );
     
     controller.povLeft().onTrue(
-        Commands.runOnce(() -> superstructure.setWantedState(States.HOMED))
+        reset()
     );
 
     // X the modules for a brake
@@ -355,8 +302,6 @@ public class RobotContainer {
   // Methods
   public Command reset() {
     return Commands.sequence(
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.STOWED),
         // Kill and retract Intake
         intake.setRollerSpeed(0),
         intake.setPosition(IntakeState.STOWED),
@@ -367,7 +312,7 @@ public class RobotContainer {
         // Stop Flywheel
         flywheel.setRPM(0.0),
         // Bring Down Hood
-        hood.setPosition(0),
+        hood.setPosition(10.0),
         // Log action
         logMessage("Reseting Robot"),
         logMessage(
@@ -377,24 +322,18 @@ public class RobotContainer {
             5000));
   }
 
-  public Command stopIntake(){
+  public Command stopIntake() {
     return Commands.sequence(
-      //Stop the intake
+      // Stop the intake
       intake.setRollerSpeed(0),
       intake.setPosition(IntakeState.EXTEND),
-      //Log action
-      logMessage("Stopping Intake"),
-      logMessage(Elastic.Notification.NotificationLevel.INFO,
-        "Intake Stopped",
-        "Robot has stopped Intaking",
-        5000));
+      // Log action
+      logMessage("Stopping Intake"));
   }
 
   // Intake
   public Command intake() {
     return Commands.sequence(
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.INTAKING),
         // Run intake rollers and extend
         intake.setPosition(IntakeState.EXTEND),
         intake.setRollerSpeed(0.70),
@@ -409,8 +348,6 @@ public class RobotContainer {
   // Idling + Preping shot
   public Command idle() {
     return Commands.sequence(
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.IDLING),
         // Stop Intake and bring it in
         intake.setRollerSpeed(0),
         intake.setPosition(IntakeState.EXTEND),
@@ -419,34 +356,73 @@ public class RobotContainer {
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(2800.0),
-        hood.setPosition(5),
+        flywheel.setRPM(1800.0),
+        hood.setPosition(10.0),
         // Log action
         logMessage("Idling"));
   }
 
   public Command prepShooting() {
     return Commands.sequence(
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.PREPING_SHOT),
         intake.setRollerSpeed(0),
         intake.setPosition(IntakeState.EXTEND),
         // Keep feeding off
         conveyor.setHopper(0.0),
         feeder.setFeeder(0.0),
         // Being speeding up flywheel
-        flywheel.setRPM(2800.0),
+        flywheel.setRPM(1800.0),
         // Log action
         logMessage("Preping for shot"));
+  }
+
+  public Command ferry() {
+    return Commands.either(
+      ferryRed(), 
+      ferryBlue(), 
+      () -> DriverStation.getAlliance().get() == Alliance.Red);
+  }
+
+  public Command ferryRed() {
+    return Commands.parallel(
+      DriveCommands.joystickDriveAtAngle(
+          drive,
+          () -> -controller.getLeftY(),
+          () -> -controller.getLeftX(),
+          () -> Rotation2d.k180deg),
+      Commands.sequence(
+        flywheel.setRPM(2300.0),
+        hood.setPosition(35.0),
+        Commands.waitSeconds(1),
+        conveyor.setHopper(0.5),
+        feeder.setFeeder(0.5),
+        Commands.waitSeconds(1.5),
+        intake.setPosition(IntakeState.AGITATE)
+      )
+    );
+  }
+
+  public Command ferryBlue() {
+    return Commands.parallel(
+      DriveCommands.joystickDriveAtAngle(
+          drive,
+          () -> -controller.getLeftY(),
+          () -> -controller.getLeftX(),
+          () -> Rotation2d.kZero),
+      Commands.sequence(
+        flywheel.setRPM(2300.0),
+        hood.setPosition(35.0),
+        Commands.waitSeconds(1),
+        conveyor.setHopper(0.5),
+        feeder.setFeeder(0.5),
+        Commands.waitSeconds(1.5),
+        intake.setPosition(IntakeState.AGITATE)
+      )
+    );
   }
 
   // Shoot
   public Command autoShoot() {
     return Commands.sequence(
-        // Wait until hub is active
-        Commands.waitUntil(this::isHubActive),
-        // Update state
-        Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
         // Engage Shooting systems
         new ShootAndMove(
             drive,
@@ -482,10 +458,6 @@ public class RobotContainer {
 
   public Command autonShoot() {
     return Commands.sequence(
-            // Check if the hub is active before shooting, if not wait until it is
-            Commands.waitUntil(this::isHubActive),
-            // Update state
-            Commands.runOnce(() -> currentState = RobotStates.SHOOTING),
             // Engage Shooting systems
             new ShootAndMove(
                 drive,
@@ -497,6 +469,26 @@ public class RobotContainer {
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
         .withTimeout(3.5);
+  }
+
+  // --- Manual Control ---
+
+  public Command shootRaw(double rpms, double hoodAngle) {
+    return Commands.parallel(
+        flywheel.setRPM(rpms),
+        hood.setPosition(hoodAngle),
+        feeder.setFeeder(0.4),
+        conveyor.setHopper(0.3)
+      );
+  }
+
+  public Command stop() {
+    return Commands.parallel(
+      feeder.setFeeder(0.0),
+      conveyor.setHopper(0.0),
+      flywheel.setRPM(0.0),
+      hood.setPosition(10.0)
+    );
   }
   // --- Begin Auto Code ---
 
@@ -563,8 +555,10 @@ public class RobotContainer {
       "NzDoubleRight",
       "NzLeft",
       "NzRight",
-      "NzTrenchDoubleLeft",
-      "NzTrenchDoubleRight",
+      "NzTrenchOvDoubleLeft",
+      "NzTrenchOvDoubleRight",
+      "NzTrenchUnDoubleRight",
+      "NzTrenchUnDoubleLeft",
       "NzTrenchLeft",
       "NzTrenchRight",
       "zNzThenDepot",
@@ -663,42 +657,16 @@ public class RobotContainer {
     }
   }
 
-  // --- Logic ---
-  // public void runLedLogic() {
-  //   switch (currentState) {
-  //     case STOWED:
-  //       leds.setPattern(leds.white);
-  //       break;
-  //     case IDLING:
-  //       leds.setPattern(leds.red);
-  //       break;
-  //     case INTAKING:
-  //       leds.setPattern(leds.orange);
-  //       break;
-  //     case PREPING_SHOT:
-  //       leds.setPattern(leds.yellow);
-  //       break;
-  //     case SHOOTING:
-  //       leds.setPattern(leds.green);
-  //       break;
-  //     case MANUAL_SHOOTONG:
-  //       leds.setPattern(leds.green);
-  //       break;
-  //     case FERRYING:
-  //       leds.setPattern(leds.purple);
-  //       break;
-  //   }
-  // }
-
-  // Hub activity logic,
-  // returns a boolean that can be used to check if
-  // the hub is active based on the game data and timer
-  // Credit to 9084 for the idea (they are so cool btw)
-  @AutoLogOutput(key = "Robot/Hub Active")
-  public boolean isHubActive() {
+      // --- Logic methods
+    // Hub activity logic,
+    // returns a boolean that can be used to check if
+    // the hub is active based on the game data and timer
+    // Credit to 9084 for the idea (they are so cool btw)
+    @AutoLogOutput(key = "Robot/Hub Active")
+    public boolean isHubActive() {
     // Updated for 130s teleop: first 10s both active, then 100s alternating 25s periods,
     // last 30s both active. Alternating relative to elapsed 10s start.
-    double elapsed = hubTimer.get();
+    double elapsed = Constants.GeneralConstants.hubTimer.get();
 
     gameData = DriverStation.getGameSpecificMessage();
     if (gameData == null || gameData.isBlank()) {
@@ -755,13 +723,8 @@ public class RobotContainer {
     Logger.recordOutput("Robot/Hub Debug Alliance", alliance.toString());
     Logger.recordOutput("Robot/Hub Debug OurSideActive", ourSideActive);
     Logger.recordOutput("Robot/Hub Debug IsMatch", isMatch);
-    Logger.recordOutput("Robot/Hub Debug IsPrefire", 
-      (elapsed >= 8.0 && elapsed < 10.0) || 
-      (isMatch && ((phase == 0 && elapsed >= 23.0 && elapsed < 25.0) ||
-                 (phase == 2 && elapsed >= 73.0 && elapsed < 75.0)) ||
-      (!isMatch && ((phase == 3 && elapsed >= 48.0 && elapsed < 50.0) ||
-                  (phase == 1 && elapsed >= 23.0 && elapsed < 25.0)))));
 
     return ourSideActive;
   }
+
 }

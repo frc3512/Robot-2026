@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzTrenchLeft"
+            "pathName": "returnNzLeft"
           }
         },
         {
@@ -31,6 +31,12 @@
                 "data": {
                   "name": "Shoot"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
+                }
               }
             ]
           }
@@ -38,19 +44,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2ndNzRunTrenchLeft"
+            "pathName": "2ndNzRunLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NzDashTrenchLeft"
+            "pathName": "NzDashLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "2ndReturnNzTrenchLeft"
+            "pathName": "2ndReturnNzLeft"
           }
         },
         {
@@ -62,14 +68,14 @@
                 "data": {
                   "name": "Shoot"
                 }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Reset"
+                }
               }
             ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "trenchRunIntoNzLeft"
           }
         }
       ]

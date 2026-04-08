@@ -4,19 +4,24 @@ import com.ctre.phoenix6.hardware.TalonFX;
 
 public class FeederIO_REAL implements FeederIO {
 
-  private TalonFX feeder;
+  private TalonFX feeder, secondaryFeeder;
 
   public FeederIO_REAL() {
     feeder = new TalonFX(FeederConstants.feederMotorID);
+    secondaryFeeder = new TalonFX(FeederConstants.secondaryFeederMotorID);
 
     feeder.getConfigurator().apply(FeederConstants.feeder);
+    secondaryFeeder.getConfigurator().apply(FeederConstants.secondaryFeeder);
 
     feeder.optimizeBusUtilization();
+    secondaryFeeder.optimizeBusUtilization();
   }
 
   @Override
   public void setFeeder(double speed) {
+    System.out.println("DEBUG: FeederIO_REAL.setFeeder called with speed: " + speed);
     feeder.set(speed);
+    secondaryFeeder.set(speed);
   }
 
   @Override

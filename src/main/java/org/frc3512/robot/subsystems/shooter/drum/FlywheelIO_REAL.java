@@ -10,7 +10,7 @@ import java.util.List;
 
 // Credit to the 2026 WCP CC for the majority of this code
 public class FlywheelIO_REAL implements FlywheelIO {
-  private static final AngularVelocity kVelocityTolerance = RPM.of(75);
+  private static final AngularVelocity kVelocityTolerance = RPM.of(50);
 
   private final TalonFX mainMotor, secondMotor, tertiaryMotor;
   private final List<TalonFX> motors;
@@ -23,8 +23,6 @@ public class FlywheelIO_REAL implements FlywheelIO {
     tertiaryMotor = new TalonFX(FlywheelConstants.tertiaryMotor);
 
     motors = List.of(mainMotor, secondMotor, tertiaryMotor);
-
-    // TODO: Update these values with the new shooter
 
     FlywheelConstants.configureMotor(mainMotor, InvertedValue.Clockwise_Positive);
     FlywheelConstants.configureMotor(secondMotor, InvertedValue.Clockwise_Positive);

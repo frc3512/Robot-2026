@@ -9,25 +9,27 @@ import edu.wpi.first.math.util.Units;
 public class VisionConstants {
   // AprilTag layout
   public static AprilTagFieldLayout aprilTagLayout =
-      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltAndymark);
+      AprilTagFieldLayout.loadField(AprilTagFields.k2026RebuiltWelded);
 
   // Camera names, must match names configured on coprocessor
   public static String frontLeftCamera = "Left Shooter";
   public static String frontRightCamera = "Right Shooter";
 
   // Robot to camera transforms
+  // Left camera mounted on front-left side of robot
   public static Transform3d robotToLeft =
       new Transform3d(
-          Units.inchesToMeters(0),
-          Units.inchesToMeters(0),
-          Units.inchesToMeters(0),
+          Units.inchesToMeters(-35.0),
+          Units.inchesToMeters(9.0),
+          Units.inchesToMeters(12.5),
           new Rotation3d(0.0, Units.degreesToRadians(25), Units.degreesToRadians(180)));
 
+  // Right camera mounted on front-right side of robot  
   public static Transform3d robotToRight =
       new Transform3d(
-          Units.inchesToMeters(0),
-          Units.inchesToMeters(0),
-          Units.inchesToMeters(0),
+          Units.inchesToMeters(-35.0), 
+          Units.inchesToMeters(-9.0), 
+          Units.inchesToMeters(12.5), 
           new Rotation3d(0.0, Units.degreesToRadians(25), Units.degreesToRadians(180)));
 
   // Basic filtering thresholds
@@ -45,7 +47,6 @@ public class VisionConstants {
       new double[] {
         1.0, // Camera 0
         1.0, // Camera 1
-        1.0 // Camera 2
       };
 
   // Multipliers to apply for MegaTag 2 observations

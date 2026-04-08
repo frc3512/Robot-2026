@@ -8,13 +8,13 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class ConveyorConstants {
 
-  public static final int hopperMotorID = 22;
+  public static final int hopperMotorID = 23;
 
   public static final TalonFXConfiguration hopper =
       new TalonFXConfiguration()
           .withMotorOutput(
               new MotorOutputConfigs()
-                  .withInverted(InvertedValue.CounterClockwise_Positive)
+                  .withInverted(InvertedValue.Clockwise_Positive)
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
               new CurrentLimitsConfigs()

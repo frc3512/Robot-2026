@@ -3,13 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.566,
-        "y": 0.756326
+        "x": 2.5138315539739033,
+        "y": 0.5328825622775799
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.7895613370710333,
-        "y": 0.723559333630899
+        "x": 3.7373928910449368,
+        "y": 0.5001158959084788
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.870699881376039,
+        "y": 0.5328825622775799
+      },
+      "prevControl": {
+        "x": 5.228800566114651,
+        "y": 0.5142748335746021
+      },
+      "nextControl": {
+        "x": 6.512599196637427,
+        "y": 0.5514902909805577
       },
       "isLocked": false,
       "linkedName": null
@@ -20,8 +36,8 @@
         "y": 1.302326
       },
       "prevControl": {
-        "x": 6.9665150521396875,
-        "y": 0.7880154840790302
+        "x": 6.688398576512456,
+        "y": 0.6189561091340454
       },
       "nextControl": null,
       "isLocked": false,
@@ -30,15 +46,19 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.5,
+      "waypointRelativePos": 0.2,
       "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 90.0
     }
   ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
         "maxVelocity": 20.0,
         "maxAcceleration": 20.0,
@@ -53,7 +73,7 @@
   "eventMarkers": [
     {
       "name": "PrepIntake",
-      "waypointRelativePos": 0.42,
+      "waypointRelativePos": 0.85,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -69,7 +89,18 @@
       "command": {
         "type": "named",
         "data": {
-          "name": "VerifyNZLeft"
+          "name": "VerifyNZRight"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZRight",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZRight"
         }
       }
     }

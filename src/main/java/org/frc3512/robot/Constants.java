@@ -6,6 +6,8 @@ import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.Timer;
+
 import java.util.Optional;
 
 public final class Constants {
@@ -24,6 +26,9 @@ public final class Constants {
       /** Replaying from a log file. */
       REPLAY
     }
+
+    // Timer for Hub Activity
+    public static Timer hubTimer = new Timer();
   }
 
   public static class FieldConstants {

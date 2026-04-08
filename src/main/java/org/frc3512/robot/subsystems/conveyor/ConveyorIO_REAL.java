@@ -16,6 +16,7 @@ public class ConveyorIO_REAL implements ConveyorIO {
 
   @Override
   public void setHopper(double speed) {
+    System.out.println("DEBUG: ConveyorIO_REAL.setHopper called with speed: " + speed);
     hopper.set(speed);
   }
 

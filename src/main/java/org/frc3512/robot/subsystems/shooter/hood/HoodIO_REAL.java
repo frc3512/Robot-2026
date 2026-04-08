@@ -17,7 +17,9 @@ public class HoodIO_REAL implements HoodIO {
     motor.getConfigurator().apply(HoodConstants.config);
 
     // Set initial position to 10 degrees as minimum shooting angle
-    motor.setPosition(10.000000000);
+    motor.setPosition(10.0 / 360.0);
+
+    setPosition(10.0);
 
     // Optimize bus utilization for better performance
     motor.optimizeBusUtilization();

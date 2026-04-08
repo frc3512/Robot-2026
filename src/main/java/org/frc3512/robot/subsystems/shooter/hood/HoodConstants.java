@@ -10,9 +10,9 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class HoodConstants {
 
-  public static final int motorID = 24;
+  public static final int motorID = 26;
 
-  public static final double kP = 1;
+  public static final double kP = 150;
   public static final double kI = 0;
   public static final double kD = 0;
 

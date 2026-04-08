@@ -3,41 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 7.494132530120482,
-        "y": 3.409326
+        "x": 7.409264531435351,
+        "y": 3.0935705812574144
       },
       "prevControl": null,
       "nextControl": {
-        "x": 7.41761081552072,
-        "y": 0.17423088127555753
+        "x": 7.312431791221829,
+        "y": 0.059478054567022376
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.161,
-        "y": 0.699326
+        "x": 6.279549228944247,
+        "y": 0.5113641755634626
       },
       "prevControl": {
-        "x": 7.353999999999999,
-        "y": 0.699326
+        "x": 7.472549228944247,
+        "y": 0.5113641755634626
       },
       "nextControl": {
-        "x": 5.178,
-        "y": 0.6993259999999999
+        "x": 5.296549228944247,
+        "y": 0.5113641755634625
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 2.336,
-        "y": 0.769326
+        "x": 2.4385172004744966,
+        "y": 0.5113641755634626
       },
       "prevControl": {
-        "x": 1.648,
-        "y": 0.7693260000000001
+        "x": -0.8322775800711737,
+        "y": 0.46832740213523105
       },
       "nextControl": null,
       "isLocked": false,
@@ -47,6 +47,10 @@
   "rotationTargets": [
     {
       "waypointRelativePos": 0.5,
+      "rotationDegrees": 180.0
+    },
+    {
+      "waypointRelativePos": 1.3996447602131523,
       "rotationDegrees": 180.0
     }
   ],
@@ -90,6 +94,17 @@
       }
     },
     {
+      "name": "PrepShoot",
+      "waypointRelativePos": 1.3003374578177762,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "StartShoot"
+        }
+      }
+    },
+    {
       "name": "EVerifyNZRight",
       "waypointRelativePos": 2.0,
       "endWaypointRelativePos": null,
@@ -111,7 +126,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": -115.0
   },
   "reversed": false,
   "folder": "NzFolder",

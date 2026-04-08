@@ -23,6 +23,7 @@ import org.frc3512.robot.subsystems.intake.IntakeConstants;
 import org.frc3512.robot.subsystems.shooter.drum.Flywheel;
 import org.frc3512.robot.subsystems.shooter.feeder.Feeder;
 import org.frc3512.robot.subsystems.shooter.hood.Hood;
+import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class ShootAndMove extends Command {
@@ -41,7 +42,7 @@ public class ShootAndMove extends Command {
   // --- Tunable angle offset for clockwise rotation ---
   // Adjust this value to fine-tune the robot's shooting angle offset.
   // Positive values rotate the target heading counter-clockwise (in degrees).
-  private static final double ANGLE_OFFSET_DEGREES = -5.0;
+  private static final double ANGLE_OFFSET_DEGREES = 0.0;
 
   // Physics parameters for dynamic ball velocity calculation
   private static final double FLYWHEEL_RADIUS_M = 0.0508; // 4" diameter flywheel
@@ -95,6 +96,14 @@ public class ShootAndMove extends Command {
   private static final InterpolatingDoubleTreeMap RPM_TABLE = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap ANGLE_TABLE = new InterpolatingDoubleTreeMap();
 
+  // Store current distance for @AutoLogOutput
+  private double currentDistanceToHub = 0.0;
+
+  @AutoLogOutput(key = "Robot/Distance From Hub")
+  public double getDistanceToHub() {
+    return currentDistanceToHub;
+  }
+
   public ShootAndMove(
       Drive drive,
       Flywheel flywheel,
@@ -121,29 +130,29 @@ public class ShootAndMove extends Command {
             new TrapezoidProfile.Constraints(ANGLE_MAX_VELOCITY, ANGLE_MAX_ACCELERATION));
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
-    // TODO: Update these values with the new shooter
-
     // ( DISTANCE (m) || RPM )
-    RPM_TABLE.put(1.25, 2500.0);
-    RPM_TABLE.put(1.88, 2800.0);
-    RPM_TABLE.put(2.21, 2850.0);
-    RPM_TABLE.put(3.07, 3100.0);
-    RPM_TABLE.put(3.84, 3500.0);
-    RPM_TABLE.put(4.11, 3550.0);
-    RPM_TABLE.put(4.29, 3400.0);
-    RPM_TABLE.put(4.40, 3500.0);
-    RPM_TABLE.put(6.33, 3800.0);
+    // RPM_TABLE.put(1.5, 1800.0);
+    RPM_TABLE.put(2.06, 1800.0);
+    // RPM_TABLE.put(2.3, 2000.0);
+    RPM_TABLE.put(2.86, 2000.0);
+    // RPM_TABLE.put(3.39, 2100.0);
+    RPM_TABLE.put(3.95, 2100.0);
+    // RPM_TABLE.put(3.88, 2300.0);
+    RPM_TABLE.put(4.44, 2300.0);
+    // RPM_TABLE.put(4.8, 2400.0);
+    RPM_TABLE.put(5.36, 2400.0);
 
     // ( DISTANCE (m) || HOOD ANGLE (degrees) )
-    ANGLE_TABLE.put(1.25, 7.0);
-    ANGLE_TABLE.put(1.88, 9.0);
-    ANGLE_TABLE.put(2.21, 11.0);
-    ANGLE_TABLE.put(3.07, 13.0);
-    ANGLE_TABLE.put(3.84, 11.0);
-    ANGLE_TABLE.put(4.11, 12.0);
-    ANGLE_TABLE.put(4.29, 15.0);
-    ANGLE_TABLE.put(4.40, 15.0);
-    ANGLE_TABLE.put(6.33, 20.0);
+    // ANGLE_TABLE.put(1.5, 10.0);
+    ANGLE_TABLE.put(2.06, 10.0);
+    // ANGLE_TABLE.put(2.3, 13.0);
+    ANGLE_TABLE.put(2.86, 13.0);
+    // ANGLE_TABLE.put(3.39, 19.0);
+    ANGLE_TABLE.put(3.95, 19.0);
+    // ANGLE_TABLE.put(3.88, 24.0);
+    ANGLE_TABLE.put(4.44, 24.0);
+    // ANGLE_TABLE.put(4.8, 29.0);
+    ANGLE_TABLE.put(5.36, 29.0);
 
     addRequirements(drive, flywheel, hood, hopper, feeder, intake);
   }
@@ -254,6 +263,9 @@ public class ShootAndMove extends Command {
     double compensatedDistanceRaw = rawDistanceToHub + radialDistanceOffset;
     double compensatedDistanceClamped =
         MathUtil.clamp(compensatedDistanceRaw, MIN_SHOT_DISTANCE, MAX_SHOT_DISTANCE);
+    
+    // Update distance for @AutoLogOutput
+    currentDistanceToHub = rawDistanceToHub;
 
     // Keep a virtual hub for diagnostics only (combined velocity model).
     Translation2d virtualHub = goalLocation.minus(robotVelocityField.times(tFlight));
@@ -329,9 +341,9 @@ public class ShootAndMove extends Command {
     // The feeder and hopper are started once and left running; the motor
     // controllers hold the last duty-cycle setpoint until told otherwise.
     if (aimedAtHub && !feedingStarted && flywheel.isVelocityWithinTolerance()) {
-      feeder.setFeederDirect(0.85);
-      hopper.setHopperDirect(0.85);
-      intake.setRollerDirect(0.1);
+      feeder.setFeederDirect(0.5);
+      hopper.setHopperDirect(0.5);
+      intake.setRollerDirect(0.75);
       feedingStarted = true;
       feedingTimer.restart();
     }
@@ -357,8 +369,8 @@ public class ShootAndMove extends Command {
   public void end(boolean interrupted) {
     drive.stop();
     // Stop flywheel and set hood to lowered position for safety.
-    flywheel.setRPMDirect(2800.0);
-    hood.setPositionDirect(2);
+    flywheel.setRPMDirect(1800.0);
+    hood.setPositionDirect(10);
     // Stop feeder and hopper.
     feeder.setFeederDirect(0.0);
     hopper.setHopperDirect(0.0);
