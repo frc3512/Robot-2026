@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverTrenchLeft"
+            "pathName": "goTrenchRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNzPathLeft"
+            "pathName": "NzBintakeRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzLeft"
+            "pathName": "NzReturnOvRight"
           }
         },
         {
@@ -50,38 +50,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NzToDepot"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzIntakeDepot"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.0
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
-                }
-              }
-            ]
+            "pathName": "NzToHp"
           }
         }
       ]

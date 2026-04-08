@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverBumpLeft"
+            "pathName": "goBumpLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNzPathLeft"
+            "pathName": "NzBintakeLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzLeft"
+            "pathName": "NzReturnOvLeft"
           }
         },
         {

@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverTrenchRight"
+            "pathName": "goTrenchRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNzPathRight"
+            "pathName": "NzBintakeRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzTrenchRight"
+            "pathName": "NzReturnUnRight"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2ndReturnNzTrenchRight"
+            "pathName": "Nz2ndReturnUnRight"
           }
         },
         {
@@ -81,7 +81,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "trenchRunIntoNzRight"
+            "pathName": "NzRunUnRight"
           }
         }
       ]

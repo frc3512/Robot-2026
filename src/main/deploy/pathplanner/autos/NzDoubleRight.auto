@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverBumpRight"
+            "pathName": "goBumpRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNzPathRight"
+            "pathName": "NzBintakeRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzRight"
+            "pathName": "NzReturnOvRight"
           }
         },
         {
@@ -50,13 +50,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2ndNzRunRight"
+            "pathName": "Nz2ndOvRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NzDashRight"
+            "pathName": "NzIntakeRight"
           }
         },
         {

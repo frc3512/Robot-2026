@@ -7,19 +7,19 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goOverTrenchLeft"
+            "pathName": "goTrenchLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "driveNzPathLeft"
+            "pathName": "NzBintakeLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "returnNzTrenchLeft"
+            "pathName": "NzReturnUnLeft"
           }
         },
         {
