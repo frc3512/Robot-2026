@@ -32,8 +32,16 @@ public class Intake extends SubsystemBase {
     io.setExtensionPosition(state);
   }
 
+  public void setPositionDirect(double position) {
+    io.setExtensionPosition(position);
+  }
+
   public Command setPosition(IntakeConstants.IntakeState state) {
     return runOnce(() -> io.setExtensionPosition(state));
+  }
+
+  public Command setPosition(double position) {
+    return runOnce(() -> io.setExtensionPosition(position));
   }
 
   public boolean isExtensionStalled() {

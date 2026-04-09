@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NzBintakeLeft"
+            "pathName": "NzIntakeBLeft"
           }
         },
         {
@@ -56,7 +56,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "2ndReturnNzLeft"
+            "pathName": "Nz2ndReturnLeft"
           }
         },
         {

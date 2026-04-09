@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.254180722891566,
-        "y": 5.149626506024097
+        "x": 3.12,
+        "y": 5.153326
       },
       "prevControl": null,
       "nextControl": {
-        "x": 4.368807228915664,
-        "y": 5.510240963855423
+        "x": 3.889844819979239,
+        "y": 6.068615546073336
       },
       "isLocked": false,
       "linkedName": null
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "PrepIntake",
-      "waypointRelativePos": 0.42133693450371307,
+      "waypointRelativePos": 0.61,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -85,7 +85,7 @@
   "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 134.30508444793134
+    "rotation": 133.78
   },
   "useDefaultConstraints": false
 }

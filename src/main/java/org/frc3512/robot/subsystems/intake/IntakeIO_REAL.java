@@ -58,6 +58,13 @@ public class IntakeIO_REAL implements IntakeIO {
   }
 
   @Override
+  public void setExtensionPosition(double position) {
+    wantedPosition = position;
+    intakeRequest.Position = wantedPosition; // Position in rotations of motor
+    extensionMotor.setControl(intakeRequest);
+  }
+
+  @Override
   public void rezeroExtension() {
     extensionMotor.setPosition(0.0);
   }

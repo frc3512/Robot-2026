@@ -26,6 +26,8 @@ public interface IntakeIO {
 
   public default void setExtensionPosition(IntakeConstants.IntakeState state) {}
 
+  public default void setExtensionPosition(double position) {}
+
   public default void setRollerSpeed(double speed) {}
 
   public default void setExtensionVelocity(double velocity) {}

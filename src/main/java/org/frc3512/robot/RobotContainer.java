@@ -58,6 +58,7 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 
+@SuppressWarnings("unused")
 public class RobotContainer {
   // Subsystems
   private final Drive drive;
@@ -266,8 +267,6 @@ public class RobotContainer {
     
     controller.rightTrigger().whileTrue(
         autoShoot()
-    ).onFalse(
-        idle()
     );
     
     controller.rightBumper().onTrue(
@@ -282,6 +281,8 @@ public class RobotContainer {
 
     // X the modules for a brake
     controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
+
+    controller.b().onTrue(shootRaw(2100,21));
   }
 
   private void registerNamedCommand(String name, Command command) {
@@ -551,16 +552,16 @@ public class RobotContainer {
     
     // List of all available auto names (without .auto extension)
     String[] autoNames = {
-      "NzDoubleLeft",
-      "NzDoubleRight",
       "NzLeft",
       "NzRight",
+      "NzTrenchLeft",
+      "NzTrenchRight",
+      "NzDoubleLeft",
+      "NzDoubleRight",
       "NzTrenchOvDoubleLeft",
       "NzTrenchOvDoubleRight",
       "NzTrenchUnDoubleRight",
       "NzTrenchUnDoubleLeft",
-      "NzTrenchLeft",
-      "NzTrenchRight",
       "zNzThenDepot",
       "zNzThenHp",
       "NzTrenchDepot",

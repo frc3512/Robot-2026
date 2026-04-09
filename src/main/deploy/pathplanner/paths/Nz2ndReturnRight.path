@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.12,
-        "y": 2.916
+        "x": 7.9530963855421675,
+        "y": 3.903
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8898448199792384,
-        "y": 2.0007104539266636
+        "x": 7.836650889012683,
+        "y": 1.585924160425904
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.117240963855421,
-        "y": 2.1226506024096388
+        "x": 5.992,
+        "y": 1.899
       },
       "prevControl": {
-        "x": 6.652698795180723,
-        "y": 2.6362530120481926
+        "x": 6.4855891257716305,
+        "y": 1.878856144361182
+      },
+      "nextControl": {
+        "x": 5.014813431164667,
+        "y": 1.938879940920575
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 3.1995421686746988,
+        "y": 2.876
+      },
+      "prevControl": {
+        "x": 1.3463095314662703,
+        "y": 2.1903581165174537
       },
       "nextControl": null,
       "isLocked": false,
@@ -33,7 +49,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
+      "maxWaypointRelativePos": 2,
       "constraints": {
         "maxVelocity": 20.0,
         "maxAcceleration": 20.0,
@@ -47,19 +63,19 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "PrepIntake",
-      "waypointRelativePos": 0.6103983794733266,
+      "name": "KillIntake",
+      "waypointRelativePos": 1.2567975830815674,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Intake"
+          "name": "StopIntake"
         }
       }
     },
     {
       "name": "EVerifyNZRight",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 2.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -70,8 +86,8 @@
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
@@ -79,13 +95,13 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 29.999999999999996
+    "rotation": -135.0
   },
   "reversed": false,
   "folder": "NzFolder",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -133.78
+    "rotation": 89.40900000000002
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

@@ -13,7 +13,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "NzBintakeRight"
+            "pathName": "NzIntakeBRight"
           }
         },
         {
@@ -23,28 +23,15 @@
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
-                }
-              }
-            ]
+            "name": "Shoot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "2ndNzRunTrenchRight"
+            "pathName": "Nz2ndRunTrenchRight"
           }
         },
         {
@@ -56,32 +43,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Nz2ndReturnUnRight"
+            "pathName": "Nz2ndReturnTrUnRight"
           }
         },
         {
-          "type": "sequential",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Shoot"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
-                }
-              }
-            ]
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzRunUnRight"
+            "name": "Shoot"
           }
         }
       ]

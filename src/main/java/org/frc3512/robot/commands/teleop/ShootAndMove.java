@@ -37,7 +37,7 @@ public class ShootAndMove extends Command {
   // Suppress micro-corrections when the robot is already within 2.5° of the target heading.
   // Pose-estimator noise can produce sub-degree phantom errors that cause constant small
   // oscillations; this deadband prevents the PID from reacting to them.
-  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2.5);
+  private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2);
 
   // --- Tunable angle offset for clockwise rotation ---
   // Adjust this value to fine-tune the robot's shooting angle offset.
@@ -47,11 +47,11 @@ public class ShootAndMove extends Command {
   // Physics parameters for dynamic ball velocity calculation
   private static final double FLYWHEEL_RADIUS_M = 0.0508; // 4" diameter flywheel
   private static final double FRICTION_COEFFICIENT = 0.55; // μ rubber/foam
-  private static final double COMPRESSION_FACTOR = 1.15; // Grip enhancement
+  private static final double COMPRESSION_FACTOR = 1.08; // Grip enhancement
 
   // Gain multipliers for compensation tuning.
   private static final double LATERAL_COMPENSATION_GAIN = 3.75;
-  private static final double RADIAL_COMPENSATION_GAIN = 0.05;
+  private static final double RADIAL_COMPENSATION_GAIN = -0.5;
 
   // Clamp effective distance to stay within interpolation table range
   // and avoid null setpoints from map lookups.
@@ -131,27 +131,19 @@ public class ShootAndMove extends Command {
     angleController.enableContinuousInput(-Math.PI, Math.PI);
 
     // ( DISTANCE (m) || RPM )
-    // RPM_TABLE.put(1.5, 1800.0);
     RPM_TABLE.put(2.06, 1800.0);
-    // RPM_TABLE.put(2.3, 2000.0);
     RPM_TABLE.put(2.86, 2000.0);
-    // RPM_TABLE.put(3.39, 2100.0);
+    RPM_TABLE.put(3.56, 2150.0);
     RPM_TABLE.put(3.95, 2100.0);
-    // RPM_TABLE.put(3.88, 2300.0);
     RPM_TABLE.put(4.44, 2300.0);
-    // RPM_TABLE.put(4.8, 2400.0);
     RPM_TABLE.put(5.36, 2400.0);
 
     // ( DISTANCE (m) || HOOD ANGLE (degrees) )
-    // ANGLE_TABLE.put(1.5, 10.0);
     ANGLE_TABLE.put(2.06, 10.0);
-    // ANGLE_TABLE.put(2.3, 13.0);
     ANGLE_TABLE.put(2.86, 13.0);
-    // ANGLE_TABLE.put(3.39, 19.0);
+    ANGLE_TABLE.put(3.56, 21.0);
     ANGLE_TABLE.put(3.95, 19.0);
-    // ANGLE_TABLE.put(3.88, 24.0);
     ANGLE_TABLE.put(4.44, 24.0);
-    // ANGLE_TABLE.put(4.8, 29.0);
     ANGLE_TABLE.put(5.36, 29.0);
 
     addRequirements(drive, flywheel, hood, hopper, feeder, intake);
@@ -348,19 +340,23 @@ public class ShootAndMove extends Command {
       feedingTimer.restart();
     }
 
-    // Phase 2 — 0.25 s after feeding begins: agitate the intake by toggling
-    // between the EXTEND and AGITATE positions every 0.25 s.  Only call
-    // setPosition() when the desired state actually changes to avoid redundant
-    // scheduling.
+    // Phase 2 — 0.25 s after feeding begins: very slowly bring in the intake until it reaches zero.
+    // Gradually move from current position to STOWED over time.
     if (feedingStarted && feedingTimer.get() >= 0.25) {
-      double agitateElapsed = feedingTimer.get() - 0.25;
-      IntakeConstants.IntakeState targetIntakeState =
-          (agitateElapsed % 0.5 < 0.25)
-              ? IntakeConstants.IntakeState.EXTEND
-              : IntakeConstants.IntakeState.AGITATE;
-      if (targetIntakeState != lastIntakeState) {
-        intake.setPositionDirect(targetIntakeState);
-        lastIntakeState = targetIntakeState;
+      double retractElapsed = feedingTimer.get() - 0.25;
+      // Move from current position to STOWED over 2.0 seconds
+      double retractDuration = 2.0;
+      if (retractElapsed < retractDuration) {
+        // Calculate interpolated position from current state to STOWED
+        double progress = retractElapsed / retractDuration;
+        double currentPosition = (lastIntakeState != null) ? lastIntakeState.position : IntakeConstants.IntakeState.EXTEND.position;
+        double targetPosition = currentPosition * (1.0 - progress);
+        
+        // Set arbitrary position directly
+        intake.setPositionDirect(targetPosition);
+      } else {
+        // Ensure we reach STOWED
+        intake.setPositionDirect(IntakeConstants.IntakeState.STOWED);
       }
     }
   }
