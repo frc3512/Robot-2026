@@ -261,17 +261,23 @@ public class RobotContainer {
         idle()
     );
     
+    controller.rightTrigger().whileTrue(
+      autoShoot()
+    );
+    
     controller.leftBumper().onTrue(
+      ferry(2800, 30)
+    ).onFalse(
         idle()
     );
-    
-    controller.rightTrigger().whileTrue(
-        autoShoot()
-    );
-    
+
     controller.rightBumper().onTrue(
-        ferry()
+      ferry(2300, 35)
     ).onFalse(
+      idle()
+    );
+
+    controller.start().onTrue(
         idle()
     );
     
@@ -279,10 +285,6 @@ public class RobotContainer {
         reset()
     );
 
-    // X the modules for a brake
-    controller.x().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    controller.b().onTrue(shootRaw(2100,21));
   }
 
   private void registerNamedCommand(String name, Command command) {
@@ -376,14 +378,14 @@ public class RobotContainer {
         logMessage("Preping for shot"));
   }
 
-  public Command ferry() {
+  public Command ferry(double rpms, double angle) {
     return Commands.either(
-      ferryRed(), 
-      ferryBlue(), 
+      ferryRed(rpms, angle), 
+      ferryBlue(rpms, angle), 
       () -> DriverStation.getAlliance().get() == Alliance.Red);
   }
 
-  public Command ferryRed() {
+  public Command ferryRed(double rpms, double angle) {
     return Commands.parallel(
       DriveCommands.joystickDriveAtAngle(
           drive,
@@ -391,8 +393,8 @@ public class RobotContainer {
           () -> -controller.getLeftX(),
           () -> Rotation2d.k180deg),
       Commands.sequence(
-        flywheel.setRPM(2300.0),
-        hood.setPosition(35.0),
+        flywheel.setRPM(rpms),
+        hood.setPosition(angle),
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
         feeder.setFeeder(0.5),
@@ -402,7 +404,7 @@ public class RobotContainer {
     );
   }
 
-  public Command ferryBlue() {
+  public Command ferryBlue(double rpms, double angle) {
     return Commands.parallel(
       DriveCommands.joystickDriveAtAngle(
           drive,
@@ -410,8 +412,8 @@ public class RobotContainer {
           () -> -controller.getLeftX(),
           () -> Rotation2d.kZero),
       Commands.sequence(
-        flywheel.setRPM(2300.0),
-        hood.setPosition(35.0),
+        flywheel.setRPM(rpms),
+        hood.setPosition(angle),
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
         feeder.setFeeder(0.5),
