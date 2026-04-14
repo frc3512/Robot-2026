@@ -3,16 +3,14 @@
   "robotLength": 0.8636,
   "holonomicMode": true,
   "pathFolders": [
+    "HpFolder",
     "NzFolder",
-    "centerFolder",
-    "depotFolder",
-    "HpFolder"
+    "depotFolder"
   ],
   "autoFolders": [
     "HpInvolved",
     "NzInvolved",
-    "depotInvoled",
-    "middleInvolved"
+    "depotInvolved"
   ],
   "defaultMaxVel": 3.0,
   "defaultMaxAccel": 3.0,

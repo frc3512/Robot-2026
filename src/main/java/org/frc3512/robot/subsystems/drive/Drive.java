@@ -62,7 +62,7 @@ public class Drive extends SubsystemBase {
           ROBOT_MOI,
           new ModuleConfig(
               TunerConstants.FrontLeft.WheelRadius,
-              TunerConstants.SPEED_AT_12_VOLTS.in(MetersPerSecond),
+              15,
               WHEEL_COF,
               DCMotor.getKrakenX60Foc(1)
                   .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),

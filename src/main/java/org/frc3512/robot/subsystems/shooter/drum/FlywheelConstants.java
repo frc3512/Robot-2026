@@ -32,12 +32,12 @@ public class FlywheelConstants {
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(Amps.of(60))
                     .withStatorCurrentLimitEnable(true)
-                    .withSupplyCurrentLimit(Amps.of(40))
+                    .withSupplyCurrentLimit(Amps.of(30))
                     .withSupplyCurrentLimitEnable(true))
             .withSlot0(
                 new Slot0Configs()
-                    .withKP(0.5)
-                    .withKI(2)
+                    .withKP(0.25)
+                    .withKI(0)
                     .withKD(0)
                     .withKV(
                         12.0

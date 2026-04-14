@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "wait",
+          "data": {
+            "waitTime": 3.3
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "rotateHpPath"
@@ -21,23 +27,11 @@
           "data": {
             "name": "Shoot"
           }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 2.0
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Reset"
-          }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "middleInvolved",
+  "folder": "HpInvolved",
   "choreoAuto": false
 }

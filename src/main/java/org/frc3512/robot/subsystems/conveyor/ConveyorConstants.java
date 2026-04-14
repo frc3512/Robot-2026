@@ -18,8 +18,8 @@ public class ConveyorConstants {
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimit(30)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimit(15)
                   .withSupplyCurrentLimitEnable(true));
 }

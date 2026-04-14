@@ -3,37 +3,58 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 6.117240963855421,
-        "y": 2.155
+        "x": 6.244,
+        "y": 2.412
       },
       "prevControl": null,
       "nextControl": {
-        "x": 8.55412048192771,
-        "y": 0.7562530120481925
+        "x": 6.244,
+        "y": 4.034647407178987
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 7.876602409638554,
-        "y": 3.783
+        "x": 6.032733333333333,
+        "y": 5.294722222222222
       },
       "prevControl": {
-        "x": 7.843809852845662,
-        "y": 2.7775346111282673
+        "x": 6.279826365402085,
+        "y": 5.332735818514479
+      },
+      "nextControl": {
+        "x": 5.785640301264581,
+        "y": 5.256708625929965
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 5.770711111111111,
+        "y": 2.412
+      },
+      "prevControl": {
+        "x": 5.770711111111111,
+        "y": 1.545
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.5,
+      "rotationDegrees": 135.0
+    }
+  ],
   "constraintZones": [
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0.0,
-      "maxWaypointRelativePos": 0.9498759305210905,
+      "maxWaypointRelativePos": 1.9,
       "constraints": {
         "maxVelocity": 20.0,
         "maxAcceleration": 20.0,
@@ -48,7 +69,7 @@
   "eventMarkers": [
     {
       "name": "EVerifyNZRight",
-      "waypointRelativePos": 1.0,
+      "waypointRelativePos": 2.0,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -64,17 +85,17 @@
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
-    "unlimited": false
+    "unlimited": true
   },
   "goalEndState": {
-    "velocity": 5.0,
-    "rotation": 86.186
+    "velocity": 20.0,
+    "rotation": -115.0
   },
   "reversed": false,
   "folder": "NzFolder",
   "idealStartingState": {
-    "velocity": 5.0,
-    "rotation": 34.824
+    "velocity": 20.0,
+    "rotation": 125.00000000000001
   },
   "useDefaultConstraints": true
 }

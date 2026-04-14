@@ -7,50 +7,49 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goBumpLeft"
+            "pathName": "toDepot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NzIntakeBLeft"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzReturnOvLeft"
-          }
-        },
-        {
-          "type": "sequential",
-          "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "Reset"
-                }
-              },
-              {
-                "type": "wait",
-                "data": {
-                  "waitTime": 2.5
-                }
-              }
-            ]
+            "pathName": "intakeDepot"
           }
         },
         {
           "type": "named",
           "data": {
-            "name": "Reset"
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "depotGoToNz"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "depotIntakeNz"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "depotReturn"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "NzInvolved",
+  "folder": "depotInvolved",
   "choreoAuto": false
 }

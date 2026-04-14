@@ -7,25 +7,44 @@
         {
           "type": "path",
           "data": {
-            "pathName": "driveDepot"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "Intake"
+            "pathName": "toDepot"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "intakeDepotPath"
+            "pathName": "intakeDepot"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              },
+              {
+                "type": "wait",
+                "data": {
+                  "waitTime": 1.5
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "Shoot"
+                }
+              }
+            ]
           }
         }
       ]
     }
   },
   "resetOdom": true,
-  "folder": "depotInvoled",
+  "folder": "depotInvolved",
   "choreoAuto": false
 }

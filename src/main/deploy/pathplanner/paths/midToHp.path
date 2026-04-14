@@ -63,13 +63,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "PrepIntake",
+      "name": "PrepShoot",
       "waypointRelativePos": 1.8161683277962188,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "Hopper"
+          "name": "StartShoot"
         }
       }
     }
@@ -87,7 +87,7 @@
     "rotation": 180.0
   },
   "reversed": false,
-  "folder": "centerFolder",
+  "folder": "HpFolder",
   "idealStartingState": {
     "velocity": 9.0,
     "rotation": 180.0

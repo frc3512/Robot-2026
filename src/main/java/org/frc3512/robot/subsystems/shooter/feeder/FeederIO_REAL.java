@@ -19,7 +19,6 @@ public class FeederIO_REAL implements FeederIO {
 
   @Override
   public void setFeeder(double speed) {
-    System.out.println("DEBUG: FeederIO_REAL.setFeeder called with speed: " + speed);
     feeder.set(speed);
     secondaryFeeder.set(speed);
   }

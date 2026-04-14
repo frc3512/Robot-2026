@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.889844819979239,
-        "y": 6.068615546073336
+        "x": 5.387755555555556,
+        "y": 5.9699333333333335
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 5.9423975903614465,
-        "y": 5.783433734939758
+        "x": 6.395533333333334,
+        "y": 5.7885333333333335
       },
       "prevControl": {
-        "x": 6.321916241060414,
-        "y": 6.297741595427151
+        "x": 7.977380187416331,
+        "y": 6.368066265060241
       },
       "nextControl": null,
       "isLocked": false,
@@ -79,7 +79,7 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -29.999999999999996
+    "rotation": -131.7047739509797
   },
   "reversed": false,
   "folder": "NzFolder",

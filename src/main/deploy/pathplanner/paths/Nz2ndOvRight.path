@@ -8,20 +8,20 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.8898448199792384,
-        "y": 2.0007104539266636
+        "x": 5.398202682237949,
+        "y": 2.351906445131823
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.117240963855421,
-        "y": 2.1226506024096388
+        "x": 6.214,
+        "y": 2.292
       },
       "prevControl": {
-        "x": 6.652698795180723,
-        "y": 2.6362530120481926
+        "x": 8.814200000000001,
+        "y": 2.3419333333333325
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "eventMarkers": [
     {
       "name": "PrepIntake",
-      "waypointRelativePos": 0.6103983794733266,
+      "waypointRelativePos": 0.34330011074197064,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -78,8 +78,8 @@
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 0,
-    "rotation": 29.999999999999996
+    "velocity": 20.0,
+    "rotation": 115.0
   },
   "reversed": false,
   "folder": "NzFolder",

@@ -183,7 +183,6 @@ public class RobotContainer {
     registerNamedCommand("Intake", intake());
     registerNamedCommand("Shoot", autonShoot());
     registerNamedCommand("Reset", reset());
-    registerNamedCommand("PrepShoot", idle());
     registerNamedCommand("StopIntake", stopIntake());
     registerNamedCommand("StartShoot", prepShooting());
 
@@ -264,15 +263,9 @@ public class RobotContainer {
     controller.rightTrigger().whileTrue(
       autoShoot()
     );
-    
-    controller.leftBumper().onTrue(
-      ferry(2800, 30)
-    ).onFalse(
-        idle()
-    );
 
     controller.rightBumper().onTrue(
-      ferry(2300, 35)
+      ferry(3200, 35)
     ).onFalse(
       idle()
     );
@@ -285,19 +278,6 @@ public class RobotContainer {
         reset()
     );
 
-  }
-
-  private void registerNamedCommand(String name, Command command) {
-    NamedCommands.registerCommand(name, safeCommand(command));
-  }
-
-  private Command safeCommand(Command command) {
-    if (command == null) {
-      DriverStation.reportError(
-          "Named command resolved to null. Using Commands.none() fallback.", false);
-      return Commands.none();
-    }
-    return command;
   }
 
   // --- Begin Telop Commands ---
@@ -359,7 +339,7 @@ public class RobotContainer {
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(1800.0),
+        flywheel.setRPM(2500.0),
         hood.setPosition(10.0),
         // Log action
         logMessage("Idling"));
@@ -398,8 +378,13 @@ public class RobotContainer {
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
         feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5),
-        intake.setPosition(IntakeState.AGITATE)
+        Commands.waitSeconds(1.5)
+        .andThen(
+          intake.setPosition(IntakeState.EXTEND),
+          Commands.waitSeconds(0.1),
+          intake.setPosition(IntakeState.AGITATE),
+          Commands.waitSeconds(0.1)
+        ).repeatedly()
       )
     );
   }
@@ -417,8 +402,13 @@ public class RobotContainer {
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
         feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5),
-        intake.setPosition(IntakeState.AGITATE)
+        Commands.waitSeconds(1.5)
+        .andThen(
+          intake.setPosition(IntakeState.EXTEND),
+          Commands.waitSeconds(0.1),
+          intake.setPosition(IntakeState.AGITATE),
+          Commands.waitSeconds(0.1)
+        ).repeatedly()
       )
     );
   }
@@ -471,7 +461,7 @@ public class RobotContainer {
                 intake,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .withTimeout(3.5);
+        .withTimeout(4);
   }
 
   // --- Manual Control ---
@@ -498,6 +488,19 @@ public class RobotContainer {
   // Auto chooser
   public Command getAutonomousCommand() {
     return autoChooser.getSelected();
+  }
+
+  private void registerNamedCommand(String name, Command command) {
+    NamedCommands.registerCommand(name, safeCommand(command));
+  }
+
+  private Command safeCommand(Command command) {
+    if (command == null) {
+      DriverStation.reportError(
+          "Named command resolved to null. Using Commands.none() fallback.", false);
+      return Commands.none();
+    }
+    return command;
   }
 
   // --- Vision Correction Commands ---
@@ -636,27 +639,31 @@ public class RobotContainer {
   // Sends an Elastic notification whenever the hub transitions between active and inactive
   public void checkHubStateChange() {
     boolean hubActive = isHubActive();
-    if (hubActive != wasHubActive) {
-      if (hubActive) {
-        Elastic.sendNotification(
-            new Elastic.Notification(
-                Elastic.Notification.NotificationLevel.INFO,
-                "Hub Active",
-                "The hub is now active. You may begin shooting.",
-                5000,
-                500,
-                -2));
-      } else {
-        Elastic.sendNotification(
-            new Elastic.Notification(
-                Elastic.Notification.NotificationLevel.WARNING,
-                "Hub Inactive",
-                "The hub is no longer active.",
-                5000,
-                500,
-                -2));
+    try {
+      if (hubActive != wasHubActive) {
+        if (hubActive) {
+          Elastic.sendNotification(
+              new Elastic.Notification(
+                  Elastic.Notification.NotificationLevel.INFO,
+                  "Hub Active",
+                  "The hub is now active. You may begin shooting.",
+                  5000,
+                  500,
+                  -2));
+        } else {
+          Elastic.sendNotification(
+              new Elastic.Notification(
+                  Elastic.Notification.NotificationLevel.WARNING,
+                  "Hub Inactive",
+                  "The hub is no longer active.",
+                  5000,
+                  500,
+                  -2));
+        }
+        wasHubActive = hubActive;
       }
-      wasHubActive = hubActive;
+    } catch (Exception e) {
+      return;
     }
   }
 
