@@ -1,7 +1,7 @@
 # Robot-2026 - Official Competition Code
 
 Purpose
-- This repository is dedicated to the actual code we will be using at comps, with this years robot, Cerberus
+- This repository is dedicated to the code we will be using at DCMP and Worlds, with this years redesigned robot, Pandora
 
 Branching & workflow
 - ROBOT_NAME: current main version with the latest and functional code
@@ -18,4 +18,4 @@ Version Management (V.U.R)
 
 This repo is for experimentation and verification: keep it organized, documented, and fast to run so prototypes can be iterated efficiently.
 
-Current Version: 2.1.0
+Current Version: 2.1.1
