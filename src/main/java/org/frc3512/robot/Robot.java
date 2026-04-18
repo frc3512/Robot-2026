@@ -1,7 +1,9 @@
 package org.frc3512.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.lib.BLine.Path;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -15,19 +17,6 @@ public class Robot extends LoggedRobot {
   private RobotContainer robotContainer;
 
   public Robot() {
-    // Record metadata
-    Logger.recordMetadata("ProjectName", BuildConstants.MAVEN_NAME);
-    Logger.recordMetadata("BuildDate", BuildConstants.BUILD_DATE);
-    Logger.recordMetadata("GitSHA", BuildConstants.GIT_SHA);
-    Logger.recordMetadata("GitDate", BuildConstants.GIT_DATE);
-    Logger.recordMetadata("GitBranch", BuildConstants.GIT_BRANCH);
-    Logger.recordMetadata(
-        "GitDirty",
-        switch (BuildConstants.DIRTY) {
-          case 0 -> "All changes committed";
-          case 1 -> "Uncommitted changes";
-          default -> "Unknown";
-        });
 
     // Set up data receivers & replay source
     switch (Constants.GeneralConstants.currentMode) {
@@ -71,7 +60,24 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    // Pre-match module orientation using BLine
+    // Keep modules pointed at the first target while the robot is disabled on the field
+    try {
+      String pathName = robotContainer.getFirstPathName();
+      if (pathName != null) {
+        Path path = new Path(pathName);
+        // Get the initial module direction based on current robot pose
+        Rotation2d moduleDirection = 
+            path.getInitialModuleDirection(robotContainer.getDrive()::getPose);
+        // Set all modules to face this direction
+        robotContainer.getDrive().setModuleOrientations(moduleDirection);
+      }
+    } catch (Exception e) {
+      // Silently fail - module orientation is not critical
+      // This prevents errors from breaking disabled mode
+    }
+  }
 
   @Override
   public void autonomousInit() {

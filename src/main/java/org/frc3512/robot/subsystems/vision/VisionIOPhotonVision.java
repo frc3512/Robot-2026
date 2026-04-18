@@ -119,13 +119,4 @@ public class VisionIOPhotonVision implements VisionIO {
       inputs.tagIds[i++] = id;
     }
   }
-
-  @Override
-  public void makeWork(boolean shouldWork) {
-    if (shouldWork) {
-      works = true;
-    } else {
-      works = false;
-    }
-  }
 }

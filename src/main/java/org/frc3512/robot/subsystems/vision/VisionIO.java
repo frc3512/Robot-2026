@@ -35,8 +35,4 @@ public interface VisionIO {
   }
 
   public default void updateInputs(VisionIOInputs inputs) {}
-
-  public default void makeWork(boolean shouldWork) {
-    // Makes the vision work
-  }
 }
