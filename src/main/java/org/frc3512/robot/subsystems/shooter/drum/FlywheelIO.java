@@ -6,12 +6,8 @@ public interface FlywheelIO {
 
   @AutoLog
   public static class FlywheelIOInputs {
-    public double leftVelocity = 0.0;
-    public double middleVelocity = 0.0;
-    public double rightVelocity = 0.0;
-    public double leftAppliedVolts = 0.0;
-    public double middleAppliedVolts = 0.0;
-    public double rightAppliedVolts = 0.0;
+    public double drumRPM = 0.0;
+    public double drumVolts = 0.0;
 
     public double rpmSetpoint = 0.0;
     public boolean isVelocityWithinTolerance;

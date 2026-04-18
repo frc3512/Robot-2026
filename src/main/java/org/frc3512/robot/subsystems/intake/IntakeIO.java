@@ -24,7 +24,7 @@ public interface IntakeIO {
 
   public default void updateInputs(IntakeIOInputs inputs) {}
 
-  public default void setExtensionPosition(IntakeConstants.IntakeState state) {}
+  public default void setExtensionPosition(IntakeConstants.IntakePosition position) {}
 
   public default void setExtensionPosition(double position) {}
 
@@ -33,4 +33,6 @@ public interface IntakeIO {
   public default void setExtensionVelocity(double velocity) {}
 
   public default void rezeroExtension() {}
+
+  public default void compressIntake() {}
 }

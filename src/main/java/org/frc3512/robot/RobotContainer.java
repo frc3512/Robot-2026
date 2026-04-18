@@ -5,8 +5,7 @@ import org.frc3512.robot.commands.auto.SimpleCorrectedAuto;
 import org.frc3512.robot.commands.auto.VerifyPosition;
 import org.frc3512.robot.commands.auto.VisionGuidedAuto;
 import org.frc3512.robot.commands.teleop.DriveCommands;
-import org.frc3512.robot.commands.teleop.ShootAndMove;
-import org.frc3512.robot.subsystems.States;
+import org.frc3512.robot.commands.teleop.Aim;
 import org.frc3512.robot.subsystems.conveyor.Conveyor;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO;
 import org.frc3512.robot.subsystems.conveyor.ConveyorIO_REAL;
@@ -19,7 +18,6 @@ import org.frc3512.robot.subsystems.drive.ModuleIOSim;
 import org.frc3512.robot.subsystems.drive.ModuleIOTalonFX;
 import org.frc3512.robot.subsystems.drive.TunerConstants;
 import org.frc3512.robot.subsystems.intake.Intake;
-import org.frc3512.robot.subsystems.intake.IntakeConstants.IntakeState;
 import org.frc3512.robot.subsystems.intake.IntakeIO;
 import org.frc3512.robot.subsystems.intake.IntakeIO_REAL;
 import org.frc3512.robot.subsystems.intake.IntakeIO_SIM;
@@ -41,6 +39,8 @@ import org.frc3512.robot.subsystems.vision.VisionCorrectionConstants;
 import org.frc3512.robot.subsystems.vision.VisionIO;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVision;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
+import org.frc3512.robot.util.StateManager;
+import org.frc3512.robot.util.StateManager.RobotState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
@@ -69,6 +69,8 @@ public class RobotContainer {
   private final Conveyor conveyor;
   private final Feeder feeder;
 
+  private final StateManager stateManager;
+
   // Game data and timing
   public static String gameData;
   public static double prefire = 2; // Seconds before the hub becomes active to start shooting
@@ -91,9 +93,6 @@ public class RobotContainer {
 
   // Dashboard inputs
   private SendableChooser<Command> autoChooser;
-
-  @AutoLogOutput(key = "Robot/Robot State")
-  private States currentState = States.HOMED;
 
   // Track previous hub state for change detection
   // Initialized to true so no spurious notification fires on startup when
@@ -127,6 +126,17 @@ public class RobotContainer {
         hood = new Hood(new HoodIO_REAL());
         feeder = new Feeder(new FeederIO_REAL());
 
+        stateManager =
+            new StateManager(
+                conveyor,
+                intake,
+                flywheel,
+                feeder,
+                hood,
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX());
+
         break;
 
       case SIM:
@@ -155,6 +165,17 @@ public class RobotContainer {
         hood = new Hood(new HoodIO_SIM());
         feeder = new Feeder(new FeederIO_SIM());
 
+        stateManager =
+            new StateManager(
+                conveyor,
+                intake,
+                flywheel,
+                feeder,
+                hood,
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX());
+
         break;
 
       default:
@@ -175,16 +196,19 @@ public class RobotContainer {
         hood = new Hood(new HoodIO() {});
         feeder = new Feeder(new FeederIO() {});
 
+        stateManager =
+            new StateManager(
+                conveyor,
+                intake,
+                flywheel,
+                feeder,
+                hood,
+                drive,
+                () -> -controller.getLeftY(),
+                () -> -controller.getLeftX());
+
         break;
     }
-
-    //Named Commands
-    registerNamedCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
-    registerNamedCommand("Intake", intake());
-    registerNamedCommand("Shoot", autonShoot());
-    registerNamedCommand("Reset", reset());
-    registerNamedCommand("StopIntake", stopIntake());
-    registerNamedCommand("StartShoot", prepShooting());
 
     //Event Triggers
     new EventTrigger("PrepIntake");
@@ -255,234 +279,33 @@ public class RobotContainer {
 
     // Superstructure controls
     controller.leftTrigger().onTrue(
-        intake()
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.INTAKING))
     ).onFalse(
-        idle()
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.IDLE))
+    );
+    controller.leftBumper().onTrue(
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.FERRY))
+    ).onFalse(
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.IDLE))
     );
     
     controller.rightTrigger().whileTrue(
-      autoShoot()
-    );
-
-    controller.rightBumper().onTrue(
-      ferry(3200, 35)
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.SHOOTING))
     ).onFalse(
-      idle()
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.IDLE))
+    );
+    controller.rightBumper().whileTrue(
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.DUMPING))
+    ).onFalse(
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.IDLE))
     );
 
-    controller.start().onTrue(
-        idle()
-    );
-    
-    controller.povLeft().onTrue(
-        reset()
+    controller.povUp().onTrue(
+      Commands.runOnce(() -> stateManager.setWantedState(RobotState.HOME))
     );
 
   }
-
-  // --- Begin Telop Commands ---
-
-  // Methods
-  public Command reset() {
-    return Commands.sequence(
-        // Kill and retract Intake
-        intake.setRollerSpeed(0),
-        intake.setPosition(IntakeState.STOWED),
-        // Stop Conveyor
-        conveyor.setHopper(0.0),
-        // Stop Feeder
-        feeder.setFeeder(0.0),
-        // Stop Flywheel
-        flywheel.setRPM(0.0),
-        // Bring Down Hood
-        hood.setPosition(10.0),
-        // Log action
-        logMessage("Reseting Robot"),
-        logMessage(
-            Elastic.Notification.NotificationLevel.INFO,
-            "Robot Reset",
-            "Robot has been reset sucessfully",
-            5000));
-  }
-
-  public Command stopIntake() {
-    return Commands.sequence(
-      // Stop the intake
-      intake.setRollerSpeed(0),
-      intake.setPosition(IntakeState.EXTEND),
-      // Log action
-      logMessage("Stopping Intake"));
-  }
-
-  // Intake
-  public Command intake() {
-    return Commands.sequence(
-        // Run intake rollers and extend
-        intake.setPosition(IntakeState.EXTEND),
-        intake.setRollerSpeed(0.70),
-        // Log action
-        logMessage("Begun Intaking"),
-        // Wait
-        Commands.waitSeconds(1),
-        // Use hopper to push balls back
-        conveyor.setHopper(0.2));
-  }
-
-  // Idling + Preping shot
-  public Command idle() {
-    return Commands.sequence(
-        // Stop Intake and bring it in
-        intake.setRollerSpeed(0),
-        intake.setPosition(IntakeState.EXTEND),
-        // Stop Conveyor
-        conveyor.setHopper(0.0),
-        // Stop Feeder
-        feeder.setFeeder(0.0),
-        // Set Flywheel to idle values
-        flywheel.setRPM(2500.0),
-        hood.setPosition(10.0),
-        // Log action
-        logMessage("Idling"));
-  }
-
-  public Command prepShooting() {
-    return Commands.sequence(
-        intake.setRollerSpeed(0),
-        intake.setPosition(IntakeState.EXTEND),
-        // Keep feeding off
-        conveyor.setHopper(0.0),
-        feeder.setFeeder(0.0),
-        // Being speeding up flywheel
-        flywheel.setRPM(1800.0),
-        // Log action
-        logMessage("Preping for shot"));
-  }
-
-  public Command ferry(double rpms, double angle) {
-    return Commands.either(
-      ferryRed(rpms, angle), 
-      ferryBlue(rpms, angle), 
-      () -> DriverStation.getAlliance().get() == Alliance.Red);
-  }
-
-  public Command ferryRed(double rpms, double angle) {
-    return Commands.parallel(
-      DriveCommands.joystickDriveAtAngle(
-          drive,
-          () -> -controller.getLeftY(),
-          () -> -controller.getLeftX(),
-          () -> Rotation2d.k180deg),
-      Commands.sequence(
-        flywheel.setRPM(rpms),
-        hood.setPosition(angle),
-        Commands.waitSeconds(1),
-        conveyor.setHopper(0.5),
-        feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5)
-        .andThen(
-          intake.setPosition(IntakeState.EXTEND),
-          Commands.waitSeconds(0.1),
-          intake.setPosition(IntakeState.AGITATE),
-          Commands.waitSeconds(0.1)
-        ).repeatedly()
-      )
-    );
-  }
-
-  public Command ferryBlue(double rpms, double angle) {
-    return Commands.parallel(
-      DriveCommands.joystickDriveAtAngle(
-          drive,
-          () -> -controller.getLeftY(),
-          () -> -controller.getLeftX(),
-          () -> Rotation2d.kZero),
-      Commands.sequence(
-        flywheel.setRPM(rpms),
-        hood.setPosition(angle),
-        Commands.waitSeconds(1),
-        conveyor.setHopper(0.5),
-        feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5)
-        .andThen(
-          intake.setPosition(IntakeState.EXTEND),
-          Commands.waitSeconds(0.1),
-          intake.setPosition(IntakeState.AGITATE),
-          Commands.waitSeconds(0.1)
-        ).repeatedly()
-      )
-    );
-  }
-
-  // Shoot
-  public Command autoShoot() {
-    return Commands.sequence(
-        // Engage Shooting systems
-        new ShootAndMove(
-            drive,
-            flywheel,
-            hood,
-            conveyor,
-            feeder,
-            intake,
-            () -> -controller.getLeftY(),
-            () -> -controller.getLeftX()));
-  }
-
-  public Command shoot() {
-    return Commands.sequence(
-        // Begin feeding balls
-        conveyor.setHopper(0.7),
-        feeder.setFeeder(0.9),
-        // Log action
-        logMessage("Shooting fuel"),
-        // Wait for fuel to empty out to allow intake to agitate balls
-        Commands.waitSeconds(0.25)
-            // Bring intake in and out to agitate balls for 5 seconds
-            .andThen(
-                intake.setPosition(IntakeState.AGITATE),
-                Commands.waitSeconds(0.25),
-                intake.setPosition(IntakeState.EXTEND),
-                Commands.waitSeconds(0.25))
-            .repeatedly()
-            .withTimeout(5),
-        // Bring intake in
-        intake.setPosition(IntakeState.AGITATE));
-  }
-
-  public Command autonShoot() {
-    return Commands.sequence(
-            // Engage Shooting systems
-            new ShootAndMove(
-                drive,
-                flywheel,
-                hood,
-                conveyor,
-                feeder,
-                intake,
-                () -> -controller.getLeftY(),
-                () -> -controller.getLeftX()))
-        .withTimeout(4);
-  }
-
-  // --- Manual Control ---
-
-  public Command shootRaw(double rpms, double hoodAngle) {
-    return Commands.parallel(
-        flywheel.setRPM(rpms),
-        hood.setPosition(hoodAngle),
-        feeder.setFeeder(0.4),
-        conveyor.setHopper(0.3)
-      );
-  }
-
-  public Command stop() {
-    return Commands.parallel(
-      feeder.setFeeder(0.0),
-      conveyor.setHopper(0.0),
-      flywheel.setRPM(0.0),
-      hood.setPosition(10.0)
-    );
-  }
+  
   // --- Begin Auto Code ---
 
   // Auto chooser

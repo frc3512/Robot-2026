@@ -1,6 +1,5 @@
 package org.frc3512.robot.subsystems.shooter.drum;
 
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import org.littletonrobotics.junction.Logger;
@@ -10,27 +9,28 @@ public class Flywheel extends SubsystemBase {
   private FlywheelIO io;
   private FlywheelIOInputsAutoLogged inputs = new FlywheelIOInputsAutoLogged();
 
+  private FlywheelStates currentState = FlywheelStates.OFF;
+  private FlywheelStates wantedState = FlywheelStates.IDLE;
+  private double targetRPM = 0.0;
+
   public Flywheel(FlywheelIO io) {
     this.io = io;
   }
 
-  public void setRPMDirect(double rpm) {
-    io.setRPM(rpm);
+  public void setTargetRPM(double rpm) {
+    targetRPM = rpm;
+    wantedState = FlywheelStates.ACCELERATING;
   }
 
-  public Command setRPM(double rpm) {
-    return runOnce(() -> io.setRPM(rpm));
+  public double getTargetRPM() {
+    return targetRPM;
   }
 
-  public Command setOutput(double output) {
-    return runOnce(() -> io.setOutput(output));
+  public void setWantedState(FlywheelStates state) {
+    wantedState = state;
   }
 
-  public Command stop() {
-    return runOnce(() -> io.stop());
-  }
-
-  public boolean isVelocityWithinTolerance() {
+  public boolean isAtSetpoint() {
     return io.isVelocityWithinTolerance();
   }
 
@@ -38,5 +38,50 @@ public class Flywheel extends SubsystemBase {
   public void periodic() {
     io.updateInputs(inputs);
     Logger.processInputs("Flywheel", inputs);
+
+    handleStateTransitions();
+    applyOutput();
+  }
+
+  private void handleStateTransitions() {
+    switch (wantedState) {
+      case ACCELERATING:
+        if (targetRPM > 0.0 && ! io.isVelocityWithinTolerance()) {
+          currentState = FlywheelStates.ACCELERATING;
+        }
+        break;
+      case IDLE:
+        if (targetRPM == 1800.0 && io.isVelocityWithinTolerance()) {
+          currentState = FlywheelStates.IDLE;
+        }
+        break;
+      case READY:
+        if (io.isVelocityWithinTolerance()) {
+          currentState = FlywheelStates.READY;
+        }
+        break;
+      case OFF:
+        if (targetRPM == 0.0) {
+          currentState = FlywheelStates.OFF;
+        }
+        break;
+    }
+  }
+
+  private void applyOutput() {
+    switch (currentState) {
+      case ACCELERATING:
+        io.setRPM(targetRPM); 
+        break;
+      case IDLE:
+        io.setRPM(1800.0);
+        break;
+      case READY:
+        io.setRPM(targetRPM);
+        break;
+      case OFF:
+        io.setRPM(0.0);
+        break;
+    }
   }
 }

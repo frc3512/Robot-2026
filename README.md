@@ -1,7 +1,7 @@
 # Robot-2026 - Official Competition Code
 
 Purpose
-- This repository is dedicated to the code we will be using at DCMP and Worlds, with this years redesigned robot, Pandora
+- This repository is dedicated to the code we will be using at Worlds, with the rebirthed state machine for the new robot, Pandora
 
 Branching & workflow
 - ROBOT_NAME: current main version with the latest and functional code
@@ -10,6 +10,13 @@ Branching & workflow
 Coding & review standards
 - Keep clean, structured code
 - Do your best to not stray to far from the main branch, merging in new features once they work
+- Follow the existing code style and patterns
+- All code must be reviewed by at least one other team member before merging
+- All code must be tested and working before merging
+- All code must be documented with comments
+- All code must be formatted properly using the provided formatter
+- All code must be free of warnings and errors
+- All code must be properly unit tested
 
 Version Management (V.U.R)
 - The V (version) is the current major status of the robot, shows all major changes to the code
@@ -18,4 +25,4 @@ Version Management (V.U.R)
 
 This repo is for experimentation and verification: keep it organized, documented, and fast to run so prototypes can be iterated efficiently.
 
-Current Version: 2.1.1
+Current Version: Alpha-1.0.0

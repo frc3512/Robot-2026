@@ -1,5 +1,12 @@
 package org.frc3512.robot.commands.teleop;
 
+import java.util.function.DoubleSupplier;
+
+import org.frc3512.robot.Constants;
+import org.frc3512.robot.subsystems.drive.Drive;
+import org.littletonrobotics.junction.AutoLogOutput;
+import org.littletonrobotics.junction.Logger;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.filter.LinearFilter;
@@ -12,21 +19,9 @@ import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
-import java.util.function.DoubleSupplier;
-import org.frc3512.robot.Constants;
-import org.frc3512.robot.subsystems.conveyor.Conveyor;
-import org.frc3512.robot.subsystems.drive.Drive;
-import org.frc3512.robot.subsystems.intake.Intake;
-import org.frc3512.robot.subsystems.intake.IntakeConstants;
-import org.frc3512.robot.subsystems.shooter.drum.Flywheel;
-import org.frc3512.robot.subsystems.shooter.feeder.Feeder;
-import org.frc3512.robot.subsystems.shooter.hood.Hood;
-import org.littletonrobotics.junction.AutoLogOutput;
-import org.littletonrobotics.junction.Logger;
 
-public class ShootAndMove extends Command {
+public class Aim extends Command {
   private static final double DEADBAND = 0.1;
   private static final double ANGLE_KP = 18;
   private static final double ANGLE_KD = 0.0;
@@ -34,7 +29,7 @@ public class ShootAndMove extends Command {
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
 
   // --- Jitter compensation ---
-  // Suppress micro-corrections when the robot is already within 2.5° of the target heading.
+  // Suppress micro-corrections when the robot is already within 2° of the target heading.
   // Pose-estimator noise can produce sub-degree phantom errors that cause constant small
   // oscillations; this deadband prevents the PID from reacting to them.
   private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2);
@@ -66,11 +61,6 @@ public class ShootAndMove extends Command {
   private static final double DISTANCE_FILTER_TC = 0.10;
 
   private final Drive drive;
-  private final Flywheel flywheel;
-  private final Hood hood;
-  private final Conveyor hopper;
-  private final Feeder feeder;
-  private final Intake intake;
   private final DoubleSupplier xSupplier;
   private final DoubleSupplier ySupplier;
 
@@ -80,45 +70,22 @@ public class ShootAndMove extends Command {
   private final LinearFilter omegaFilter = LinearFilter.singlePoleIIR(OMEGA_FILTER_TC, 0.02);
   private final LinearFilter distanceFilter = LinearFilter.singlePoleIIR(DISTANCE_FILTER_TC, 0.02);
 
-  // --- Shoot sequence state ---
-  // Timer started in initialize(); drives the three-phase shoot sequence.
-  private final Timer shootTimer = new Timer();
-  // Timer started the moment feeding begins; used to time Phase 3 (intake agitation)
-  // relative to when the robot was actually aimed at the hub, not wall-clock start.
-  private final Timer feedingTimer = new Timer();
-  // True once the feeder and hopper have been started (triggered by heading alignment).
-  private boolean feedingStarted = false;
-  // Last intake state commanded during agitation (Phase 3, 0.25 s after feeding starts).
-  // Null before Phase 3 begins; used to detect transitions so setPosition()
-  // is only scheduled when the desired state actually changes.
-  private IntakeConstants.IntakeState lastIntakeState = null;
-
   private static final InterpolatingDoubleTreeMap RPM_TABLE = new InterpolatingDoubleTreeMap();
   private static final InterpolatingDoubleTreeMap ANGLE_TABLE = new InterpolatingDoubleTreeMap();
 
   // Store current distance for @AutoLogOutput
   private double currentDistanceToHub = 0.0;
+  private boolean aimedAtTarget = false;
+  private double wantedRPM = 0.0;
+  private double wantedAngle = 0.0;
 
   @AutoLogOutput(key = "Robot/Distance From Hub")
   public double getDistanceToHub() {
     return currentDistanceToHub;
   }
 
-  public ShootAndMove(
-      Drive drive,
-      Flywheel flywheel,
-      Hood hood,
-      Conveyor hopper,
-      Feeder feeder,
-      Intake intake,
-      DoubleSupplier xSupplier,
-      DoubleSupplier ySupplier) {
+  public Aim(Drive drive, DoubleSupplier xSupplier, DoubleSupplier ySupplier) {
     this.drive = drive;
-    this.flywheel = flywheel;
-    this.hood = hood;
-    this.hopper = hopper;
-    this.feeder = feeder;
-    this.intake = intake;
     this.xSupplier = xSupplier;
     this.ySupplier = ySupplier;
 
@@ -146,7 +113,7 @@ public class ShootAndMove extends Command {
     ANGLE_TABLE.put(4.44, 24.0);
     ANGLE_TABLE.put(5.36, 29.0);
 
-    addRequirements(drive, flywheel, hood, hopper, feeder, intake);
+    addRequirements(drive);
   }
 
   @Override
@@ -155,17 +122,6 @@ public class ShootAndMove extends Command {
     // Clear filter history so a previous run's state doesn't cause a startup transient.
     omegaFilter.reset();
     distanceFilter.reset();
-
-    // Reset shoot-sequence state.
-    shootTimer.restart();
-    feedingTimer.stop();
-    feedingTimer.reset();
-    feedingStarted = false;
-    lastIntakeState = null;
-
-    // Ensure feeder and hopper are stopped at the start of the sequence.
-    feeder.setFeederDirect(0.0);
-    hopper.setHopperDirect(0.0);
   }
 
   @Override
@@ -277,6 +233,7 @@ public class ShootAndMove extends Command {
 
     // --- AdvantageScope tuning logs ---
     boolean aimedAtHub = Math.abs(headingError) <= ANGLE_TOLERANCE_RADIANS;
+    aimedAtTarget = aimedAtHub;
     Logger.recordOutput("ShootAndMove/HeadingError_deg", Math.toDegrees(headingError));
     Logger.recordOutput("ShootAndMove/DesiredHeading_deg", desiredHeading.getDegrees());
     Logger.recordOutput("ShootAndMove/Omega_Raw_radps", omegaRaw);
@@ -305,6 +262,9 @@ public class ShootAndMove extends Command {
     Double rpm = RPM_TABLE.get(filteredDistanceToHub);
     Double angle = ANGLE_TABLE.get(filteredDistanceToHub);
 
+    wantedRPM = rpm;
+    wantedAngle = angle;
+
     // --- AdvantageScope tuning logs ---
     Logger.recordOutput("ShootAndMove/Distance_Raw_m", compensatedDistanceRaw);
     Logger.recordOutput("ShootAndMove/Distance_Filtered_m", filteredDistanceToHub);
@@ -322,58 +282,22 @@ public class ShootAndMove extends Command {
     Logger.recordOutput("ShootAndMove/VirtualHub_X_m", virtualHub.getX());
     Logger.recordOutput("ShootAndMove/VirtualHub_Y_m", virtualHub.getY());
     Logger.recordOutput("ShootAndMove/UncompensatedDistance_m", rawDistanceToHub);
+  }
 
-    // Update hood and flywheel speeds
-    hood.setPositionDirect(angle);
-    flywheel.setRPMDirect(rpm);
+  public boolean isAimed() {
+    return aimedAtTarget;
+  }
 
-    // --- SHOOT SEQUENCE ---
+  public double getAngle() {
+    return wantedAngle;
+  }
 
-    // Phase 1 — start feeding as soon as the robot is aimed at the hub.
-    // The feeder and hopper are started once and left running; the motor
-    // controllers hold the last duty-cycle setpoint until told otherwise.
-    if (aimedAtHub && !feedingStarted && flywheel.isVelocityWithinTolerance()) {
-      feeder.setFeederDirect(0.5);
-      hopper.setHopperDirect(0.5);
-      intake.setRollerDirect(0.75);
-      feedingStarted = true;
-      feedingTimer.restart();
-    }
-
-    // Phase 2 — 0.25 s after feeding begins: very slowly bring in the intake until it reaches zero.
-    // Gradually move from current position to STOWED over time.
-    if (feedingStarted && feedingTimer.get() >= 0.25) {
-      double retractElapsed = feedingTimer.get() - 0.25;
-      // Move from current position to STOWED over 2.0 seconds
-      double retractDuration = 2.0;
-      if (retractElapsed < retractDuration) {
-        // Calculate interpolated position from current state to STOWED
-        double progress = retractElapsed / retractDuration;
-        double currentPosition = (lastIntakeState != null) ? lastIntakeState.position : IntakeConstants.IntakeState.EXTEND.position;
-        double targetPosition = currentPosition * (1.0 - progress);
-        
-        // Set arbitrary position directly
-        intake.setPositionDirect(targetPosition);
-      } else {
-        // Ensure we reach STOWED
-        intake.setPositionDirect(IntakeConstants.IntakeState.STOWED);
-      }
-    }
+  public double getRPM() {
+    return wantedRPM;
   }
 
   @Override
-  public void end(boolean interrupted) {
-    drive.stop();
-    // Stop flywheel and set hood to lowered position for safety.
-    flywheel.setRPMDirect(1800.0);
-    hood.setPositionDirect(10);
-    // Stop feeder and hopper.
-    feeder.setFeederDirect(0.0);
-    hopper.setHopperDirect(0.0);
-    intake.setRollerDirect(0.0);
-    // Stow the intake so it isn't left dangling in an extended position.
-    intake.setPositionDirect(IntakeConstants.IntakeState.STOWED);
-  }
+  public void end(boolean interrupted) {}
 
   private Translation2d getLinearVelocityFromJoysticks() {
     double x = xSupplier.getAsDouble();

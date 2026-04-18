@@ -63,13 +63,19 @@ public class FlywheelIO_REAL implements FlywheelIO {
 
     inputs.rpmSetpoint = velocityRequest.Velocity * 60.0;
 
-    inputs.leftVelocity = mainMotor.getVelocity().getValueAsDouble() * 60.0;
-    inputs.middleVelocity = secondMotor.getVelocity().getValueAsDouble() * 60.0;
-    inputs.rightVelocity = tertiaryMotor.getVelocity().getValueAsDouble() * 60.0;
+    double mainRPM = mainMotor.getVelocity().getValueAsDouble() * 60.0;
+    double secondaryRPM = secondMotor.getVelocity().getValueAsDouble() * 60.0;
+    double tertiaryRPM = tertiaryMotor.getVelocity().getValueAsDouble() * 60.0;
 
-    inputs.leftAppliedVolts = mainMotor.getStatorCurrent().getValueAsDouble();
-    inputs.middleAppliedVolts = secondMotor.getStatorCurrent().getValueAsDouble();
-    inputs.rightAppliedVolts = tertiaryMotor.getStatorCurrent().getValueAsDouble();
+    double mainVolts = mainMotor.getStatorCurrent().getValueAsDouble();
+    double secondaryVolts = secondMotor.getStatorCurrent().getValueAsDouble();
+    double tertiaryVolts = tertiaryMotor.getStatorCurrent().getValueAsDouble();
+
+    double rpms = (mainRPM + secondaryRPM + tertiaryRPM) / 3.0;
+    double volts = (mainVolts + secondaryVolts + tertiaryVolts) / 3.0;
+
+    inputs.drumRPM = rpms;
+    inputs.drumVolts = volts;
 
     inputs.isVelocityWithinTolerance = isVelocityWithinTolerance();
   }

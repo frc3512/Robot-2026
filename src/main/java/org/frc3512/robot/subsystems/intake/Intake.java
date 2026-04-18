@@ -1,7 +1,5 @@
 package org.frc3512.robot.subsystems.intake;
 
-import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import org.littletonrobotics.junction.Logger;
 
@@ -9,69 +7,68 @@ public class Intake extends SubsystemBase {
 
   private IntakeIO io;
   private IntakeIOInputsAutoLogged inputs = new IntakeIOInputsAutoLogged();
-  private double lastExtensionPosition = 0.0;
-  private double lastExtensionTimestamp = 0.0;
+
+  private IntakeStates currentState = IntakeStates.IDLE;
+  private IntakeStates wantedState = IntakeStates.IDLE;
 
   public Intake(IntakeIO io) {
     this.io = io;
   }
 
-  public void setRollerDirect(double speed) {
-    io.setRollerSpeed(speed);
-  }
-
-  public void setExtensionVelocity(double velocity) {
-    io.setExtensionVelocity(velocity);
-  }
-
-  public Command setRollerSpeed(double speed) {
-    return runOnce(() -> io.setRollerSpeed(speed));
-  }
-
-  public void setPositionDirect(IntakeConstants.IntakeState state) {
-    io.setExtensionPosition(state);
-  }
-
-  public void setPositionDirect(double position) {
-    io.setExtensionPosition(position);
-  }
-
-  public Command setPosition(IntakeConstants.IntakeState state) {
-    return runOnce(() -> io.setExtensionPosition(state));
-  }
-
-  public Command setPosition(double position) {
-    return runOnce(() -> io.setExtensionPosition(position));
-  }
-
-  public boolean isExtensionStalled() {
-    // Consider stalled if current is above threshold and velocity is very low
-    return inputs.extensionAppliedVolts > 1.0 && Math.abs(getExtensionVelocity()) < 0.1;
-  }
-
-  public double getExtensionVelocity() {
-    // Calculate velocity from position change
-    double currentTime = Timer.getFPGATimestamp();
-    double deltaTime = currentTime - lastExtensionTimestamp;
-    
-    if (deltaTime > 0.0) {
-      double velocity = (inputs.extensionPosition - lastExtensionPosition) / deltaTime;
-      return velocity;
-    }
-    return 0.0;
-  }
-
-  public void rezeroExtension() {
-    io.rezeroExtension();
+  public void setWantedState(IntakeStates state) {
+    this.wantedState = state;
   }
 
   @Override
   public void periodic() {
-    // Update velocity tracking before updating inputs
-    lastExtensionPosition = inputs.extensionPosition;
-    lastExtensionTimestamp = Timer.getFPGATimestamp();
-    
     io.updateInputs(inputs);
     Logger.processInputs("Intake", inputs);
+
+    handleStateTransitions();
+    applyStates();
+  }
+
+  private void handleStateTransitions() {
+    switch(wantedState) {
+      case HOME:
+        currentState = IntakeStates.HOME;
+        break;
+      case IDLE:
+        currentState = IntakeStates.IDLE;
+        break;
+      case INTAKING:
+        currentState = IntakeStates.INTAKING;
+        break;
+      case OUTAKING:
+        currentState = IntakeStates.OUTAKING;
+        break;
+      case COMPRESSING:
+        currentState = IntakeStates.COMPRESSING;
+        break;
+    }
+  }
+
+  private void applyStates() {
+    switch(currentState) {
+      case HOME:
+        io.setExtensionPosition(IntakeConstants.IntakePosition.STOWED);
+        io.setRollerSpeed(0);
+        break;
+      case IDLE:
+        io.setExtensionPosition(IntakeConstants.IntakePosition.EXTEND);
+        io.setRollerSpeed(0.01);
+        break;
+      case INTAKING:
+        io.setExtensionPosition(IntakeConstants.IntakePosition.EXTEND);
+        io.setRollerSpeed(0.85);
+        break;
+      case OUTAKING:
+        io.setExtensionPosition(IntakeConstants.IntakePosition.EXTEND);
+        io.setRollerSpeed(-0.85);
+        break;
+      case COMPRESSING:
+        io.compressIntake();
+        break;
+    }
   }
 }

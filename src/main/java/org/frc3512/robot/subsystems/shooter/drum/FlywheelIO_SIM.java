@@ -62,13 +62,10 @@ public class FlywheelIO_SIM implements FlywheelIO {
     rightSim.setInputVoltage(rightVolts);
     rightSim.update(0.02);
 
-    inputs.leftVelocity = leftSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI);
-    inputs.middleVelocity = middleSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI);
-    inputs.rightVelocity = rightSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI);
-
-    inputs.leftAppliedVolts = leftVolts;
-    inputs.middleAppliedVolts = middleVolts;
-    inputs.rightAppliedVolts = rightVolts;
+    inputs.drumRPM = 
+    ((leftSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI)) + 
+    (middleSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI)) + 
+    (rightSim.getAngularVelocityRadPerSec() * 60.0 / (2 * Math.PI))) / 3;
 
     inputs.rpmSetpoint = setpointRPM;
   }

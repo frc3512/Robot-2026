@@ -1,7 +1,11 @@
 package org.frc3512.robot.subsystems.intake;
 
+import org.frc3512.robot.subsystems.intake.IntakeConstants.IntakePosition;
+
 import com.ctre.phoenix6.controls.PositionVoltage;
 import com.ctre.phoenix6.hardware.TalonFX;
+
+import edu.wpi.first.wpilibj.Timer;
 
 public class IntakeIO_REAL implements IntakeIO {
 
@@ -10,6 +14,11 @@ public class IntakeIO_REAL implements IntakeIO {
   private final PositionVoltage intakeRequest = new PositionVoltage(0.0);
   private double wantedPosition = 0.0;
   private double rollerTargetSpeed = 0.0;
+
+  private double lastExtensionPosition = 0.0;
+  private double lastExtensionTimestamp = 0.0;
+
+  private Timer feedingTimer = new Timer();
   
   // Add motor status tracking
   private boolean rollerMotorInitialized = false;
@@ -36,6 +45,8 @@ public class IntakeIO_REAL implements IntakeIO {
       extensionMotor.optimizeBusUtilization();
 
       rezeroExtension();
+
+      feedingTimer.start();
   }
 
   @Override
@@ -51,8 +62,8 @@ public class IntakeIO_REAL implements IntakeIO {
   }
 
   @Override
-  public void setExtensionPosition(IntakeConstants.IntakeState state) {
-    wantedPosition = state.position;
+  public void setExtensionPosition(IntakeConstants.IntakePosition position) {
+    wantedPosition = position.position;
     intakeRequest.Position = wantedPosition; // Position in rotations of motor
     extensionMotor.setControl(intakeRequest);
   }
@@ -67,6 +78,44 @@ public class IntakeIO_REAL implements IntakeIO {
   @Override
   public void rezeroExtension() {
     extensionMotor.setPosition(0.0);
+  }
+
+  public boolean isExtensionStalled() {
+    // Consider stalled if current is above threshold and velocity is very low
+    return extensionMotor.getStatorCurrent().getValueAsDouble() > 1.0 && Math.abs(getExtensionVelocity()) < 0.1;
+  }
+
+  public double getExtensionVelocity() {
+    // Calculate velocity from position change
+    double currentTime = Timer.getFPGATimestamp();
+    double deltaTime = currentTime - lastExtensionTimestamp;
+    
+    if (deltaTime > 0.0) {
+      double velocity = (extensionMotor.getPosition().getValueAsDouble() - lastExtensionPosition) / deltaTime;
+      return velocity;
+    }
+    return 0.0;
+  }
+
+  public void compressIntake() {
+    setRollerSpeed(0.2);
+    feedingTimer.reset();
+    feedingTimer.start();
+    double retractElapsed = feedingTimer.get();
+    // Move from current position to STOWED over 2.0 seconds
+    double retractDuration = 2.0;
+    if (retractElapsed < retractDuration) {
+        // Calculate interpolated position from current state to STOWED
+        double progress = retractElapsed / retractDuration;
+        double currentPosition = IntakePosition.EXTEND.position;
+        double targetPosition = currentPosition * (1.0 - progress);
+        
+        // Set arbitrary position directly
+        setExtensionPosition(targetPosition);
+      } else {
+        // Ensure we reach STOWED
+        setExtensionPosition(IntakeConstants.IntakePosition.STOWED);
+      }
   }
 
   @Override
@@ -86,5 +135,9 @@ public class IntakeIO_REAL implements IntakeIO {
     inputs.rollerMotorConnected = rollerMotorInitialized;
     inputs.secondaryRollerMotorConnected = secondaryRollerMotorInitialized;
     inputs.extensionMotorConnected = extensionMotorInitialized;
+
+    // Update velocity tracking
+    lastExtensionPosition = inputs.extensionPosition;
+    lastExtensionTimestamp = Timer.getFPGATimestamp();
   }
 }
