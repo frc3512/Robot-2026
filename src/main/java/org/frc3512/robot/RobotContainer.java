@@ -38,8 +38,6 @@ import org.frc3512.robot.util.StateManager.RobotState;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import org.frc3512.robot.bline.*;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -49,6 +47,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lib.BLine.FollowPath;
 import frc.robot.lib.BLine.Path;
 
 @SuppressWarnings("unused")
@@ -101,6 +100,9 @@ public class RobotContainer {
 
   /** The container for the robot. Contains subsystems, IO devices, and commands. */
   public RobotContainer() {
+
+    registerEventTrigger();
+
     switch (Constants.GeneralConstants.currentMode) {
       case REAL:
         // Real robot, instantiate real hardware IO implementations
@@ -224,6 +226,17 @@ public class RobotContainer {
 
     // Set up auto routines
     SmartDashboard.putData("Auto Modes", autoChooser);
+  }
+
+  //This is where EventTriggers(NamedCommands) are registered
+  //Code format taken from frc 2638 Rebel Robotics
+  private void registerEventTrigger() {
+
+    FollowPath.registerEventTrigger("Shoot", () -> stateManager.setWantedState(RobotState.SHOOTING));
+
+    FollowPath.registerEventTrigger("Intake", () -> stateManager.setWantedState(RobotState.INTAKING));
+
+    FollowPath.registerEventTrigger("Reset", () -> stateManager.setWantedState(RobotState.HOME));
   }
 
   private void configureButtonBindings() {
