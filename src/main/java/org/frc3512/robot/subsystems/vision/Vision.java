@@ -53,6 +53,9 @@ public class Vision extends SubsystemBase {
    * @param cameraIndex The index of the camera to use.
    */
   public Rotation2d getTargetX(int cameraIndex) {
+    if (cameraIndex < 0 || cameraIndex >= inputs.length) {
+      return Rotation2d.kZero;
+    }
     return inputs[cameraIndex].latestTargetObservation.tx();
   }
 

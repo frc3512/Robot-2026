@@ -33,6 +33,7 @@ public class StateManager extends SubsystemBase {
 
     private RobotState currentState = RobotState.HOME;
     private RobotState wantedState = RobotState.HOME;
+    private boolean aimCommandScheduled = false;
 
     private final Conveyor conveyor;
     private final Intake intake;
@@ -62,6 +63,13 @@ public class StateManager extends SubsystemBase {
         aim = new Aim(drive, xSupplier, ySupplier);
     }
 
+    private void resetAimCommand() {
+        if (aimCommandScheduled && aim != null) {
+            CommandScheduler.getInstance().cancel(aim);
+            aimCommandScheduled = false;
+        }
+    }
+
     @Override
     public void periodic() {
 
@@ -78,25 +86,28 @@ public class StateManager extends SubsystemBase {
         switch (wantedState) {
             case HOME:
                 currentState = RobotState.HOME;
+                resetAimCommand();
                 break;
             case IDLE:
                 currentState = RobotState.IDLE;
+                resetAimCommand();
                 break;
             case INTAKING:
                 currentState = RobotState.INTAKING;
+                resetAimCommand();
                 break;
             case AIMING:
                 currentState = RobotState.AIMING;
                 break;
             case SHOOTING:
-                if (aim.isAimed() && flywheel.isAtSetpoint()) {
+                if (aim != null && flywheel != null && aim.isAimed() && flywheel.isAtSetpoint()) {
                     currentState = RobotState.SHOOTING;
                 } else {
                     currentState = RobotState.AIMING;
                 }
                 break;
             case DUMPING:
-                if (aim.isAimed() && flywheel.isAtSetpoint()) {
+                if (aim != null && flywheel != null && aim.isAimed() && flywheel.isAtSetpoint()) {
                     currentState = RobotState.DUMPING;
                 } else {
                     currentState = RobotState.AIMING;
@@ -104,6 +115,7 @@ public class StateManager extends SubsystemBase {
                 break;
             case FERRY:
                 currentState = RobotState.FERRY;
+                resetAimCommand();
                 break;
         }
     }
@@ -178,23 +190,30 @@ public class StateManager extends SubsystemBase {
         conveyor.setWantedState(ConveyorStates.FEEDING);
         feeder.setWantedState(FeederStates.FEEDING);
 
+        // Set specific ferry configuration - FERRY state doesn't exist in enums
         flywheel.setTargetRPM(3250);
         hood.setPosition(40.0);
     }
 
     public void aim() {
-        // Cancel any existing aim command to avoid conflicts
-        if (CommandScheduler.getInstance().isScheduled(aim)) {
-            CommandScheduler.getInstance().cancel(aim);
+        // Only schedule/cancel aim command when state changes to avoid race conditions
+        if (!aimCommandScheduled) {
+            // Cancel any existing aim command to avoid conflicts
+            if (CommandScheduler.getInstance().isScheduled(aim)) {
+                CommandScheduler.getInstance().cancel(aim);
+            }
+            CommandScheduler.getInstance().schedule(aim);
+            aimCommandScheduled = true;
         }
-        CommandScheduler.getInstance().schedule(aim);
         
-        // Update Subsytem states
+        // Update Subsystem states
         intake.setWantedState(IntakeStates.IDLE);
         conveyor.setWantedState(ConveyorStates.STOPPED);
         feeder.setWantedState(FeederStates.STOPPED);
 
-        hood.setPosition(aim.getAngle());
-        flywheel.setTargetRPM(aim.getRPM());
+        if (aim != null) {
+            hood.setPosition(aim.getAngle());
+            flywheel.setTargetRPM(aim.getRPM());
+        }
     }
 }

@@ -67,8 +67,18 @@ public class RobotContainer {
   // Game data and timing
   public static String gameData;
   public static double prefire = 2; // Seconds before the hub becomes active to start shooting
+  
+  // Hub timing constants
+  private static final double TELEOP_DURATION_SECONDS = 130.0;
+  private static final double INITIAL_ACTIVE_PERIOD_SECONDS = 10.0;
+  private static final double FINAL_ACTIVE_PERIOD_SECONDS = 30.0;
+  private static final double ALTERNATING_PERIOD_SECONDS = 25.0;
+  private static final double PREFIRE_SECONDS = 2.0;
 
   private char getWinner() {
+    if (gameData == null || gameData.trim().isEmpty()) {
+      return 'B'; // Default to Blue if no game data
+    }
     return Character.toUpperCase(gameData.trim().charAt(0));
   }
 
@@ -287,8 +297,8 @@ public class RobotContainer {
     }
   }
 
-  /** Gets the first path name from the auto chooser for pre-match orientation. */
-  public String getFirstPathName() {
+  /** Gets the wanted path name from the auto chooser for pre-match orientation. */
+  public String getWantedPath() {
     try {
       Command selectedAuto = autoChooser.getSelected();
       if (selectedAuto != null) {
@@ -363,17 +373,17 @@ public class RobotContainer {
         wasHubActive = hubActive;
       }
     } catch (Exception e) {
-      return;
+      // Silently fail to avoid code crash
     }
   }
 
-      // --- Logic methods
-    // Hub activity logic,
-    // returns a boolean that can be used to check if
-    // the hub is active based on the game data and timer
-    // Credit to 9084 for the idea (they are so cool btw)
-    @AutoLogOutput(key = "Robot/Hub Active")
-    public boolean isHubActive() {
+  // --- Logic methods
+  // Hub activity logic,
+  // returns a boolean that can be used to check if
+  // the hub is active based on the game data and timer
+  // Credit to 9084 for the idea (they are so cool btw)
+  @AutoLogOutput(key = "Robot/Hub Active")
+  public boolean isHubActive() {
     // Updated for 130s teleop: first 10s both active, then 100s alternating 25s periods,
     // last 30s both active. Alternating relative to elapsed 10s start.
     double elapsed = Constants.GeneralConstants.hubTimer.get();
@@ -383,20 +393,20 @@ public class RobotContainer {
       return true;
     }
 
-    if (elapsed < 10.0 || elapsed >= 110.0) {
+    if (elapsed < INITIAL_ACTIVE_PERIOD_SECONDS || elapsed >= (TELEOP_DURATION_SECONDS - FINAL_ACTIVE_PERIOD_SECONDS)) {
       // First 10s or last 30s (110-130+): both hubs active -> our hub active
       return true;
     }
 
     // Prefire period: 2 seconds before hub becomes active
-    if (elapsed >= 8.0 && elapsed < 10.0) {
+    if (elapsed >= (INITIAL_ACTIVE_PERIOD_SECONDS - PREFIRE_SECONDS) && elapsed < INITIAL_ACTIVE_PERIOD_SECONDS) {
       // 2-second prefire before the 10s both-active period
       return true;
     }
 
     // Alternating phase: 10-110 elapsed (100s total), 25s periods
-    double phaseTime = elapsed - 10.0;
-    int phase = (int) Math.floor(phaseTime / 25.0) % 4;
+    double phaseTime = elapsed - INITIAL_ACTIVE_PERIOD_SECONDS;
+    int phase = (int) Math.floor(phaseTime / ALTERNATING_PERIOD_SECONDS) % 4;
 
     Alliance alliance = DriverStation.getAlliance().orElse(Alliance.Blue);
 
@@ -413,15 +423,15 @@ public class RobotContainer {
     // Check for prefire periods (2 seconds before each active phase)
     if (isMatch) {
       // Match: Prefire before phases 1 (23-25) and 3 (73-75)
-      if ((phase == 0 && elapsed >= 23.0 && elapsed < 25.0) ||
-          (phase == 2 && elapsed >= 73.0 && elapsed < 75.0)) {
+      if ((phase == 0 && elapsed >= (ALTERNATING_PERIOD_SECONDS - PREFIRE_SECONDS) && elapsed < ALTERNATING_PERIOD_SECONDS) ||
+          (phase == 2 && elapsed >= (3 * ALTERNATING_PERIOD_SECONDS - PREFIRE_SECONDS) && elapsed < (3 * ALTERNATING_PERIOD_SECONDS))) {
         return true;
       }
       ourSideActive = (phase == 1 || phase == 3);
     } else {
       // Mismatch: Prefire before phases 0 (0-2) and 2 (48-50)
-      if ((phase == 3 && elapsed >= 48.0 && elapsed < 50.0) ||
-          (phase == 1 && elapsed >= 23.0 && elapsed < 25.0)) {
+      if ((phase == 3 && elapsed >= (2 * ALTERNATING_PERIOD_SECONDS - PREFIRE_SECONDS) && elapsed < (2 * ALTERNATING_PERIOD_SECONDS)) ||
+          (phase == 1 && elapsed >= (ALTERNATING_PERIOD_SECONDS - PREFIRE_SECONDS) && elapsed < ALTERNATING_PERIOD_SECONDS)) {
         return true;
       }
       ourSideActive = (phase == 0 || phase == 2);
