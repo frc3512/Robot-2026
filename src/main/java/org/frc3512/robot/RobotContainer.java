@@ -1,9 +1,5 @@
 package org.frc3512.robot;
 
-import org.frc3512.robot.commands.auto.PoseCorrector;
-import org.frc3512.robot.commands.auto.SimpleCorrectedAuto;
-import org.frc3512.robot.commands.auto.VerifyPosition;
-import org.frc3512.robot.commands.auto.VisionGuidedAuto;
 import org.frc3512.robot.commands.teleop.DriveCommands;
 import org.frc3512.robot.commands.teleop.ShootAndMove;
 import org.frc3512.robot.subsystems.States;
@@ -37,26 +33,24 @@ import org.frc3512.robot.subsystems.shooter.hood.HoodIO_REAL;
 import org.frc3512.robot.subsystems.shooter.hood.HoodIO_SIM;
 import org.frc3512.robot.subsystems.vision.Vision;
 import org.frc3512.robot.subsystems.vision.VisionConstants;
-import org.frc3512.robot.subsystems.vision.VisionCorrectionConstants;
 import org.frc3512.robot.subsystems.vision.VisionIO;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVision;
 import org.frc3512.robot.subsystems.vision.VisionIOPhotonVisionSim;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
-import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.events.EventTrigger;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.RobotState;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import frc.robot.lib.BLine.FollowPath;
+import frc.robot.lib.BLine.Path;
 
 @SuppressWarnings("unused")
 public class RobotContainer {
@@ -73,7 +67,17 @@ public class RobotContainer {
   public static String gameData;
   public static double prefire = 2; // Seconds before the hub becomes active to start shooting
 
+  // Hub timing constants
+  private static final double TELEOP_DURATION_SECONDS = 130.0;
+  private static final double INITIAL_ACTIVE_PERIOD_SECONDS = 10.0;
+  private static final double FINAL_ACTIVE_PERIOD_SECONDS = 30.0;
+  private static final double ALTERNATING_PERIOD_SECONDS = 25.0;
+  private static final double PREFIRE_SECONDS = 2.0;
+
   private char getWinner() {
+    if (gameData == null || gameData.trim().isEmpty()) {
+      return 'B'; // Default to Blue if no game data
+    }
     return Character.toUpperCase(gameData.trim().charAt(0));
   }
 
@@ -177,53 +181,12 @@ public class RobotContainer {
 
         break;
     }
-
-    //Named Commands
-    registerNamedCommand("Hopper", intake.setPosition(IntakeState.EXTEND));
-    registerNamedCommand("Intake", intake());
-    registerNamedCommand("Shoot", autonShoot());
-    registerNamedCommand("Reset", reset());
-    registerNamedCommand("StopIntake", stopIntake());
-    registerNamedCommand("StartShoot", prepShooting());
-
-    //Event Triggers
-    new EventTrigger("PrepIntake");
-    new EventTrigger("KillIntake");
-    new EventTrigger("EVerifyNZLeft");
-    new EventTrigger("EVerifyNZRight");
-    new EventTrigger("EVerifyHP");
-    new EventTrigger("EVerifyShootMid");
-    new EventTrigger("PrepShoot");
-
-    // Vision correction commands
-    registerNamedCommand(
-        "VisionCorrect", correctPoseWithVision(0.0, 0.0, 0.0)); // Generic corrector
-
-    // Waypoint-specific verifiers using predefined poses
-    registerNamedCommand("VerifyNZLeft", verifyPositionWithVision(
-        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_X,
-        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_Y,
-        VisionCorrectionConstants.WaypointPoses.NZ_LEFT_HEADING_DEGREES));
-    registerNamedCommand("VerifyNZRight", verifyPositionWithVision(
-        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_X,
-        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_Y,
-        VisionCorrectionConstants.WaypointPoses.NZ_RIGHT_HEADING_DEGREES));
-    registerNamedCommand("VerifyHP", verifyPositionWithVision(
-        VisionCorrectionConstants.WaypointPoses.HP_X,
-        VisionCorrectionConstants.WaypointPoses.HP_Y,
-        VisionCorrectionConstants.WaypointPoses.HP_HEADING_DEGREES));
-    registerNamedCommand("VerifyShootMid", verifyPositionWithVision(
-        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_X,
-        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_Y,
-        VisionCorrectionConstants.WaypointPoses.SHOOT_MID_HEADING_DEGREES));
-
-    // Set up auto routines without vision correction
-    createNormalAutos();
-    // Set up auto routines with vision correction (commented out for now - needs testing)
-    // createVisionAutos();
     
     // Configure the button bindings
     configureButtonBindings();
+
+    // Set up auto routines
+    createNormalAutos();
 
     // Set up auto routines
     SmartDashboard.putData("Auto Modes", autoChooser);
@@ -483,6 +446,7 @@ public class RobotContainer {
       hood.setPosition(10.0)
     );
   }
+  
   // --- Begin Auto Code ---
 
   // Auto chooser
@@ -490,133 +454,75 @@ public class RobotContainer {
     return autoChooser.getSelected();
   }
 
-  private void registerNamedCommand(String name, Command command) {
-    NamedCommands.registerCommand(name, safeCommand(command));
-  }
-
-  private Command safeCommand(Command command) {
-    if (command == null) {
-      DriverStation.reportError(
-          "Named command resolved to null. Using Commands.none() fallback.", false);
-      return Commands.none();
-    }
-    return command;
-  }
-
-  // --- Vision Correction Commands ---
-
-  /** Creates a command that corrects robot pose using vision at a specific waypoint. */
-  public Command correctPoseWithVision(
-      double expectedX, double expectedY, double expectedHeadingDegrees) {
-    return new PoseCorrector(
-        drive,
-        vision,
-        new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees)),
-        VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
-        VisionCorrectionConstants.VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES);
-  }
-
-  /** Creates a command that verifies robot position using vision before proceeding. */
-  public Command verifyPositionWithVision(
-      double expectedX, double expectedY, double expectedHeadingDegrees) {
-    Pose2d expectedPose = new Pose2d(expectedX, expectedY, Rotation2d.fromDegrees(expectedHeadingDegrees));
-    return new VerifyPosition(
-        vision,
-        expectedPose,
-        VisionCorrectionConstants.VISION_CORRECTION_TOLERANCE_METERS,
-        VisionCorrectionConstants.VISION_CORRECTION_ANGLE_TOLERANCE_DEGREES,
-        2.0); // 2 second timeout
-  }
-
-  /** Wraps a PathPlanner command with vision assistance for continuous pose correction. */
-  public Command withVisionAssistance(Command pathCommand) {
-    return new VisionGuidedAuto(drive, vision, pathCommand);
-  }
-
-  /**
-   * Example method showing how to create a vision-corrected autonomous command.
-   * Uses the simplified vision guidance system.
-   */
-  public Command createVisionCorrectedAuto(String autoName) {
+  // Creates a BLine path command from a path name 
+  public Command createBLinePath(String pathName) {
     try {
-      // Get the original PathPlanner auto command
-      Command originalAuto = AutoBuilder.buildAuto(autoName);
-
-      // Wrap it with simplified vision guidance
-      return SimpleCorrectedAuto.withVisionGuidance(originalAuto, this);
+      Path path = new Path(pathName);
+      return drive.getPathBuilder().build(path);
     } catch (Exception e) {
-      DriverStation.reportError(
-          "Failed to create vision-corrected auto: " + autoName, e.getStackTrace());
+      DriverStation.reportError("Failed to load BLine path: " + pathName, e.getStackTrace());
       return Commands.none();
     }
   }
 
-  /** Sets up the auto chooser with vision-corrected versions of all available autos. */
-  private void createVisionAutos() {
+  // Creates a mirrored BLine path command from a path name.
+  public Command createMirroredBLinePath(String pathName) {
+    try {
+      Path path = new Path(pathName);
+      path.mirror();
+      return drive.getPathBuilder().build(path);
+    } catch (Exception e) {
+      DriverStation.reportError("Failed to load BLine path: " + pathName, e.getStackTrace());
+      return Commands.none();
+    }
+  }
+
+  
+  /** Gets the wanted path name from the auto chooser for pre-match orientation. */
+  public String getWantedPath() {
+    try {
+      Command selectedAuto = autoChooser.getSelected();
+      if (selectedAuto != null) {
+        // Extract path name from the command name/chooser selection
+        // This is a simplified approach - in practice you might need to 
+        // store the path name alongside the command in the chooser
+        String commandName = selectedAuto.getName();
+        if (commandName != null && !commandName.isEmpty()) {
+          return commandName;
+        }
+      }
+    } catch (Exception e) {
+      // Silently fail
+    }
+    return null;
+  }
+
+  // This is where EventTriggers(NamedCommands) are registered
+  // Code format taken from frc 2638 Rebel Robotics
+  private void registerEventTrigger() {
+
+    FollowPath.registerEventTrigger("Shoot", autonShoot());
+
+    FollowPath.registerEventTrigger("Intake", intake());
+
+    FollowPath.registerEventTrigger("Reset", reset());
+
+  }
+
+
+  /** Sets up the auto chooser with BLine path commands. */
+  private void createNormalAutos() {
     autoChooser = new SendableChooser<>();
     
-    // List of all available auto names (without .auto extension)
-    String[] autoNames = {
-      "NzLeft",
-      "NzRight",
-      "NzTrenchLeft",
-      "NzTrenchRight",
-      "NzDoubleLeft",
-      "NzDoubleRight",
-      "NzTrenchOvDoubleLeft",
-      "NzTrenchOvDoubleRight",
-      "NzTrenchUnDoubleRight",
-      "NzTrenchUnDoubleLeft",
-      "zNzThenDepot",
-      "zNzThenHp",
-      "NzTrenchDepot",
-      "NzTrenchHp",
-      "HpScoreAuto",
-      "HpToNzAuto",
-      "depotAuto",
-      "midHpAuto",
-      "shootAuto"
-    };
-    
-    boolean hasDefault = false;
-    
-    // Add each auto with vision correction to the chooser
-    for (String autoName : autoNames) {
-      try {
-        Command visionCorrectedAuto = createVisionCorrectedAuto(autoName);
-        if (!hasDefault) {
-          autoChooser.setDefaultOption(autoName, visionCorrectedAuto);
-          hasDefault = true;
-        } else {
-          autoChooser.addOption(autoName, visionCorrectedAuto);
-        }
-      } catch (Exception e) {
-        DriverStation.reportWarning(
-            "Failed to load auto '" + autoName + "': " + e.getMessage(), 
-            e.getStackTrace());
-      }
-    }
-    
-    // Add fallback option in case all autos fail to load
-    if (!hasDefault) {
-      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
-    }
+    // Set up individual auto commands
+    autoChooser.setDefaultOption("None", Commands.none());
+    autoChooser.addOption("Depot", createBLinePath("Depot"));
+    autoChooser.addOption("Drive-Shoot", createBLinePath("Drive-Shoot"));
+    autoChooser.addOption("TrenchRight", createBLinePath("TrenchNz"));
+    autoChooser.addOption("TrenchLeft", createMirroredBLinePath("TrenchNz"));
   }
 
-  public void createNormalAutos() {
-    try {
-      autoChooser = AutoBuilder.buildAutoChooser();
-    } catch (Exception e) {
-      DriverStation.reportError(
-          "Failed to build PathPlanner auto chooser. Check NamedCommands vs .auto files: "
-              + e.getMessage(),
-          e.getStackTrace());
-      autoChooser = new SendableChooser<>();
-      autoChooser.setDefaultOption("No Auto (Error)", Commands.none());
-    }
-  }
-
-  // Excess Logic
+  // --- Excess Logic ---
 
   // Message logger
   public Command logMessage(String message) {

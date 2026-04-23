@@ -1,7 +1,10 @@
 package org.frc3512.robot;
 
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.lib.BLine.Path;
 
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
@@ -71,14 +74,35 @@ public class Robot extends LoggedRobot {
   }
 
   @Override
-  public void disabledPeriodic() {}
+  public void disabledPeriodic() {
+    // Pre-match module orientation using BLine
+    // Keep modules pointed at the first target while the robot is disabled on the field
+    try {
+      String pathName = robotContainer.getWantedPath();
+      if (pathName != null && robotContainer.getDrive() != null) {
+        Path path = new Path(pathName);
+        // Get the initial module direction based on current robot pose
+        Rotation2d moduleDirection = 
+            path.getInitialModuleDirection(robotContainer.getDrive()::getPose);
+        // Set all modules to face this direction
+        robotContainer.getDrive().setModuleOrientations(moduleDirection);
+      }
+    } catch (Exception e) {
+      // Silently fail - module orientation is not critical
+      // This prevents errors from breaking disabled mode
+    }
+  }
 
   @Override
   public void autonomousInit() {
-    autonomousCommand = robotContainer.getAutonomousCommand();
+    try {
+      autonomousCommand = robotContainer.getAutonomousCommand();
 
-    if (autonomousCommand != null) {
-      CommandScheduler.getInstance().schedule(autonomousCommand);
+      if (autonomousCommand != null) {
+        CommandScheduler.getInstance().schedule(autonomousCommand);
+      }
+    } catch (Exception e) {
+      DriverStation.reportError("Failed to initialize autonomous command", e.getStackTrace());
     }
   }
 
