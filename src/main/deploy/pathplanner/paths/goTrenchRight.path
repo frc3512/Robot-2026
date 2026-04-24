@@ -1,0 +1,123 @@
+{
+  "version": "2025.0",
+  "waypoints": [
+    {
+      "anchor": {
+        "x": 3.56,
+        "y": 0.534
+      },
+      "prevControl": null,
+      "nextControl": {
+        "x": 4.5,
+        "y": 0.534
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.258635824436538,
+        "y": 0.534
+      },
+      "prevControl": {
+        "x": 7.0088824107197665,
+        "y": 0.522898993882568
+      },
+      "nextControl": {
+        "x": 7.568330057445334,
+        "y": 0.5477652475856158
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.258635824436538,
+        "y": 2.071
+      },
+      "prevControl": {
+        "x": 7.269395017793595,
+        "y": 3.6310830367734286
+      },
+      "nextControl": null,
+      "isLocked": false,
+      "linkedName": null
+    }
+  ],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 0.7,
+      "rotationDegrees": 90.0
+    }
+  ],
+  "constraintZones": [
+    {
+      "name": "Constraints Zone",
+      "minWaypointRelativePos": 0,
+      "maxWaypointRelativePos": 2.0,
+      "constraints": {
+        "maxVelocity": 20.0,
+        "maxAcceleration": 20.0,
+        "maxAngularVelocity": 540.0,
+        "maxAngularAcceleration": 720.0,
+        "nominalVoltage": 12.0,
+        "unlimited": false
+      }
+    }
+  ],
+  "pointTowardsZones": [],
+  "eventMarkers": [
+    {
+      "name": "EVerifyNZRight",
+      "waypointRelativePos": 1.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZRight"
+        }
+      }
+    },
+    {
+      "name": "PrepIntake",
+      "waypointRelativePos": 1.2287841191066944,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "Intake"
+        }
+      }
+    },
+    {
+      "name": "EVerifyNZRight",
+      "waypointRelativePos": 2.0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "VerifyNZRight"
+        }
+      }
+    }
+  ],
+  "globalConstraints": {
+    "maxVelocity": 8.0,
+    "maxAcceleration": 5.0,
+    "maxAngularVelocity": 540.0,
+    "maxAngularAcceleration": 720.0,
+    "nominalVoltage": 12.0,
+    "unlimited": true
+  },
+  "goalEndState": {
+    "velocity": 20.0,
+    "rotation": 90.0
+  },
+  "reversed": false,
+  "folder": "NzFolder",
+  "idealStartingState": {
+    "velocity": 10.0,
+    "rotation": 90.0
+  },
+  "useDefaultConstraints": false
+}
