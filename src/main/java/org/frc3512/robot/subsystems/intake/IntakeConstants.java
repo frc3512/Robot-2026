@@ -22,9 +22,9 @@ public class IntakeConstants {
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(40)  // Increased from 40
+                  .withStatorCurrentLimit(40)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(20)  // Increased from 20
+                  .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true));
 
   public static final TalonFXConfiguration secondaryRollerMotorConfig =
@@ -35,9 +35,9 @@ public class IntakeConstants {
                   .withNeutralMode(NeutralModeValue.Coast))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(40)  // Increased from 40
+                  .withStatorCurrentLimit(40)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(20)  // Increased from 20
+                  .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true));
 
   public static final TalonFXConfiguration extensionMotorConfig =
