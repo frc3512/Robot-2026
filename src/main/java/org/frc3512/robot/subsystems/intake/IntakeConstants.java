@@ -50,14 +50,14 @@ public class IntakeConstants {
           .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
           .withCurrentLimits(
               new CurrentLimitsConfigs()
-                  .withStatorCurrentLimit(60)
+                  .withStatorCurrentLimit(80)
                   .withStatorCurrentLimitEnable(true)
-                  .withSupplyCurrentLimit(30)
+                  .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true));
 
   public static enum IntakeState {
     // Position values in rotations of motor
-    EXTEND(2.85),
+    EXTEND(3.1),
     AGITATE(0.8),
     STOWED(0.0);
 

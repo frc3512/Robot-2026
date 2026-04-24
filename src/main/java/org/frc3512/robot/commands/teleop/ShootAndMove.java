@@ -28,7 +28,7 @@ import org.littletonrobotics.junction.Logger;
 
 public class ShootAndMove extends Command {
   private static final double DEADBAND = 0.1;
-  private static final double ANGLE_KP = 18;
+  private static final double ANGLE_KP = 20;
   private static final double ANGLE_KD = 0.0;
   private static final double ANGLE_MAX_VELOCITY = 10.0;
   private static final double ANGLE_MAX_ACCELERATION = 20.0;
@@ -39,10 +39,10 @@ public class ShootAndMove extends Command {
   // oscillations; this deadband prevents the PID from reacting to them.
   private static final double ANGLE_TOLERANCE_RADIANS = Math.toRadians(2);
 
-  // --- Tunable angle offset for clockwise rotation ---
+  // --- Tunable angle offset for rotation ---
   // Adjust this value to fine-tune the robot's shooting angle offset.
   // Positive values rotate the target heading counter-clockwise (in degrees).
-  private static final double ANGLE_OFFSET_DEGREES = 0.0;
+  private static final double ANGLE_OFFSET_DEGREES = 3.0;
 
   // Physics parameters for dynamic ball velocity calculation
   private static final double FLYWHEEL_RADIUS_M = 0.0508; // 4" diameter flywheel
@@ -50,13 +50,13 @@ public class ShootAndMove extends Command {
   private static final double COMPRESSION_FACTOR = 1.08; // Grip enhancement
 
   // Gain multipliers for compensation tuning.
-  private static final double LATERAL_COMPENSATION_GAIN = 3.75;
-  private static final double RADIAL_COMPENSATION_GAIN = -0.5;
+  private static final double LATERAL_COMPENSATION_GAIN = 3.5;
+  private static final double RADIAL_COMPENSATION_GAIN = -2.5;
 
   // Clamp effective distance to stay within interpolation table range
   // and avoid null setpoints from map lookups.
-  private static final double MIN_SHOT_DISTANCE = 1.25;
-  private static final double MAX_SHOT_DISTANCE = 6.33;
+  private static final double MIN_SHOT_DISTANCE = 2.06;
+  private static final double MAX_SHOT_DISTANCE = 5.36;
 
   // Single-pole IIR time constants (seconds).  Chosen so the filters are fast enough
   // to track real motion but slow enough to reject high-frequency pose-noise spikes.
@@ -142,7 +142,7 @@ public class ShootAndMove extends Command {
     ANGLE_TABLE.put(2.06, 10.0);
     ANGLE_TABLE.put(2.86, 13.0);
     ANGLE_TABLE.put(3.56, 21.0);
-    ANGLE_TABLE.put(3.95, 19.0);
+    ANGLE_TABLE.put(3.95, 21.0);
     ANGLE_TABLE.put(4.44, 24.0);
     ANGLE_TABLE.put(5.36, 29.0);
 

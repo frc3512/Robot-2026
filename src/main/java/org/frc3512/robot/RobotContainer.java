@@ -241,6 +241,8 @@ public class RobotContainer {
         reset()
     );
 
+    controller.start().onTrue(shootRaw(0.0, 0.0));
+
   }
 
   // --- Begin Telop Commands ---
@@ -295,7 +297,7 @@ public class RobotContainer {
   public Command idle() {
     return Commands.sequence(
         // Stop Intake and bring it in
-        intake.setRollerSpeed(0),
+        intake.setRollerSpeed(0.01),
         intake.setPosition(IntakeState.EXTEND),
         // Stop Conveyor
         conveyor.setHopper(0.0),
