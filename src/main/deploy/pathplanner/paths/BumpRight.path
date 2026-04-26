@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 6.406833095577745,
-        "y": 2.2429957203994295
+        "x": 15.575863282819217,
+        "y": 2.4526822890551685
       },
       "isLocked": false,
       "linkedName": null
@@ -20,15 +20,52 @@
         "y": 1.928744444444444
       },
       "prevControl": {
-        "x": 13.24842222222222,
-        "y": 2.1504555555555553
+        "x": 8.007794651780975,
+        "y": 1.4326017626604133
+      },
+      "nextControl": {
+        "x": 8.051445783132529,
+        "y": 3.5432530120481935
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 7.505060240963855,
+        "y": 4.483036144578314
+      },
+      "prevControl": {
+        "x": 7.931240963855423,
+        "y": 4.985710843373495
+      },
+      "nextControl": {
+        "x": 7.049430396360359,
+        "y": 3.9456265842767557
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 6.914963855421686,
+        "y": 2.7127469879518085
+      },
+      "prevControl": {
+        "x": 6.324867469879519,
+        "y": 1.7948192771084348
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": null
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1.2074688796680468,
+      "rotationDegrees": 90.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [
@@ -44,13 +81,13 @@
       }
     },
     {
-      "name": "EVerifyNZRight",
+      "name": "",
       "waypointRelativePos": 1,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
-          "name": "VerifyNZRight"
+          "name": null
         }
       }
     }
@@ -65,10 +102,10 @@
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": 39.0174253767416
+    "rotation": -124.47921568612556
   },
   "reversed": false,
-  "folder": "NzFolder",
+  "folder": null,
   "idealStartingState": {
     "velocity": 2.0,
     "rotation": 90.0

@@ -7,13 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "toDepot"
+            "pathName": "TrenchRight"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "intakeDepot"
+            "pathName": "ReturnOvR"
           }
         },
         {
@@ -25,19 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "depotGoToNz"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "depotIntakeNz"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "depotReturn"
+            "pathName": "2TrRunR"
           }
         },
         {
@@ -50,6 +38,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "depotInvolved",
+  "folder": "Right",
   "choreoAuto": false
 }

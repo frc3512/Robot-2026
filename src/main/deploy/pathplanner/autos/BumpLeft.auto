@@ -7,19 +7,25 @@
         {
           "type": "path",
           "data": {
-            "pathName": "midToHp"
-          }
-        },
-        {
-          "type": "wait",
-          "data": {
-            "waitTime": 3.3
+            "pathName": "BumpLeft"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "rotateHpPath"
+            "pathName": "ReturnOvL"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "Shoot"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "2OvL"
           }
         },
         {
@@ -32,6 +38,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "HpInvolved",
+  "folder": "Left",
   "choreoAuto": false
 }

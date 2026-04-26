@@ -7,19 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "goTrenchRight"
+            "pathName": "TrenchLeftAlt"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "NzIntakeBRight"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzReturnUnRight"
+            "pathName": "ReturnOvL"
           }
         },
         {
@@ -31,19 +25,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Nz2ndRunTrenchRight"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "NzDashTrenchRight"
-          }
-        },
-        {
-          "type": "path",
-          "data": {
-            "pathName": "Nz2ndReturnTrUnRight"
+            "pathName": "2TrRunL"
           }
         },
         {
@@ -56,6 +38,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "NzInvolved",
+  "folder": "Left",
   "choreoAuto": false
 }

@@ -3,25 +3,41 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.12,
-        "y": 2.916
+        "x": 3.560156626506024,
+        "y": 5.084060240963856
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.398202682237949,
-        "y": 2.351906445131823
+        "x": -3.139843373493976,
+        "y": 5.084060240963857
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 6.214,
-        "y": 2.292
+        "x": 0.3692650602409637,
+        "y": 5.084060240963856
       },
       "prevControl": {
-        "x": 8.814200000000001,
-        "y": 2.3419333333333325
+        "x": 0.4348313253012048,
+        "y": 4.483036144578314
+      },
+      "nextControl": {
+        "x": 0.28825356076587266,
+        "y": 5.826665652818855
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 0.3692650602409637,
+        "y": 6.898060240963855
+      },
+      "prevControl": {
+        "x": 0.9175011215901882,
+        "y": 10.860311775260522
       },
       "nextControl": null,
       "isLocked": false,
@@ -32,11 +48,11 @@
   "constraintZones": [
     {
       "name": "Constraints Zone",
-      "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 1.0,
+      "minWaypointRelativePos": 0.6921001926782298,
+      "maxWaypointRelativePos": 2.0,
       "constraints": {
-        "maxVelocity": 20.0,
-        "maxAcceleration": 20.0,
+        "maxVelocity": 10.0,
+        "maxAcceleration": 10.0,
         "maxAngularVelocity": 540.0,
         "maxAngularAcceleration": 720.0,
         "nominalVoltage": 12.0,
@@ -48,7 +64,7 @@
   "eventMarkers": [
     {
       "name": "PrepIntake",
-      "waypointRelativePos": 0.34330011074197064,
+      "waypointRelativePos": 0.2512524084778469,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
@@ -56,36 +72,25 @@
           "name": "Intake"
         }
       }
-    },
-    {
-      "name": "EVerifyNZRight",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": "VerifyNZRight"
-        }
-      }
     }
   ],
   "globalConstraints": {
-    "maxVelocity": 5.0,
-    "maxAcceleration": 5.0,
+    "maxVelocity": 3.0,
+    "maxAcceleration": 3.0,
     "maxAngularVelocity": 540.0,
     "maxAngularAcceleration": 720.0,
     "nominalVoltage": 12.0,
     "unlimited": true
   },
   "goalEndState": {
-    "velocity": 20.0,
-    "rotation": 115.0
+    "velocity": 0,
+    "rotation": 140.52754015165624
   },
   "reversed": false,
-  "folder": "NzFolder",
+  "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -133.78
+    "rotation": 90.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

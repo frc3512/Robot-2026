@@ -461,7 +461,7 @@ public class RobotContainer {
                 intake,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .withTimeout(4);
+        .withTimeout(3.5);
   }
 
   // --- Manual Control ---
