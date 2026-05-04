@@ -16,31 +16,31 @@
     },
     {
       "anchor": {
-        "x": 7.756397590361445,
+        "x": 8.25,
         "y": 7.535326
       },
       "prevControl": {
-        "x": 7.506644176644674,
+        "x": 8.000246586283229,
         "y": 7.546427006117432
       },
       "nextControl": {
-        "x": 8.066091823370241,
-        "y": 7.521560752414385
+        "x": 10.248027309734171,
+        "y": 7.446517951060547
       },
       "isLocked": false,
       "linkedName": null
     },
     {
       "anchor": {
-        "x": 8.313710843373494,
+        "x": 8.5,
         "y": 5.892326
       },
       "prevControl": {
-        "x": 8.211945815323917,
+        "x": 8.398234971950423,
         "y": 7.449123585088044
       },
       "nextControl": {
-        "x": 8.423002444096769,
+        "x": 8.609291600723274,
         "y": 4.220387188235399
       },
       "isLocked": false,
@@ -68,8 +68,8 @@
         "y": 5.105326
       },
       "prevControl": {
-        "x": 6.865793383268282,
-        "y": 4.116368332145029
+        "x": 6.5920870075706715,
+        "y": 6.0666070678134165
       },
       "nextControl": null,
       "isLocked": false,
@@ -78,7 +78,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 0.7,
+      "waypointRelativePos": 1.72,
       "rotationDegrees": -90.0
     }
   ],
@@ -86,7 +86,7 @@
     {
       "name": "Constraints Zone",
       "minWaypointRelativePos": 0,
-      "maxWaypointRelativePos": 2.0,
+      "maxWaypointRelativePos": 4.0,
       "constraints": {
         "maxVelocity": 20.0,
         "maxAcceleration": 20.0,
@@ -100,35 +100,13 @@
   "pointTowardsZones": [],
   "eventMarkers": [
     {
-      "name": "",
-      "waypointRelativePos": 1.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": null
-        }
-      }
-    },
-    {
       "name": "PrepIntake",
-      "waypointRelativePos": 1.2287841191066944,
+      "waypointRelativePos": 1.23,
       "endWaypointRelativePos": null,
       "command": {
         "type": "named",
         "data": {
           "name": "Intake"
-        }
-      }
-    },
-    {
-      "name": "",
-      "waypointRelativePos": 2.0,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": null
         }
       }
     }
@@ -148,7 +126,7 @@
   "reversed": false,
   "folder": null,
   "idealStartingState": {
-    "velocity": 10.0,
+    "velocity": 20.0,
     "rotation": -90.0
   },
   "useDefaultConstraints": false

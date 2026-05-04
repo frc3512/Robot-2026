@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 15.575863612908892,
+        "x": 15.57586361290889,
         "y": 5.616984145259209
       },
       "isLocked": false,
@@ -77,17 +77,6 @@
         "type": "named",
         "data": {
           "name": "Intake"
-        }
-      }
-    },
-    {
-      "name": "",
-      "waypointRelativePos": 1,
-      "endWaypointRelativePos": null,
-      "command": {
-        "type": "named",
-        "data": {
-          "name": null
         }
       }
     }

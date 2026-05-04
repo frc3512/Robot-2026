@@ -19,6 +19,7 @@ import org.frc3512.robot.subsystems.drive.ModuleIOSim;
 import org.frc3512.robot.subsystems.drive.ModuleIOTalonFX;
 import org.frc3512.robot.subsystems.drive.TunerConstants;
 import org.frc3512.robot.subsystems.intake.Intake;
+import org.frc3512.robot.subsystems.intake.IntakeConstants;
 import org.frc3512.robot.subsystems.intake.IntakeConstants.IntakeState;
 import org.frc3512.robot.subsystems.intake.IntakeIO;
 import org.frc3512.robot.subsystems.intake.IntakeIO_REAL;
@@ -94,6 +95,13 @@ public class RobotContainer {
 
   @AutoLogOutput(key = "Robot/Robot State")
   private States currentState = States.HOMED;
+
+  private enum FerryDistance {
+    FAR,
+    MID
+  }
+
+  private FerryDistance ferryDistance = FerryDistance.MID;
 
   // Track previous hub state for change detection
   // Initialized to true so no spurious notification fires on startup when
@@ -255,27 +263,41 @@ public class RobotContainer {
 
     // Superstructure controls
     controller.leftTrigger().onTrue(
-        intake()
+      intake()
     ).onFalse(
-        idle()
+      idle()
     );
     
     controller.rightTrigger().whileTrue(
       autoShoot()
     );
 
+    controller.leftBumper().onTrue(
+      flush()
+    ).onFalse(
+      idle()
+    );
+
     controller.rightBumper().onTrue(
-      ferry(3200, 35)
+      smartferry()
     ).onFalse(
       idle()
     );
 
     controller.start().onTrue(
-        idle()
+      idle()
     );
     
     controller.povLeft().onTrue(
-        reset()
+      reset()
+    );
+
+    controller.a().onTrue(
+      Commands.runOnce(() -> updateFerry(FerryDistance.MID))
+    );
+
+    controller.y().onTrue(
+      Commands.runOnce(() -> updateFerry(FerryDistance.FAR))
     );
 
   }
@@ -332,14 +354,14 @@ public class RobotContainer {
   public Command idle() {
     return Commands.sequence(
         // Stop Intake and bring it in
-        intake.setRollerSpeed(0.01),
+        intake.setRollerSpeed(0.1),
         intake.setPosition(IntakeState.EXTEND),
         // Stop Conveyor
         conveyor.setHopper(0.0),
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(2500.0),
+        flywheel.setRPM(1800.0),
         hood.setPosition(10.0),
         // Log action
         logMessage("Idling"));
@@ -358,6 +380,18 @@ public class RobotContainer {
         logMessage("Preping for shot"));
   }
 
+  public Command smartferry() {
+    return Commands.either(
+      ferry(2750, 40),
+      ferry(3350, 35),
+      () -> ferryDistance == FerryDistance.MID
+    );
+  }
+
+  public void updateFerry(FerryDistance wantedDistance) {
+    ferryDistance = wantedDistance;
+  }
+
   public Command ferry(double rpms, double angle) {
     return Commands.either(
       ferryRed(rpms, angle), 
@@ -366,7 +400,7 @@ public class RobotContainer {
   }
 
   public Command ferryRed(double rpms, double angle) {
-    return Commands.parallel(
+        return Commands.parallel(
       DriveCommands.joystickDriveAtAngle(
           drive,
           () -> -controller.getLeftY(),
@@ -375,16 +409,11 @@ public class RobotContainer {
       Commands.sequence(
         flywheel.setRPM(rpms),
         hood.setPosition(angle),
+        intake.setPosition(IntakeConstants.IntakeState.EXTEND),
+        intake.setRollerSpeed(0.9),
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
-        feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5)
-        .andThen(
-          intake.setPosition(IntakeState.EXTEND),
-          Commands.waitSeconds(0.1),
-          intake.setPosition(IntakeState.AGITATE),
-          Commands.waitSeconds(0.1)
-        ).repeatedly()
+        feeder.setFeeder(0.5)      
       )
     );
   }
@@ -399,17 +428,22 @@ public class RobotContainer {
       Commands.sequence(
         flywheel.setRPM(rpms),
         hood.setPosition(angle),
+        intake.setPosition(IntakeConstants.IntakeState.EXTEND),
+        intake.setRollerSpeed(0.9),
         Commands.waitSeconds(1),
         conveyor.setHopper(0.5),
-        feeder.setFeeder(0.5),
-        Commands.waitSeconds(1.5)
-        .andThen(
-          intake.setPosition(IntakeState.EXTEND),
-          Commands.waitSeconds(0.1),
-          intake.setPosition(IntakeState.AGITATE),
-          Commands.waitSeconds(0.1)
-        ).repeatedly()
+        feeder.setFeeder(0.5)
       )
+    );
+  }
+
+  public Command flush() {
+    return Commands.sequence(
+      intake.setPosition(IntakeConstants.IntakeState.EXTEND),
+      intake.setRollerSpeed(-0.75),
+      flywheel.setRPM(-150),
+      feeder.setFeeder(-0.4),
+      conveyor.setHopper(-0.4)
     );
   }
 
@@ -461,7 +495,7 @@ public class RobotContainer {
                 intake,
                 () -> -controller.getLeftY(),
                 () -> -controller.getLeftX()))
-        .withTimeout(3.5);
+        .withTimeout(3.65);
   }
 
   // --- Manual Control ---

@@ -3,7 +3,6 @@ package org.frc3512.robot.subsystems.shooter.drum;
 import static edu.wpi.first.units.Units.Amps;
 import static edu.wpi.first.units.Units.RPM;
 import static edu.wpi.first.units.Units.RotationsPerSecond;
-import static edu.wpi.first.units.Units.Volts;
 
 import com.ctre.phoenix6.configs.CurrentLimitsConfigs;
 import com.ctre.phoenix6.configs.MotorOutputConfigs;
@@ -27,7 +26,7 @@ public class FlywheelConstants {
                 new MotorOutputConfigs()
                     .withInverted(invertDirection)
                     .withNeutralMode(NeutralModeValue.Coast))
-            .withVoltage(new VoltageConfigs().withPeakReverseVoltage(Volts.of(0)))
+            .withVoltage(new VoltageConfigs().withPeakReverseVoltage(0))
             .withCurrentLimits(
                 new CurrentLimitsConfigs()
                     .withStatorCurrentLimit(Amps.of(60))

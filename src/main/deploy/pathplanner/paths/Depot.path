@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": -3.139843373493976,
+        "x": -3.264843373493976,
         "y": 5.084060240963857
       },
       "isLocked": false,
@@ -36,8 +36,24 @@
         "y": 6.898060240963855
       },
       "prevControl": {
-        "x": 0.9175011215901882,
-        "y": 10.860311775260522
+        "x": 0.40353111213684145,
+        "y": 6.650419699679781
+      },
+      "nextControl": {
+        "x": -0.17899177009307965,
+        "y": 10.860308901509034
+      },
+      "isLocked": false,
+      "linkedName": null
+    },
+    {
+      "anchor": {
+        "x": 1.6853736654804279,
+        "y": 6.708659549228944
+      },
+      "prevControl": {
+        "x": 2.877411941928937,
+        "y": 5.102719093458037
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,6 +78,17 @@
   ],
   "pointTowardsZones": [],
   "eventMarkers": [
+    {
+      "name": "StartShoot",
+      "waypointRelativePos": 0,
+      "endWaypointRelativePos": null,
+      "command": {
+        "type": "named",
+        "data": {
+          "name": "PrepShoot"
+        }
+      }
+    },
     {
       "name": "PrepIntake",
       "waypointRelativePos": 0.2512524084778469,
