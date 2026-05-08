@@ -3,6 +3,7 @@ package org.frc3512.robot;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+
 import org.littletonrobotics.junction.LogFileUtil;
 import org.littletonrobotics.junction.LoggedRobot;
 import org.littletonrobotics.junction.Logger;
@@ -62,12 +63,13 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     robotContainer.checkHubStateChange();
+    robotContainer.checkButtonStates(); // Check button states for pure state-space programming
   }
 
   @Override
   public void disabledInit() {
-    Constants.GeneralConstants.hubTimer.stop();
-    Constants.GeneralConstants.hubTimer.reset();
+    Constants.GeneralConstants.matchTimer.stop();
+    Constants.GeneralConstants.matchTimer.reset();
   }
 
   @Override
@@ -95,8 +97,8 @@ public class Robot extends LoggedRobot {
       autonomousCommand.cancel();
     }
 
-    Constants.GeneralConstants.hubTimer.reset();
-    Constants.GeneralConstants.hubTimer.start();
+    Constants.GeneralConstants.matchTimer.reset();
+    Constants.GeneralConstants.matchTimer.start();
   }
 
   @Override

@@ -97,6 +97,26 @@ public class Module {
     return inputs.drivePositionRad * constants.WheelRadius;
   }
 
+  /** Sets the current limit for the drive motor. */
+  public void setCurrentLimit(double currentLimitAmps) {
+    io.setDriveCurrentLimit(currentLimitAmps);
+  }
+
+  /** Sets the current limit for the turn/steer motor. */
+  public void setTurnCurrentLimit(double currentLimitAmps) {
+    io.setTurnCurrentLimit(currentLimitAmps);
+  }
+
+  /** Sets both supply and stator current limits for the drive motor. */
+  public void setDriveCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {
+    io.setDriveCurrentLimits(supplyLimitAmps, statorLimitAmps);
+  }
+
+  /** Sets both supply and stator current limits for the turn/steer motor. */
+  public void setTurnCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {
+    io.setTurnCurrentLimits(supplyLimitAmps, statorLimitAmps);
+  }
+
   /** Returns the current drive velocity of the module in meters per second. */
   public double getVelocityMetersPerSec() {
     return inputs.driveVelocityRadPerSec * constants.WheelRadius;

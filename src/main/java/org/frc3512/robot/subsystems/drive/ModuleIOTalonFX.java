@@ -253,4 +253,44 @@ public class ModuleIOTalonFX implements ModuleIO {
               rotation.getRotations());
         });
   }
+
+  @Override
+  public void setDriveCurrentLimit(double currentLimitAmps) {
+    var driveConfig = new TalonFXConfiguration();
+    driveTalon.getConfigurator().refresh(driveConfig);
+    driveConfig.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
+    driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    driveTalon.getConfigurator().apply(driveConfig);
+  }
+
+  @Override
+  public void setTurnCurrentLimit(double currentLimitAmps) {
+    var turnConfig = new TalonFXConfiguration();
+    turnTalon.getConfigurator().refresh(turnConfig);
+    turnConfig.CurrentLimits.StatorCurrentLimit = currentLimitAmps;
+    turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    turnTalon.getConfigurator().apply(turnConfig);
+  }
+
+  @Override
+  public void setDriveCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {
+    var driveConfig = new TalonFXConfiguration();
+    driveTalon.getConfigurator().refresh(driveConfig);
+    driveConfig.CurrentLimits.SupplyCurrentLimit = supplyLimitAmps;
+    driveConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    driveConfig.CurrentLimits.StatorCurrentLimit = statorLimitAmps;
+    driveConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    driveTalon.getConfigurator().apply(driveConfig);
+  }
+
+  @Override
+  public void setTurnCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {
+    var turnConfig = new TalonFXConfiguration();
+    turnTalon.getConfigurator().refresh(turnConfig);
+    turnConfig.CurrentLimits.SupplyCurrentLimit = supplyLimitAmps;
+    turnConfig.CurrentLimits.SupplyCurrentLimitEnable = true;
+    turnConfig.CurrentLimits.StatorCurrentLimit = statorLimitAmps;
+    turnConfig.CurrentLimits.StatorCurrentLimitEnable = true;
+    turnTalon.getConfigurator().apply(turnConfig);
+  }
 }

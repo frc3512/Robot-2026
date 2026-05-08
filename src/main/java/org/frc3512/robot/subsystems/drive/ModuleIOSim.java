@@ -128,4 +128,10 @@ public class ModuleIOSim implements ModuleIO {
     turnClosedLoop = true;
     turnController.setSetpoint(rotation.getRadians());
   }
+
+  @Override
+  public void setDriveCurrentLimit(double currentLimitAmps) {
+    // In simulation, current limits are not enforced on the simulated motors
+    // This method exists for interface compatibility
+  }
 }

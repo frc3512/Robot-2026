@@ -36,6 +36,8 @@ import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.frc3512.robot.Constants;
+import org.frc3512.robot.constants.CurrentLimits;
+import org.frc3512.robot.subsystems.states.RobotState;
 import org.frc3512.robot.util.LocalADStarAK;
 import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
@@ -89,6 +91,9 @@ public class Drive extends SubsystemBase {
       };
   private SwerveDrivePoseEstimator poseEstimator =
       new SwerveDrivePoseEstimator(kinematics, rawGyroRotation, lastModulePositions, Pose2d.kZero);
+  
+  // State-based current limit management
+  private RobotState currentState = RobotState.IDLE;
 
   public Drive(
       GyroIO gyroIO,
@@ -139,6 +144,44 @@ public class Drive extends SubsystemBase {
                 (state) -> Logger.recordOutput("Drive/SysIdState", state.toString())),
             new SysIdRoutine.Mechanism(
                 (voltage) -> runCharacterization(voltage.in(Volts)), null, this));
+  }
+  
+  /**
+   * Sets the robot state and updates current limits accordingly.
+   * This should be called by the main state machine.
+   */
+  public void setRobotState(RobotState state) {
+    if (currentState != state) {
+      currentState = state;
+      updateCurrentLimits();
+      Logger.recordOutput("Drive/RobotState", state.toString());
+    }
+  }
+  
+  /**
+   * Updates current limits for all drive modules based on current robot state.
+   */
+  private void updateCurrentLimits() {
+    double driveSupplyLimit = CurrentLimits.Drive.getSupplyForState(currentState);
+    double driveStatorLimit = CurrentLimits.Drive.getStatorForState(currentState);
+    double steerSupplyLimit = CurrentLimits.Steer.LIMITS[0];
+    double steerStatorLimit = CurrentLimits.Steer.LIMITS[1];
+    
+    for (var module : modules) {
+      module.setDriveCurrentLimits(driveSupplyLimit, driveStatorLimit);
+      module.setTurnCurrentLimits(steerSupplyLimit, steerStatorLimit);
+    }
+    Logger.recordOutput("Drive/DriveSupplyLimit", driveSupplyLimit);
+    Logger.recordOutput("Drive/DriveStatorLimit", driveStatorLimit);
+    Logger.recordOutput("Drive/SteerSupplyLimit", steerSupplyLimit);
+    Logger.recordOutput("Drive/SteerStatorLimit", steerStatorLimit);
+  }
+  
+  /**
+   * Gets the current robot state.
+   */
+  public RobotState getRobotState() {
+    return currentState;
   }
 
   @Override

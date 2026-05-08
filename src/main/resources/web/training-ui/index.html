@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Shooting Training Interface</title>
+    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        .shot-button {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .shot-button:active {
+            transform: scale(0.95);
+        }
+        .pulse-animation {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: .5; }
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 min-h-screen text-white">
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useCallback } = React;
+
+        // NetworkTables client for communication
+        class NetworkTablesClient {
+            constructor() {
+                this.connected = false;
+                this.listeners = new Map();
+                this.data = new Map();
+                this.connect();
+            }
+
+            async connect() {
+                try {
+                    // In a real implementation, this would connect to the robot's NetworkTables
+                    // For now, we'll simulate the connection
+                    this.connected = true;
+                    console.log('Connected to NetworkTables');
+                } catch (error) {
+                    console.error('Failed to connect to NetworkTables:', error);
+                }
+            }
+
+            subscribe(key, callback) {
+                this.listeners.set(key, callback);
+            }
+
+            putValue(key, value) {
+                this.data.set(key, value);
+                // In real implementation, this would send to NetworkTables
+                console.log('Setting', key, ':', value);
+            }
+
+            getValue(key, defaultValue = null) {
+                return this.data.get(key) || defaultValue;
+            }
+        }
+
+        // Main App Component
+        function App() {
+            const [ntClient] = useState(() => new NetworkTablesClient());
+            const [trainingStatus, setTrainingStatus] = useState({
+                trainingMode: false,
+                aiEnabled: false,
+                totalPredictions: 0,
+                successfulShots: 0,
+                successRate: 0,
+                averageError: 0,
+                bufferSize: 0,
+                collecting: false
+            });
+            const [currentPattern, setCurrentPattern] = useState('DISTANCE_SWEEP');
+            const [shotMode, setShotMode] = useState('single'); // single or burst
+            const [burstCount, setBurstCount] = useState(3);
+            const [testParameters, setTestParameters] = useState({
+                distance: 3.0,
+                angle: 15.0,
+                velocity: 0.0
+            });
+            const [status, setStatus] = useState({ message: 'Ready', level: 'info' });
+            const [recentShots, setRecentShots] = useState([]);
+
+            // Send command to robot
+            const sendCommand = useCallback((command) => {
+                ntClient.putValue('AITraining/command', JSON.stringify(command));
+            }, [ntClient]);
+
+            // Subscribe to NetworkTables updates
+            useEffect(() => {
+                const interval = setInterval(() => {
+                    // Simulate receiving updates from robot
+                    const statusData = ntClient.getValue('AITraining/status');
+                    if (statusData) {
+                        try {
+                            const parsed = JSON.parse(statusData);
+                            setStatus(parsed);
+                        } catch (e) {
+                            console.error('Failed to parse status:', e);
+                        }
+                    }
+
+                    const trainingData = ntClient.getValue('AITraining/data');
+                    if (trainingData) {
+                        try {
+                            const parsed = JSON.parse(trainingData);
+                            setTrainingStatus(parsed);
+                        } catch (e) {
+                            console.error('Failed to parse training data:', e);
+                        }
+                    }
+                }, 100);
+
+                return () => clearInterval(interval);
+            }, [ntClient]);
+
+            // Training control functions
+            const startTraining = () => {
+                sendCommand({ type: 'start_training' });
+            };
+
+            const stopTraining = () => {
+                sendCommand({ type: 'stop_training' });
+            };
+
+            const executeShot = () => {
+                sendCommand({ type: 'execute_shot' });
+            };
+
+            const executeBurst = () => {
+                for (let i = 0; i < burstCount; i++) {
+                    setTimeout(() => {
+                        sendCommand({ type: 'execute_shot' });
+                    }, i * 2000); // 2 seconds between shots
+                }
+            };
+
+            const recordShotResult = (successful, accuracy) => {
+                sendCommand({
+                    type: 'record_shot',
+                    successful,
+                    accuracy
+                });
+                
+                const newShot = {
+                    id: Date.now(),
+                    successful,
+                    accuracy,
+                    timestamp: new Date().toLocaleTimeString()
+                };
+                setRecentShots(prev => [newShot, ...prev.slice(0, 9)]);
+            };
+
+            const setTestPattern = (pattern) => {
+                setCurrentPattern(pattern);
+                sendCommand({
+                    type: 'set_pattern',
+                    pattern
+                });
+            };
+
+            const updateTestParameters = () => {
+                sendCommand({
+                    type: 'set_parameters',
+                    ...testParameters
+                });
+            };
+
+            const executeTestPattern = () => {
+                sendCommand({ type: 'execute_pattern' });
+            };
+
+            const trainModel = () => {
+                sendCommand({ type: 'train_model' });
+            };
+
+            const emergencyStop = () => {
+                sendCommand({ type: 'emergency_stop' });
+            };
+
+            const getStatusColor = (level) => {
+                switch (level) {
+                    case 'success': return 'text-green-400';
+                    case 'warning': return 'text-yellow-400';
+                    case 'error': return 'text-red-400';
+                    default: return 'text-blue-400';
+                }
+            };
+
+            return (
+                <div className="container mx-auto p-6 max-w-7xl">
+                    {/* Header */}
+                    <header className="mb-8 text-center">
+                        <h1 className="text-4xl font-bold mb-2 bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                            AI Shooting Training Interface
+                        </h1>
+                        <p className="text-gray-300">Train and monitor your AI shooting system</p>
+                    </header>
+
+                    {/* Status Bar */}
+                    <div className="glass-effect rounded-lg p-4 mb-6">
+                        <div className="flex justify-between items-center">
+                            <div className="flex items-center space-x-4">
+                                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    trainingStatus.trainingMode ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                    {trainingStatus.trainingMode ? 'Training Active' : 'Training Inactive'}
+                                </div>
+                                <div className={`px-3 py-1 rounded-full text-sm font-medium ${
+                                    trainingStatus.aiEnabled ? 'bg-blue-500/20 text-blue-400' : 'bg-gray-500/20 text-gray-400'
+                                }`}>
+                                    AI {trainingStatus.aiEnabled ? 'Enabled' : 'Disabled'}
+                                </div>
+                            </div>
+                            <div className={`text-sm ${getStatusColor(status.level)}`}>
+                                {status.message}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Left Column - Training Controls */}
+                        <div className="space-y-6">
+                            {/* Training Mode Control */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="play-circle" className="w-5 h-5 mr-2"></i>
+                                    Training Mode
+                                </h2>
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={startTraining}
+                                        disabled={trainingStatus.trainingMode}
+                                        className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-medium transition-colors"
+                                    >
+                                        Start Training
+                                    </button>
+                                    <button
+                                        onClick={stopTraining}
+                                        disabled={!trainingStatus.trainingMode}
+                                        className="w-full bg-red-600 hover:bg-red-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-medium transition-colors"
+                                    >
+                                        Stop Training
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Shot Controls */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="target" className="w-5 h-5 mr-2"></i>
+                                    Shot Controls
+                                </h2>
+                                
+                                {/* Shot Mode Selection */}
+                                <div className="mb-4">
+                                    <label className="block text-sm font-medium mb-2">Shot Mode</label>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => setShotMode('single')}
+                                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                                shotMode === 'single' 
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                        >
+                                            Single Shot
+                                        </button>
+                                        <button
+                                            onClick={() => setShotMode('burst')}
+                                            className={`px-3 py-2 rounded-lg font-medium transition-colors ${
+                                                shotMode === 'burst' 
+                                                    ? 'bg-blue-600 text-white' 
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                        >
+                                            Burst Mode
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {/* Burst Count */}
+                                {shotMode === 'burst' && (
+                                    <div className="mb-4">
+                                        <label className="block text-sm font-medium mb-2">
+                                            Burst Count: {burstCount}
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="2"
+                                            max="10"
+                                            value={burstCount}
+                                            onChange={(e) => setBurstCount(parseInt(e.target.value))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Execute Shot Buttons */}
+                                <div className="space-y-3">
+                                    <button
+                                        onClick={shotMode === 'single' ? executeShot : executeBurst}
+                                        disabled={!trainingStatus.trainingMode}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-3 rounded-lg font-medium shot-button"
+                                    >
+                                        {shotMode === 'single' ? 'Execute Shot' : `Execute Burst (${burstCount} shots)`}
+                                    </button>
+                                </div>
+
+                                {/* Shot Recording */}
+                                <div className="mt-4 pt-4 border-t border-gray-700">
+                                    <h3 className="text-sm font-medium mb-3">Record Shot Result</h3>
+                                    <div className="grid grid-cols-2 gap-2">
+                                        <button
+                                            onClick={() => recordShotResult(true, 0.1)}
+                                            className="bg-green-600 hover:bg-green-700 px-3 py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            ✓ Made Shot
+                                        </button>
+                                        <button
+                                            onClick={() => recordShotResult(false, 1.0)}
+                                            className="bg-red-600 hover:bg-red-700 px-3 py-2 rounded-lg font-medium transition-colors"
+                                        >
+                                            ✗ Missed Shot
+                                        </button>
+                                    </div>
+                                    
+                                    {/* Accuracy Input */}
+                                    <div className="mt-3">
+                                        <label className="block text-sm font-medium mb-1">
+                                            Accuracy Error (meters)
+                                        </label>
+                                        <input
+                                            type="number"
+                                            step="0.1"
+                                            min="0"
+                                            max="5"
+                                            value={testParameters.accuracy || 0.5}
+                                            onChange={(e) => setTestParameters(prev => ({
+                                                ...prev,
+                                                accuracy: parseFloat(e.target.value)
+                                            }))}
+                                            className="w-full px-3 py-2 bg-gray-800 rounded-lg text-white"
+                                            placeholder="0.5"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Emergency Stop */}
+                            <button
+                                onClick={emergencyStop}
+                                className="w-full bg-red-600 hover:bg-red-700 px-4 py-3 rounded-lg font-medium transition-colors flex items-center justify-center"
+                            >
+                                <i data-lucide="alert-circle" className="w-5 h-5 mr-2"></i>
+                                Emergency Stop
+                            </button>
+                        </div>
+
+                        {/* Middle Column - Test Patterns & Parameters */}
+                        <div className="space-y-6">
+                            {/* Test Patterns */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="git-branch" className="w-5 h-5 mr-2"></i>
+                                    Test Patterns
+                                </h2>
+                                <div className="space-y-2">
+                                    {['DISTANCE_SWEEP', 'ANGLE_SWEEP', 'VELOCITY_TEST', 'RANDOM_SHOTS'].map(pattern => (
+                                        <button
+                                            key={pattern}
+                                            onClick={() => setTestPattern(pattern)}
+                                            className={`w-full text-left px-4 py-3 rounded-lg font-medium transition-colors ${
+                                                currentPattern === pattern
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                                            }`}
+                                        >
+                                            {pattern.replace('_', ' ').toLowerCase()}
+                                        </button>
+                                    ))}
+                                </div>
+                                <button
+                                    onClick={executeTestPattern}
+                                    disabled={!trainingStatus.trainingMode}
+                                    className="w-full mt-4 bg-purple-600 hover:bg-purple-700 disabled:bg-gray-600 disabled:cursor-not-allowed px-4 py-2 rounded-lg font-medium transition-colors"
+                                >
+                                    Execute Pattern
+                                </button>
+                            </div>
+
+                            {/* Test Parameters */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="settings" className="w-5 h-5 mr-2"></i>
+                                    Test Parameters
+                                </h2>
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Distance (m): {testParameters.distance.toFixed(1)}
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="1.5"
+                                            max="6.0"
+                                            step="0.1"
+                                            value={testParameters.distance}
+                                            onChange={(e) => setTestParameters(prev => ({
+                                                ...prev,
+                                                distance: parseFloat(e.target.value)
+                                            }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Angle (°): {testParameters.angle.toFixed(1)}
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="5"
+                                            max="35"
+                                            step="1"
+                                            value={testParameters.angle}
+                                            onChange={(e) => setTestParameters(prev => ({
+                                                ...prev,
+                                                angle: parseFloat(e.target.value)
+                                            }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium mb-1">
+                                            Velocity (m/s): {testParameters.velocity.toFixed(1)}
+                                        </label>
+                                        <input
+                                            type="range"
+                                            min="0"
+                                            max="2.0"
+                                            step="0.1"
+                                            value={testParameters.velocity}
+                                            onChange={(e) => setTestParameters(prev => ({
+                                                ...prev,
+                                                velocity: parseFloat(e.target.value)
+                                            }))}
+                                            className="w-full"
+                                        />
+                                    </div>
+                                    <button
+                                        onClick={updateTestParameters}
+                                        className="w-full bg-blue-600 hover:bg-blue-700 px-4 py-2 rounded-lg font-medium transition-colors"
+                                    >
+                                        Update Parameters
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* AI Model Training */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="brain" className="w-5 h-5 mr-2"></i>
+                                    AI Model Training
+                                </h2>
+                                <button
+                                    onClick={trainModel}
+                                    className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 px-4 py-3 rounded-lg font-medium transition-all"
+                                >
+                                    Train AI Model
+                                </button>
+                                <div className="mt-3 text-sm text-gray-400">
+                                    Data points collected: {trainingStatus.bufferSize}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column - Statistics & Recent Shots */}
+                        <div className="space-y-6">
+                            {/* Training Statistics */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="bar-chart-2" className="w-5 h-5 mr-2"></i>
+                                    Training Statistics
+                                </h2>
+                                <div className="space-y-3">
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Total Predictions:</span>
+                                        <span className="font-medium">{trainingStatus.totalPredictions}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Successful Shots:</span>
+                                        <span className="font-medium text-green-400">{trainingStatus.successfulShots}</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Success Rate:</span>
+                                        <span className="font-medium">{(trainingStatus.successRate * 100).toFixed(1)}%</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Average Error:</span>
+                                        <span className="font-medium">{trainingStatus.averageError.toFixed(3)}m</span>
+                                    </div>
+                                    <div className="flex justify-between">
+                                        <span className="text-gray-400">Buffer Size:</span>
+                                        <span className="font-medium">{trainingStatus.bufferSize}</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Recent Shots */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="history" className="w-5 h-5 mr-2"></i>
+                                    Recent Shots
+                                </h2>
+                                <div className="space-y-2 max-h-64 overflow-y-auto">
+                                    {recentShots.length === 0 ? (
+                                        <p className="text-gray-400 text-sm">No shots recorded yet</p>
+                                    ) : (
+                                        recentShots.map(shot => (
+                                            <div
+                                                key={shot.id}
+                                                className={`p-3 rounded-lg ${
+                                                    shot.successful 
+                                                        ? 'bg-green-600/20 border border-green-600/30' 
+                                                        : 'bg-red-600/20 border border-red-600/30'
+                                                }`}
+                                            >
+                                                <div className="flex justify-between items-center">
+                                                    <div className="flex items-center">
+                                                        <span className="mr-2">
+                                                            {shot.successful ? '✓' : '✗'}
+                                                        </span>
+                                                        <span className="text-sm">
+                                                            {shot.successful ? 'Made' : 'Missed'}
+                                                        </span>
+                                                    </div>
+                                                    <div className="text-right">
+                                                        <div className="text-sm">
+                                                            Error: {shot.accuracy.toFixed(2)}m
+                                                        </div>
+                                                        <div className="text-xs text-gray-400">
+                                                            {shot.timestamp}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+
+                            {/* Performance Graph */}
+                            <div className="glass-effect rounded-lg p-6">
+                                <h2 className="text-xl font-semibold mb-4 flex items-center">
+                                    <i data-lucide="trending-up" className="w-5 h-5 mr-2"></i>
+                                    Performance Trend
+                                </h2>
+                                <div className="h-32 flex items-center justify-center bg-gray-800/50 rounded-lg">
+                                    <p className="text-gray-400 text-sm">Performance graph coming soon...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+        }
+
+        // Initialize Lucide icons
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            
+            // Render the app
+            const root = ReactDOM.createRoot(document.getElementById('root'));
+            root.render(<App />);
+        });
+    </script>
+</body>
+</html>

@@ -39,4 +39,16 @@ public interface ModuleIO {
 
   /** Run the turn motor to the specified rotation. */
   public default void setTurnPosition(Rotation2d rotation) {}
+
+  /** Set the current limit for the drive motor. */
+  public default void setDriveCurrentLimit(double currentLimitAmps) {}
+
+  /** Set the current limit for the turn/steer motor. */
+  public default void setTurnCurrentLimit(double currentLimitAmps) {}
+
+  /** Set both supply and stator current limits for the drive motor. */
+  public default void setDriveCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {}
+
+  /** Set both supply and stator current limits for the turn/steer motor. */
+  public default void setTurnCurrentLimits(double supplyLimitAmps, double statorLimitAmps) {}
 }

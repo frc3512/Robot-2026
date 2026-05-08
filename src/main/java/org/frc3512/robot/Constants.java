@@ -13,8 +13,8 @@ import java.util.Optional;
 public final class Constants {
 
   public final class GeneralConstants {
-    public static final Mode simMode = Mode.SIM;
-    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : simMode;
+    public static final Mode defaultMode = Mode.SIM;
+    public static final Mode currentMode = RobotBase.isReal() ? Mode.REAL : defaultMode;
 
     public static enum Mode {
       /** Running on a real robot. */
@@ -27,8 +27,8 @@ public final class Constants {
       REPLAY
     }
 
-    // Timer for Hub Activity
-    public static Timer hubTimer = new Timer();
+    // Timer for match timing and hub activity tracking
+    public static Timer matchTimer = new Timer();
   }
 
   public static class FieldConstants {
