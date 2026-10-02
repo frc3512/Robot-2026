@@ -13,13 +13,18 @@ public interface IntakeIO {
     public double extensionPosition = 0.0;
     public double extensionAppliedVolts = 0.0;
 
+    public double secondaryExtensionPosition = 0.0;
+    public double secondaryExtensionAppliedVolts = 0.0;
+
     public double rollerMotorTemp = 0.0;
     public double secondaryRollerMotorTemp = 0.0;
     public double extensionMotorTemp = 0.0;
+    public double secondaryExtensionMotorTemp = 0.0;
     
     public boolean rollerMotorConnected = false;
     public boolean secondaryRollerMotorConnected = false;
     public boolean extensionMotorConnected = false;
+    public boolean secondaryExtensionMotorConnected = false;
   }
 
   public default void updateInputs(IntakeIOInputs inputs) {}
@@ -33,4 +38,10 @@ public interface IntakeIO {
   public default void setExtensionVelocity(double velocity) {}
 
   public default void rezeroExtension() {}
+  
+  public default void leftExtension() {}
+  
+  public default void rightExtension() {}
+
+  public default void zeroExtentsion() {}
 }

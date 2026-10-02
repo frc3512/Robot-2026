@@ -65,6 +65,18 @@ public class Intake extends SubsystemBase {
     io.rezeroExtension();
   }
 
+  public Command leftExtension() {
+    return runOnce(() -> io.leftExtension());
+  }
+
+    public Command rightExtension() {
+    return runOnce(() -> io.rightExtension());
+  }
+
+  public Command zeroExtentsion() {
+    return run(() -> io.rightExtension());
+  }
+  
   @Override
   public void periodic() {
     // Update velocity tracking before updating inputs

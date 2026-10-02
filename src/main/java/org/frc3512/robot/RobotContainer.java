@@ -226,7 +226,7 @@ public class RobotContainer {
         VisionCorrectionConstants.WaypointPoses.SHOOT_MID_HEADING_DEGREES));
 
     // Set up auto routines without vision correction
-    createNormalAutos();
+    createNormalAutos1();
     // Set up auto routines with vision correction (commented out for now - needs testing)
     // createVisionAutos();
     
@@ -300,6 +300,17 @@ public class RobotContainer {
       Commands.runOnce(() -> updateFerry(FerryDistance.FAR))
     );
 
+    controller.x().onTrue(
+      intake.leftExtension());
+    controller.x().onFalse(
+      intake.zeroExtentsion()
+    );
+
+    controller.b().onTrue(
+      intake.rightExtension());
+    controller.b().onFalse(
+      intake.zeroExtentsion()
+    );
   }
 
   // --- Begin Telop Commands ---
@@ -349,6 +360,7 @@ public class RobotContainer {
         // Use hopper to push balls back
         conveyor.setHopper(0.2));
   }
+
 
   // Idling + Preping shot
   public Command idle() {
@@ -563,7 +575,7 @@ public class RobotContainer {
   }
 
   /** Wraps a PathPlanner command with vision assistance for continuous pose correction. */
-  public Command withVisionAssistance(Command pathCommand) {
+  public Command withVisionAssistance1(Command pathCommand) {
     return new VisionGuidedAuto(drive, vision, pathCommand);
   }
 
@@ -586,7 +598,7 @@ public class RobotContainer {
   }
 
   /** Sets up the auto chooser with vision-corrected versions of all available autos. */
-  private void createVisionAutos() {
+  private void createVisionAutos1() {
     autoChooser = new SendableChooser<>();
     
     // List of all available auto names (without .auto extension)
@@ -637,7 +649,7 @@ public class RobotContainer {
     }
   }
 
-  public void createNormalAutos() {
+  public void createNormalAutos1() {
     try {
       autoChooser = AutoBuilder.buildAutoChooser();
     } catch (Exception e) {
@@ -770,5 +782,4 @@ public class RobotContainer {
 
     return ourSideActive;
   }
-
 }

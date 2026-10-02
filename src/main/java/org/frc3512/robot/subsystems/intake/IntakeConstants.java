@@ -11,6 +11,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
 public class IntakeConstants {
 
   public static final int extensionMotorID = 20;
+  public static final int secondaryExtensionMotorID = 33;
   public static final int rollerMotorID = 21;
   public static final int secondaryRollerMotorID = 22;
 
@@ -55,6 +56,20 @@ public class IntakeConstants {
                   .withSupplyCurrentLimit(20)
                   .withSupplyCurrentLimitEnable(true));
 
+      public static final TalonFXConfiguration secondaryExtensionMotorConfig =
+      new TalonFXConfiguration()
+          .withMotorOutput(
+              new MotorOutputConfigs()
+                  .withInverted(InvertedValue.CounterClockwise_Positive)
+                  .withNeutralMode(NeutralModeValue.Coast))
+          .withSlot0(new Slot0Configs().withKP(3))
+          .withFeedback(new FeedbackConfigs().withSensorToMechanismRatio(30.0 / 11.0))
+          .withCurrentLimits(
+              new CurrentLimitsConfigs()
+                  .withStatorCurrentLimit(80)
+                  .withStatorCurrentLimitEnable(true)
+                  .withSupplyCurrentLimit(20)
+                  .withSupplyCurrentLimitEnable(true));
   public static enum IntakeState {
     // Position values in rotations of motor
     EXTEND(3.1),
