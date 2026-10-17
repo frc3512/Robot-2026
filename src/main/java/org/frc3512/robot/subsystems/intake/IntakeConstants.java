@@ -72,9 +72,9 @@ public class IntakeConstants {
                   .withSupplyCurrentLimitEnable(true));
   public static enum IntakeState {
     // Position values in rotations of motor
-    EXTEND(3.1),
+    EXTEND(3.18),
     AGITATE(0.8),
-    STOWED(0.0);
+    STOWED(0.1);
 
     public final double position;
 

@@ -39,9 +39,9 @@ public interface IntakeIO {
 
   public default void rezeroExtension() {}
   
-  public default void leftExtension() {}
-  
-  public default void rightExtension() {}
+  public default void extension() {}
 
-  public default void zeroExtentsion() {}
+  public default void zeroExtension() {}
+
+  public default void stopExtension() {}
 }
