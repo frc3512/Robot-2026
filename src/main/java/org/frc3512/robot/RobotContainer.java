@@ -244,26 +244,18 @@ public class RobotContainer {
             drive,
             () -> -controller.getLeftY(),
             () -> -controller.getLeftX(),
-            () -> controller.getRightX()));
+            () -> -controller.getRightX()));
 
     // X the modules for a brake
     controller.leftStick().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    controller.a()
-        .whileTrue((DriveCommands.joystickDrive(
-          drive, 
-          () -> -controller.getLeftY() * 0.65, 
-          () -> -controller.getLeftX() * 0.65, 
-          () -> -controller.getRightY() * 0.9)));
-    // Reset gyro to 0° when right stick is pressed
+    // Reset gyro to 0° when the a buttonis pressed
     // Pose est should handle this for us
     controller
-        .rightStick()
+        .a()
         .onTrue(
             Commands.runOnce(
                     () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                        drive.setPose(vision.getLatestVisionPose()),
                     drive)
                 .ignoringDisable(true));
 
@@ -306,7 +298,7 @@ public class RobotContainer {
       Commands.runOnce(() -> updateFerry(FerryDistance.FAR))
     );
 
-    controller.x().onTrue(
+    controller.x().whileTrue(
       intake.extension());
     controller.x().whileFalse(
       intake.stopExtension());
@@ -315,9 +307,11 @@ public class RobotContainer {
       shootRaw(1000.0, 45.0));
     controller.b().onFalse(reset());
 
-    controller.y().onTrue(
-      shootRaw(1800, 0.0));
-
+    controller.y().whileTrue(
+      shootRaw(2000, 0.0));
+    controller.y().whileFalse(
+      idle()
+    );
   }
 
   // --- Begin Telop Commands ---
@@ -359,7 +353,7 @@ public class RobotContainer {
     return Commands.sequence(
         // Run intake rollers and extend
         intake.setPosition(IntakeState.EXTEND),
-        intake.setRollerSpeed(0.70),
+        intake.setRollerSpeed(0.65),
         // Log action
         logMessage("Begun Intaking"),
         // Wait
