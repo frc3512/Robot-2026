@@ -85,18 +85,14 @@ public class IntakeIO_REAL implements IntakeIO {
   }
 
   @Override
-  public void leftExtension() {
-    extensionMotor.set(0.2);
+  public void extension() {
+    extensionMotor.set(0.1);
+    secondaryExtensionMotor.set(-0.1);
 
   }
 
   @Override
-  public void rightExtension() {
-    secondaryExtensionMotor.set(-0.2);
-  }
-
-  @Override
-  public void zeroExtentsion() {
+  public void stopExtension() {
     extensionMotor.set(0.0);
     secondaryExtensionMotor.set(0.0);
   }

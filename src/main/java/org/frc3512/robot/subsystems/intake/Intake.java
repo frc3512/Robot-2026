@@ -61,20 +61,17 @@ public class Intake extends SubsystemBase {
     return 0.0;
   }
 
-  public void rezeroExtension() {
-    io.rezeroExtension();
+  public Command rezeroExtension() {
+    return runOnce(() -> io.rezeroExtension());
   }
 
-  public Command leftExtension() {
-    return runOnce(() -> io.leftExtension());
+
+    public Command extension() {
+    return runOnce(() -> io.extension());
   }
 
-    public Command rightExtension() {
-    return runOnce(() -> io.rightExtension());
-  }
-
-  public Command zeroExtentsion() {
-    return run(() -> io.rightExtension());
+  public Command stopExtension() {
+    return runOnce(() -> io.stopExtension());
   }
   
   @Override

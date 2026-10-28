@@ -248,16 +248,14 @@ public class RobotContainer {
 
     // X the modules for a brake
     controller.leftStick().onTrue(Commands.runOnce(drive::stopWithX, drive));
-
-    // Reset gyro to 0° when right stick is pressed
+    // Reset gyro to 0° when the a buttonis pressed
     // Pose est should handle this for us
     controller
-        .rightStick()
+        .a()
         .onTrue(
             Commands.runOnce(
                     () ->
-                        drive.setPose(
-                            new Pose2d(drive.getPose().getTranslation(), Rotation2d.kZero)),
+                        drive.setPose(vision.getLatestVisionPose()),
                     drive)
                 .ignoringDisable(true));
 
@@ -267,17 +265,17 @@ public class RobotContainer {
     ).onFalse(
       idle()
     );
-    
+
     controller.rightTrigger().whileTrue(
       autoShoot()
     );
-
+    
     controller.leftBumper().onTrue(
       flush()
     ).onFalse(
       idle()
     );
-
+    
     controller.rightBumper().onTrue(
       smartferry()
     ).onFalse(
@@ -292,24 +290,27 @@ public class RobotContainer {
       reset()
     );
 
-    controller.a().onTrue(
+    controller.povUp().onTrue(
       Commands.runOnce(() -> updateFerry(FerryDistance.MID))
     );
 
-    controller.y().onTrue(
+    controller.povDown().onTrue(
       Commands.runOnce(() -> updateFerry(FerryDistance.FAR))
     );
 
-    controller.x().onTrue(
-      intake.leftExtension());
-    controller.x().onFalse(
-      intake.zeroExtentsion()
-    );
+    controller.x().whileTrue(
+      intake.extension());
+    controller.x().whileFalse(
+      intake.stopExtension());
 
     controller.b().onTrue(
-      intake.rightExtension());
-    controller.b().onFalse(
-      intake.zeroExtentsion()
+      shootRaw(1000.0, 45.0));
+    controller.b().onFalse(reset());
+
+    controller.y().whileTrue(
+      shootRaw(2000, 0.0));
+    controller.y().whileFalse(
+      idle()
     );
   }
 
@@ -352,13 +353,15 @@ public class RobotContainer {
     return Commands.sequence(
         // Run intake rollers and extend
         intake.setPosition(IntakeState.EXTEND),
-        intake.setRollerSpeed(0.70),
+        intake.setRollerSpeed(0.65),
         // Log action
         logMessage("Begun Intaking"),
         // Wait
         Commands.waitSeconds(1),
         // Use hopper to push balls back
-        conveyor.setHopper(0.2));
+        conveyor.setHopper(0.2),
+        Commands.waitSeconds(0.25),
+        intake.stopExtension());
   }
 
 
@@ -366,14 +369,15 @@ public class RobotContainer {
   public Command idle() {
     return Commands.sequence(
         // Stop Intake and bring it in
-        intake.setRollerSpeed(0.1),
+        intake.setRollerSpeed(0.01),
         intake.setPosition(IntakeState.EXTEND),
+        intake.stopExtension(),
         // Stop Conveyor
         conveyor.setHopper(0.0),
         // Stop Feeder
         feeder.setFeeder(0.0),
         // Set Flywheel to idle values
-        flywheel.setRPM(1800.0),
+        flywheel.setRPM(1200.0),
         hood.setPosition(10.0),
         // Log action
         logMessage("Idling"));
